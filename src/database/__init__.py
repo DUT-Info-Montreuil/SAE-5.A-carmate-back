@@ -1,11 +1,18 @@
 import psycopg2
 
+from api import log
+from database.exceptions import InternalServer
 
-def etablishing_connection():
-    return psycopg2.connect(
-        database="sae",
-        user='postgres',
-        password='postgres',
-        host='127.0.0.1',
-        port='5432'
-    )
+
+def establishing_connection():
+    try:
+        return psycopg2.connect(
+            database="postgres",
+            user='postgres',
+            password='postgres',
+            host='localhost',
+            port='5432'
+        )
+    except Exception as e:
+        log(e)
+        raise InternalServer(e)
