@@ -13,8 +13,7 @@ from database.schemas import UserTable, TokenTable
 
 class TokenRepositoryInterface(ABC):
     @staticmethod
-    def insert(token: str, expiration: datetime,
-               user: UserTable) -> TokenTable: ...
+    def insert(token: str, expiration: datetime, user: UserTable) -> TokenTable: ...
 
 
 class TokenRepository(TokenRepositoryInterface):
@@ -30,17 +29,16 @@ class TokenRepository(TokenRepositoryInterface):
             conn = establishing_connection()
         except InternalServer as e:
             log(e)
-            raise InternalServer(e)
+            raise InternalServer()
         else:
             with conn.cursor() as curs:
                 try:
                     curs.execute(query, (hash(token), expiration, user.id,))
                 except lookup(errorcodes.UNIQUE_VIOLATION) as e:
                     log(e)
-                    # Impossible to raise but it is what it is
-                    raise UniqueViolation(e)
-                except lookup(errorcodes.INTERNAL_ERROR) | Exception as e:
+                    raise UniqueViolation()
+                except Exception as e:
                     log(e)
-                    raise InternalServer(e)
+                    raise InternalServer()
             conn.close()
         return TokenTable(token, expiration, user.id)
