@@ -3,8 +3,8 @@ from abc import ABC
 from psycopg2 import errorcodes
 from psycopg2.errors import lookup
 
-from api import log
-from api.worker.auth.models.credential_dto import CredentialDTO
+from api import log, hash
+from api.worker.auth.models import CredentialDTO
 from database import establishing_connection
 from database.exceptions import *
 from database.schemas import UserTable
@@ -40,10 +40,11 @@ class UserRepository(UserRepositoryInterface):
                     log(e)
                     # Impossible to raise but it is what it is
                     raise UniqueViolation(e)
-                except lookup(errorcodes.INTERNAL_ERROR) | Exception as e:
+                except Exception as e:
                     log(e)
                     raise InternalServer(e)
                 else:
                     user = curs.fetchone()
+            conn.commit()
             conn.close()
         return UserTable.to_self(user)
