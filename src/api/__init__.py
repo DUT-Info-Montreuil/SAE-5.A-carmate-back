@@ -1,8 +1,10 @@
 from hashlib import sha512
 
+IMAGE_FORMAT_ALLOWED_EXTENSIONS = ["jpg", "jpeg", "png"]
+
 
 def hash(token: str) -> bytes:
-    sha512(token).digest
+    return sha512(token.encode()).digest()
 
 
 def log(msg: str):

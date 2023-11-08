@@ -1,10 +1,11 @@
 from abc import ABC
+from typing import Any
 
 from psycopg2 import errorcodes
 from psycopg2.errors import lookup
 
-from api import log
-from api.worker.auth.models.credential_dto import CredentialDTO
+from api import log, hash
+from api.worker.auth.models import CredentialDTO
 from database import establishing_connection
 from database.exceptions import *
 from database.schemas import UserTable
@@ -13,6 +14,9 @@ from database.schemas import UserTable
 class UserRepositoryInterface(ABC):
     @staticmethod
     def insert(credential: CredentialDTO) -> UserTable: ...
+
+    @staticmethod
+    def get_user_by_email(email: str) -> UserTable: ...
 
 
 class UserRepository(UserRepositoryInterface):
@@ -40,10 +44,35 @@ class UserRepository(UserRepositoryInterface):
                     log(e)
                     # Impossible to raise but it is what it is
                     raise UniqueViolation(e)
-                except lookup(errorcodes.INTERNAL_ERROR) | Exception as e:
+                except Exception as e:
                     log(e)
                     raise InternalServer(e)
                 else:
                     user = curs.fetchone()
+            conn.commit()
             conn.close()
         return UserTable.to_self(user)
+
+    @staticmethod
+    def get_user_by_email(email: str) -> UserTable:
+        query = f"SELECT * FROM carmate.{UserRepository.POSTGRES_TABLE_NAME} WHERE email_address = %s"
+
+        conn: Any
+        try:
+            conn = establishing_connection()
+        except InternalServer as e:
+            log(e)
+            raise InternalServer(e)
+        except Exception as e:
+            log(e)
+            raise InternalServer(e)
+        else:
+          user_data: tuple
+          with conn.cursor() as curs:
+              curs.execute(query, (email,))
+              user_data = curs.fetchone()
+
+          conn.close()
+          if not user_data:
+              raise NotFound()
+          return UserTable.to_self(user_data)
