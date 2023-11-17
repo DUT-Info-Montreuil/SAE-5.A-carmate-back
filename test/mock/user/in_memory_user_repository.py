@@ -35,4 +35,4 @@ class InMemoryUserRepository(UserRepositoryInterface):
             if user.email_address == email:
                 return user
 
-        raise NotFound
+        raise NotFound()

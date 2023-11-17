@@ -3,13 +3,14 @@ import re
 from datetime import datetime, timedelta
 from hashlib import sha512
 
+from api.worker.auth.exceptions import EmailFormatInvalid
 from api.worker.auth.models.credential_dto import CredentialDTO
 from api.worker.auth.models.token_dto import TokenDTO
 from api.worker.auth.use_case.token import Token
-from api.worker.user.exceptions import *
+from api.worker.user.exceptions import InternalServerError
 from database.repositories import UserRepositoryInterface
 from database.repositories.token_repository import TokenRepositoryInterface
-from database.exceptions import CredentialInvalid
+from database.exceptions import CredentialInvalid, InternalServer, NotFound
 
 
 class Login:
@@ -49,8 +50,12 @@ class Login:
         # Retrieves user-related data using the email provided.
         try:
             user = self.user_repository.get_user_by_email(credential.email_address)
-        except Exception:
+        except InternalServer:
+            raise InternalServerError()
+        except NotFound:
             raise CredentialInvalid()
+        except Exception:
+            raise InternalServerError()
 
         # Checks whether the password supplied matches the password registered for the user.
         if sha512(credential.password.encode('utf-8')).hexdigest() != user.password:

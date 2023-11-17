@@ -22,5 +22,6 @@ class CredentialInvalid(Exception):
         super().__init__(message)
         log(f"CredentialInvalid exception: {str(self)}")
 
+
 class BannedAccount(Exception):
     pass
