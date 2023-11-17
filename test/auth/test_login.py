@@ -1,8 +1,8 @@
 import unittest
 
+from api.worker.auth.exceptions import EmailFormatInvalid
 from api.worker.auth.models import CredentialDTO, TokenDTO
-from api.worker.user.exceptions import *
-from api.worker.user.use_case.login import Login
+from api.worker.auth.use_case.login import Login
 from database.exceptions import NotFound, CredentialInvalid
 from mock.auth.in_memory_token_repository import InMemoryTokenRepository
 from mock.user.in_memory_user_repository import InMemoryUserRepository
@@ -35,7 +35,7 @@ class LoginTestCase(unittest.TestCase):
 
     def test_invalid_format_email(self):
         credential = CredentialDTO("John", "Doe", "user-example.com", "password")
-        with self.assertRaises(EmailFormatInvalid) as context:
+        with self.assertRaises(EmailFormatInvalid):
             self.login.worker(credential)
 
 

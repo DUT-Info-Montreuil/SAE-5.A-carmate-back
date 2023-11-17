@@ -5,10 +5,10 @@ from api.worker.auth.models.token_dto import TokenDTO
 from api.worker.user import AccountType
 from database.exceptions import CredentialInvalid, BannedAccount
 from database.repositories import UserRepository, TokenRepository, StudentLicenseRepository, TeacherLicenseRepository
-from ...worker.auth.exceptions import AccountAlreadyExist, InternalServerError, LengthNameTooLong
+from ...worker.auth.exceptions import AccountAlreadyExist, LengthNameTooLong
 from ...worker.auth.models.credential_dto import CredentialDTO
 from ...worker.auth.use_case.register import Register
-from ...worker.user.use_case.login import Login
+from api.worker.auth.use_case.login import Login
 
 auth = Blueprint("auth", __name__,
                  url_prefix="/auth")
