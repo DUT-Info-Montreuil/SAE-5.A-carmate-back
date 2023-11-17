@@ -13,6 +13,7 @@ from ...worker.user.use_case.login import Login
 auth = Blueprint("auth", __name__,
                  url_prefix="/auth")
 
+
 @auth.route("/login", methods=["POST"])
 def login_api() -> Response:
     """Manages the authentication process.
@@ -89,7 +90,7 @@ def register_api() -> Response:
     if request.is_json:
         abort(415)
 
-    credential: str
+    credential: dict
     account_type: AccountType
     try:
         credential = {
