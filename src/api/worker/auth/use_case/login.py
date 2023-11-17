@@ -3,11 +3,10 @@ import re
 from datetime import datetime, timedelta
 from hashlib import sha512
 
-from api.worker.auth.exceptions import EmailFormatInvalid
+from api.worker.auth.exceptions import EmailFormatInvalid, InternalServerError
 from api.worker.auth.models.credential_dto import CredentialDTO
 from api.worker.auth.models.token_dto import TokenDTO
 from api.worker.auth.use_case.token import Token
-from api.worker.user.exceptions import InternalServerError
 from database.repositories import UserRepositoryInterface
 from database.repositories.token_repository import TokenRepositoryInterface
 from database.exceptions import CredentialInvalid, InternalServer, NotFound
