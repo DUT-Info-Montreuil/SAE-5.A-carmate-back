@@ -22,7 +22,7 @@ class LoginTestCase(unittest.TestCase):
 
     def test_invalid_email(self):
         credential = CredentialDTO("John", "Doe", "wrong@example.com", "password")
-        with self.assertRaises(Exception):
+        with self.assertRaises(Exception) as context:
             self.login.worker(credential)
 
         self.assertTrue(context.exception, CredentialInvalid)
