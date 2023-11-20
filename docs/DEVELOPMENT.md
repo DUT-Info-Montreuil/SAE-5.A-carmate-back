@@ -2,6 +2,9 @@
 ## Sommaire
 - [Structure du projet](#structure-du-projet)
 - [Lancer une base de données local](#lancer-une-base-de-données-local)
+- [Comment lancer l'API](#comment-lancer-lapi)
+    - [Installation des dépendences](#installation-des-dépendences)
+    - [Lancement de l'API](#lancement-de-lapi)
 - [Lancer les tests unitaire](#lancer-les-tests-unitaire)
 
 ## Structure du projet
@@ -118,6 +121,18 @@ docker run -p 5432:5432 ghcr.io/dut-info-montreuil/sae-5.a-carmate-database:mast
 
 Le nom de la base de données héberger correspond au nom d'utilisateur par defaut.
 Le `POSTGRES_USER` par defaut est postgres et son password est postgres
+
+## Comment lancer l'API
+### Installation des dépendences
+Assurez-vous d'avoir installé toutes les dépendances qui sont dans le fichier `requirements.txt`
+```python
+python3 -m pip install -r src/requirements.txt
+```
+### Lancement de l'API
+Placez-vous dans le dossier `src` et faite cette commande :
+```python
+python3 ./main.py
+```
 
 ## Lancer les tests unitaire
 Placez-vous dans le dossier `src` et faite cette commande
