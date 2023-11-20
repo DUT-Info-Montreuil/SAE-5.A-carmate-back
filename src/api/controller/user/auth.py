@@ -35,12 +35,12 @@ def login_api() -> Response:
         :return: Response: A JSON response containing the authentication token or an error message.
     """
 
+    if not request.is_json:
+        abort(415)
+
     credential: CredentialDTO
     json_data = None
     token = None
-
-    if not request.is_json:
-        abort(415)
 
     try:
         json_data = request.get_json()
