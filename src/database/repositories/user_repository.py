@@ -62,10 +62,10 @@ class UserRepository(UserRepositoryInterface):
             conn = establishing_connection()
         except InternalServer as e:
             log(e)
-            raise InternalServer(e)
+            raise InternalServer()
         except Exception as e:
             log(e)
-            raise InternalServer(e)
+            raise InternalServer()
         else:
           user_data: tuple
           with conn.cursor() as curs:

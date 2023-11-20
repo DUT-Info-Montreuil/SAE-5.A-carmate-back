@@ -47,12 +47,9 @@ def login_api() -> Response:
     except Exception:
         abort(500)
 
-    credential = CredentialDTO(
-        email_address=json_data.get("email_address"),
-        password=json_data.get("password"),
-        first_name="",
-        last_name=""
-    )
+    credential = CredentialDTO("", "",
+                               json_data.get("email_address"),
+                               json_data.get("password"))
 
     if not all(attr is not None for attr in [credential.email_address, credential.password]):
         abort(400)
