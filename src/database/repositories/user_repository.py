@@ -1,4 +1,5 @@
 from abc import ABC
+from typing import Any
 
 from psycopg2 import errorcodes
 from psycopg2.errors import lookup
@@ -13,6 +14,9 @@ from database.schemas import UserTable
 class UserRepositoryInterface(ABC):
     @staticmethod
     def insert(credential: CredentialDTO) -> UserTable: ...
+
+    @staticmethod
+    def get_user_by_email(email: str) -> UserTable: ...
 
 
 class UserRepository(UserRepositoryInterface):
@@ -48,3 +52,27 @@ class UserRepository(UserRepositoryInterface):
             conn.commit()
             conn.close()
         return UserTable.to_self(user)
+
+    @staticmethod
+    def get_user_by_email(email: str) -> UserTable:
+        query = f"SELECT * FROM carmate.{UserRepository.POSTGRES_TABLE_NAME} WHERE email_address = %s"
+
+        conn: Any
+        try:
+            conn = establishing_connection()
+        except InternalServer as e:
+            log(e)
+            raise InternalServer()
+        except Exception as e:
+            log(e)
+            raise InternalServer()
+        else:
+          user_data: tuple
+          with conn.cursor() as curs:
+              curs.execute(query, (email,))
+              user_data = curs.fetchone()
+
+          conn.close()
+          if not user_data:
+              raise NotFound()
+          return UserTable.to_self(user_data)
