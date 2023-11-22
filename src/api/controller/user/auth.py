@@ -36,22 +36,23 @@ def login_api() -> Response:
     if not request.is_json:
         abort(415)
         
-    json_data: dict
+    credential: dict
     try:
         json_data = request.get_json()
+        credential = {
+            "first_name": "", 
+            "last_name": "",
+            "email_address": json_data["email_address"],
+            "password": json_data["password"]
+        }
+    except KeyError:
+        abort(400)
     except Exception:
         abort(500)
 
-    credential = CredentialDTO("", "",
-                               json_data.get("email_address"),
-                               json_data.get("password"))
-
-    if not all(attr is not None for attr in [credential.email_address, credential.password]):
-        abort(400)
-
     token: TokenDTO
     try:
-        token = Login(UserRepository, TokenRepository).worker(credential)
+        token = Login(UserRepository, TokenRepository).worker(CredentialDTO.json_to_self(credential))
     except CredentialInvalid:
         abort(401)
     except BannedAccount:
