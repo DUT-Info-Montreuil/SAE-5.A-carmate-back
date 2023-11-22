@@ -14,7 +14,3 @@ def hash(token: str) -> bytes:
 def check_email(email: str) -> None:
     if not re.match(EMAIL_FORMAT_REGEX, email):
         raise EmailFormatInvalid()
-
-
-def log(msg: str):
-    print(msg)

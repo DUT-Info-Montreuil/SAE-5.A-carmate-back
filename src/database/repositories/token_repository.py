@@ -5,7 +5,7 @@ from typing import Any
 from psycopg2 import errorcodes
 from psycopg2.errors import lookup
 
-from api import log, hash
+from api import hash
 from database import establishing_connection
 from database.exceptions import *
 from database.schemas import UserTable, TokenTable
@@ -28,18 +28,15 @@ class TokenRepository(TokenRepositoryInterface):
         try:
             conn = establishing_connection()
         except InternalServer as e:
-            log(e)
-            raise InternalServer()
+            raise InternalServer(str(e))
         else:
             with conn.cursor() as curs:
                 try:
                     curs.execute(query, (hash(token), expiration, user.id,))
                 except lookup(errorcodes.UNIQUE_VIOLATION) as e:
-                    log(e)
-                    raise UniqueViolation()
+                    raise UniqueViolation(str(e))
                 except Exception as e:
-                    log(e)
-                    raise InternalServer()
+                    raise InternalServer(str(e))
             conn.commit()
             conn.close()
         return TokenTable(token, expiration, user.id)

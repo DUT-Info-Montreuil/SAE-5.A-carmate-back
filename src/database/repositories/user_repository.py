@@ -4,7 +4,7 @@ from typing import Any
 from psycopg2 import errorcodes
 from psycopg2.errors import lookup
 
-from api import log, hash
+from api import hash
 from api.worker.auth.models import CredentialDTO
 from database import establishing_connection
 from database.exceptions import *
@@ -33,20 +33,16 @@ class UserRepository(UserRepositoryInterface):
         try:
             conn = establishing_connection()
         except InternalServer as e:
-            log(e)
-            raise InternalServer(e)
+            raise InternalServer(str(e))
         else:
             with conn.cursor() as curs:
                 try:
                     curs.execute(query, (first_name, last_name,
                                          email_address, hash(password),))
                 except lookup(errorcodes.UNIQUE_VIOLATION) as e:
-                    log(e)
-                    # Impossible to raise but it is what it is
-                    raise UniqueViolation(e)
+                    raise UniqueViolation(str(e))
                 except Exception as e:
-                    log(e)
-                    raise InternalServer(e)
+                    raise InternalServer(str(e))
                 else:
                     user = curs.fetchone()
             conn.commit()
@@ -62,12 +58,8 @@ class UserRepository(UserRepositoryInterface):
         user_data: tuple
         try:
             conn = establishing_connection()
-        except InternalServer as e:
-            log(e)
-            raise InternalServer()
         except Exception as e:
-            log(e)
-            raise InternalServer()
+            raise InternalServer(str(e))
         else:
             with conn.cursor() as curs:
                 curs.execute(query, (email,))
@@ -75,5 +67,5 @@ class UserRepository(UserRepositoryInterface):
 
             conn.close()
             if not user_data:
-                raise NotFound()
+                raise NotFound("user not found")
         return UserTable.to_self(user_data)

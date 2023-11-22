@@ -47,12 +47,10 @@ class Login:
         user: UserTable
         try:
             user = self.user_repository.get_user_by_email(credential.email_address)
-        except InternalServer:
-            raise InternalServerError()
-        except NotFound:
+        except NotFound as e:
             raise CredentialInvalid()
-        except Exception:
-            raise InternalServerError()
+        except Exception as e:
+            raise InternalServerError(str(e))
 
         # Checks whether the password supplied matches the password registered for the user.
         if sha512(credential.password.encode('utf-8')).hexdigest() != user.password:
@@ -64,7 +62,7 @@ class Login:
         try:
             self.token_repository.insert(token, expiration, user)
         except Exception as e:
-            raise InternalServerError()
+            raise InternalServerError(e)
 
         # Returns a TokenDTO object containing the generated token information.
         return TokenDTO(token, expiration, user.id)

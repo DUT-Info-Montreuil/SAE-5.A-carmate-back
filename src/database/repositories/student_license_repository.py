@@ -5,7 +5,6 @@ from typing import Any, List
 from psycopg2 import errorcodes
 from psycopg2.errors import lookup
 
-from api import log
 from database import establishing_connection
 from database.exceptions import InternalServer, UniqueViolation
 from database.schemas import StudentLicenseTable, UserTable
@@ -34,18 +33,15 @@ class StudentLicenseRepository(StudentLicenseRepositoryInterface):
         try:
             conn = establishing_connection()
         except InternalServer as e:
-            log(e)
-            raise InternalServer()
+            raise InternalServer(str(e))
         else:
             with conn.cursor() as curs:
                 try:
                     curs.execute(query, (document.read(), academic_years, user.id,))
                 except lookup(errorcodes.UNIQUE_VIOLATION) as e:
-                    log(e)
-                    raise UniqueViolation()
+                    raise UniqueViolation(str(e))
                 except Exception as e:
-                    log(e)
-                    raise InternalServer()
+                    raise InternalServer(str(e))
                 else:
                     id = curs.fetchone()[0]
             conn.commit()

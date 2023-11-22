@@ -1,26 +1,30 @@
-from api import log
+import logging
 
 
 class DatabaseError(Exception):
-    pass
+    def __init__(self, message: str):
+        super().__init__(message)
 
 
 class NotFound(DatabaseError):
-    pass
+    def __init__(self, message: str):
+        super().__init__(message)
 
 
 class InternalServer(DatabaseError):
-    pass
+    def __init__(self, message: str):
+        super().__init__(message)
 
 
 class UniqueViolation(DatabaseError):
-    pass
+    def __init__(self, message: str):
+        super().__init__(message)
 
 
 class CredentialInvalid(Exception):
     def __init__(self, message="Invalid credentials"):
         super().__init__(message)
-        log(f"CredentialInvalid exception: {str(self)}")
+        logging.exception(f"CredentialInvalid exception: {str(self)}")
 
 
 class BannedAccount(Exception):

@@ -16,7 +16,7 @@ class InMemoryUserRepository(UserRepositoryInterface):
     def insert(credential: CredentialDTO) -> UserTable:
         for user in InMemoryUserRepository.users:
             if credential.email_address == user.email_address:
-                raise UniqueViolation()
+                raise UniqueViolation("user already exist")
 
         first_name, last_name, email_address, password = credential.to_json().values()
         in_memory_user = UserTable.to_self((InMemoryUserRepository.users_counter,
@@ -35,4 +35,4 @@ class InMemoryUserRepository(UserRepositoryInterface):
             if user.email_address == email:
                 return user
 
-        raise NotFound()
+        raise NotFound("user not found")
