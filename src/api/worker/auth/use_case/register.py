@@ -1,9 +1,7 @@
-import re
-
 from typing import IO, List
 from datetime import datetime, timedelta
 
-from api import log
+from api import log, check_email
 from api.worker.auth.exceptions import *
 from api.worker.auth.models import CredentialDTO, TokenDTO
 from api.worker.auth.use_case.token import Token
@@ -42,11 +40,9 @@ class Register(object):
             AccountAlreadyExist
             InternalServerError
         """
-        
+        check_email(credential.email_address)
         if len(credential.last_name) > 255 or len(credential.first_name) > 255:
             raise LengthNameTooLong()
-        elif not re.match(r'([A-Za-z0-9]+[.-_])*[A-Za-z0-9]+@[A-Za-z0-9-]+(\.[A-Z|a-z]{2,})+', credential.email_address):
-            raise EmailFormatInvalid()
 
         user: UserTable
         try:

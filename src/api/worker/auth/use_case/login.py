@@ -1,8 +1,7 @@
-import re
-
 from datetime import datetime, timedelta
 from hashlib import sha512
 
+from api import check_email
 from api.worker.auth.exceptions import EmailFormatInvalid, InternalServerError
 from api.worker.auth.models.credential_dto import CredentialDTO
 from api.worker.auth.models.token_dto import TokenDTO
@@ -42,9 +41,7 @@ class Login:
             InternalServerError: In the event of an internal error when inserting the token into the database.
         :return: TokenDTO: An object representing the generated authentication token.
         """
-        # Checks the email format.
-        if not re.match(r'([A-Za-z0-9]+[.-_])*[A-Za-z0-9]+@[A-Za-z0-9-]+(\.[A-Z|a-z]{2,})+', credential.email_address):
-            raise EmailFormatInvalid()
+        check_email(credential.email_address)
 
         # Retrieves user-related data using the email provided.
         user: UserTable
