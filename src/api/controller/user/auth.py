@@ -1,14 +1,14 @@
 from flask import Blueprint, abort, jsonify, request, Response
 
 from api import IMAGE_FORMAT_ALLOWED_EXTENSIONS
-from api.worker.auth.models.token_dto import TokenDTO
 from api.worker.user import AccountType
+from api.worker.auth.use_case.login import Login
+from api.worker.auth.models.token_dto import TokenDTO
+from api.worker.auth.exceptions import AccountAlreadyExist, LengthNameTooLong
+from api.worker.auth.models.credential_dto import CredentialDTO
+from api.worker.auth.use_case.register import Register
 from database.exceptions import CredentialInvalid, BannedAccount
 from database.repositories import UserRepository, TokenRepository, StudentLicenseRepository, TeacherLicenseRepository
-from ...worker.auth.exceptions import AccountAlreadyExist, LengthNameTooLong
-from ...worker.auth.models.credential_dto import CredentialDTO
-from ...worker.auth.use_case.register import Register
-from api.worker.auth.use_case.login import Login
 
 auth = Blueprint("auth", __name__,
                  url_prefix="/auth")
@@ -34,14 +34,10 @@ def login_api() -> Response:
             - 500: InternalServerError (other)
         :return: Response: A JSON response containing the authentication token or an error message.
     """
-
     if not request.is_json:
         abort(415)
-
-    credential: CredentialDTO
-    json_data = None
-    token = None
-
+        
+    json_data: dict
     try:
         json_data = request.get_json()
     except Exception:
@@ -54,6 +50,7 @@ def login_api() -> Response:
     if not all(attr is not None for attr in [credential.email_address, credential.password]):
         abort(400)
 
+    token: TokenDTO
     try:
         token = Login(UserRepository, TokenRepository).worker(credential)
     except CredentialInvalid:
@@ -105,7 +102,8 @@ def register_api() -> Response:
     except Exception:
         abort(500)
 
-    if account_type == AccountType.Student:  # and not "academic_years" in credential.keys():
+    # and not "academic_years" in credential.keys():
+    if account_type == AccountType.Student:
         try:
             credential["academic_years"] = request.form.get("academic_years")
         except ValueError:
@@ -117,8 +115,7 @@ def register_api() -> Response:
         abort(415)
     document = request.files["document"]
     # Check file extension of the document if it matches a file extension of an image
-    if not all(
-            ["." in document.filename, document.filename.rsplit(".", 1)[1].lower() in IMAGE_FORMAT_ALLOWED_EXTENSIONS]):
+    if not all(["." in document.filename, document.filename.rsplit(".", 1)[1].lower() in IMAGE_FORMAT_ALLOWED_EXTENSIONS]):
         abort(415)
 
     token: TokenDTO

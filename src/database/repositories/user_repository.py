@@ -55,9 +55,11 @@ class UserRepository(UserRepositoryInterface):
 
     @staticmethod
     def get_user_by_email(email: str) -> UserTable:
-        query = f"SELECT * FROM carmate.{UserRepository.POSTGRES_TABLE_NAME} WHERE email_address = %s"
+        query = f"""SELECT * FROM carmate.{UserRepository.POSTGRES_TABLE_NAME} 
+                    WHERE email_address=%s"""
 
         conn: Any
+        user_data: tuple
         try:
             conn = establishing_connection()
         except InternalServer as e:
@@ -67,12 +69,11 @@ class UserRepository(UserRepositoryInterface):
             log(e)
             raise InternalServer()
         else:
-          user_data: tuple
-          with conn.cursor() as curs:
-              curs.execute(query, (email,))
-              user_data = curs.fetchone()
+            with conn.cursor() as curs:
+                curs.execute(query, (email,))
+                user_data = curs.fetchone()
 
-          conn.close()
-          if not user_data:
-              raise NotFound()
-          return UserTable.to_self(user_data)
+            conn.close()
+            if not user_data:
+                raise NotFound()
+        return UserTable.to_self(user_data)

@@ -10,10 +10,10 @@ from api.worker.auth.use_case.token import Token
 from database.repositories import UserRepositoryInterface
 from database.repositories.token_repository import TokenRepositoryInterface
 from database.exceptions import CredentialInvalid, InternalServer, NotFound
+from database.schemas import UserTable
 
 
 class Login:
-
     user_repository: UserRepositoryInterface
     token_repository: TokenRepositoryInterface
 
@@ -47,6 +47,7 @@ class Login:
             raise EmailFormatInvalid()
 
         # Retrieves user-related data using the email provided.
+        user: UserTable
         try:
             user = self.user_repository.get_user_by_email(credential.email_address)
         except InternalServer:
@@ -61,8 +62,8 @@ class Login:
             raise CredentialInvalid()
 
         # Creates a valid authentication token and inserts it into the database.
-        token: str = Token.generate()
-        expiration: datetime = datetime.now() + timedelta(days=1)
+        token = Token.generate()
+        expiration = datetime.now() + timedelta(days=1)
         try:
             self.token_repository.insert(token, expiration, user)
         except Exception as e:

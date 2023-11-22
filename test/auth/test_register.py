@@ -17,15 +17,15 @@ class RegisterTestCase(unittest.TestCase):
             self.student_card = io.BytesIO(f.read())
         with open(os.path.join(os.path.dirname(__file__), "../res/teacher-contract.png"), "rb") as f:
             self.teacher_contract = io.BytesIO(f.read())
-            
+
         self.student_account_type = AccountType.Student
         self.teacher_account_type = AccountType.Teacher
 
-        self.register = Register(InMemoryUserRepository, 
+        self.register = Register(InMemoryUserRepository,
                                  InMemoryTokenRepository,
                                  InMemoryStudentLicenseRepository,
                                  InMemoryTeacherLicenseRepository)
-        
+
     def test_regular_usage_for_student(self):
         credential = CredentialDTO("Davina", "Mcgovern", "davina.mcgovern@email.com", "pwd")
         try:
