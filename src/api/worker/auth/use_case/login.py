@@ -2,13 +2,13 @@ from datetime import datetime, timedelta
 from hashlib import sha512
 
 from api import check_email
-from api.worker.auth.exceptions import EmailFormatInvalid, InternalServerError
+from api.worker.auth.exceptions import CredentialInvalid, InternalServerError
 from api.worker.auth.models.credential_dto import CredentialDTO
 from api.worker.auth.models.token_dto import TokenDTO
 from api.worker.auth.use_case.token import Token
 from database.repositories import UserRepositoryInterface
 from database.repositories.token_repository import TokenRepositoryInterface
-from database.exceptions import CredentialInvalid, InternalServer, NotFound
+from database.exceptions import NotFound
 from database.schemas import UserTable
 
 
@@ -62,7 +62,7 @@ class Login:
         try:
             self.token_repository.insert(token, expiration, user)
         except Exception as e:
-            raise InternalServerError(e)
+            raise InternalServerError(str(e))
 
         # Returns a TokenDTO object containing the generated token information.
         return TokenDTO(token, expiration, user.id)

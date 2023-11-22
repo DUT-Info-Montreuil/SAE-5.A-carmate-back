@@ -6,7 +6,17 @@ class AuthenticationException(LoggedException):
         super().__init__(message)
 
 
+class CredentialInvalid(AuthenticationException):
+    def __init__(self, message="Invalid credentials"):
+        super().__init__(message)
+
+
 class AccountAlreadyExist(AuthenticationException):
+    def __init__(self, message: str):
+        super().__init__(message)
+
+
+class BannedAccount(AuthenticationException):
     def __init__(self, message: str):
         super().__init__(message)
 

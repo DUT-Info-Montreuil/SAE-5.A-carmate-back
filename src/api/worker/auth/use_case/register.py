@@ -1,4 +1,3 @@
-import logging
 from typing import IO, List
 from datetime import datetime, timedelta
 
@@ -7,7 +6,7 @@ from api.worker.auth.exceptions import *
 from api.worker.auth.models import CredentialDTO, TokenDTO
 from api.worker.auth.use_case.token import Token
 from api.worker.user import AccountType
-from database.exceptions import InternalServer, UniqueViolation
+from database.exceptions import UniqueViolation
 from database.repositories import UserRepositoryInterface, TokenRepositoryInterface, StudentLicenseRepositoryInterface
 from database.repositories.teacher_license_repository import TeacherLicenseRepositoryInterface
 from database.schemas import UserTable

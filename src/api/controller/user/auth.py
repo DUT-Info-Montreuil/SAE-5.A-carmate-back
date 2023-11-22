@@ -2,12 +2,11 @@ from flask import Blueprint, abort, jsonify, request, Response
 
 from api import IMAGE_FORMAT_ALLOWED_EXTENSIONS
 from api.worker.user import AccountType
+from api.worker.auth.models import TokenDTO
 from api.worker.auth.use_case.login import Login
-from api.worker.auth.models.token_dto import TokenDTO
-from api.worker.auth.exceptions import AccountAlreadyExist, LengthNameTooLong
+from api.worker.auth.exceptions import AccountAlreadyExist, BannedAccount, CredentialInvalid, LengthNameTooLong
 from api.worker.auth.models.credential_dto import CredentialDTO
 from api.worker.auth.use_case.register import Register
-from database.exceptions import CredentialInvalid, BannedAccount
 from database.repositories import UserRepository, TokenRepository, StudentLicenseRepository, TeacherLicenseRepository
 
 auth = Blueprint("auth", __name__,
