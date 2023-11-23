@@ -105,7 +105,7 @@ def register_api() -> Response:
     # and not "academic_years" in credential.keys():
     if account_type == AccountType.Student:
         try:
-            credential["academic_years"] = request.form.get("academic_years")
+            credential["academic_years"] = [request.form.get("academic_year_start"), request.form.get("academic_year_end")]
         except ValueError:
             abort(400)
         except Exception:
