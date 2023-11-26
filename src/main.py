@@ -1,5 +1,7 @@
 import logging
+import os
 
+from waitress import serve
 from flask import Flask
 from flask_cors import CORS
 
@@ -13,21 +15,38 @@ class Api(object):
     logging_level = logging.DEBUG
     logging_format = '[%(levelname)s][%(asctime)s] %(message)s'
 
-    api = Flask("carmate-api")
-    port = 5000
     host = '0.0.0.0'
 
     def __init__(self) -> None:
-        self.cors = CORS(self.api, resources={r"*": {"origins": "*"}})
+        if not os.getenv("API_MODE"):
+            raise Exception("API_MODE must be set !")
+
         logging.basicConfig(format=self.logging_format,
                             datefmt='%d/%m/%Y %I:%M:%S %p',
                             level=self.logging_level)
 
+        self.api = Flask("carmate-api" if not os.getenv("API_NAME") else os.getenv("API_NAME"))
+        self.cors = CORS(self.api, resources={r"*": {"origins": "*"}})
+
         self.api.register_blueprint(auth)
 
     def run(self) -> None:
-        self.api.run(port=self.port, 
-                     host=self.host)
+        if not os.getenv("API_PORT"):
+            raise Exception("API_PORT must be set !")
+        self.port = int(os.getenv("API_PORT"))
+
+        match os.getenv("API_MODE"):
+            case "PROD":
+                serve(self.api,
+                      host=self.host,
+                      port=self.port)
+            case "TEST":
+                self.api.run(port=self.port,
+                             host=self.host)
+            case _:
+                error_msg = f"Value {os.getenv('API_MODE')} in API_MODE is invalid !"
+                logging.exception(error_msg)
+                raise Exception(error_msg)
 
 
 Api().run()

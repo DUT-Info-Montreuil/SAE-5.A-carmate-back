@@ -1,13 +1,15 @@
+import os
+
 from flask import Blueprint, abort, jsonify, request, Response
 
 from api import IMAGE_FORMAT_ALLOWED_EXTENSIONS
 from api.worker.user import AccountType
-from api.worker.auth.models import TokenDTO
+from api.worker.auth.models import TokenDTO, CredentialDTO
 from api.worker.auth.use_case.login import Login
 from api.worker.auth.exceptions import AccountAlreadyExist, BannedAccount, CredentialInvalid, LengthNameTooLong
-from api.worker.auth.models.credential_dto import CredentialDTO
 from api.worker.auth.use_case.register import Register
-from database.repositories import UserRepository, TokenRepository, StudentLicenseRepository, TeacherLicenseRepository
+from database.repositories import UserRepository, TokenRepository, StudentLicenseRepository, TeacherLicenseRepository, StudentLicenseRepositoryInterface, TeacherLicenseRepositoryInterface, TokenRepositoryInterface, UserRepositoryInterface
+from test.mock import InMemoryTeacherLicenseRepository, InMemoryStudentLicenseRepository, InMemoryTokenRepository, InMemoryUserRepository
 
 auth = Blueprint("auth", __name__,
                  url_prefix="/auth")
@@ -35,12 +37,12 @@ def login_api() -> Response:
     """
     if not request.is_json:
         abort(415)
-        
+
     credential: dict
     try:
         json_data = request.get_json()
         credential = {
-            "first_name": "", 
+            "first_name": "",
             "last_name": "",
             "email_address": json_data["email_address"],
             "password": json_data["password"]
@@ -51,8 +53,19 @@ def login_api() -> Response:
         abort(500)
 
     token: TokenDTO
+    user_repository: UserRepositoryInterface
+    token_repository: TokenRepositoryInterface
     try:
-        token = Login(UserRepository, TokenRepository).worker(CredentialDTO.json_to_self(credential))
+        api_mode = os.getenv("API_MODE")
+        match api_mode:
+            case "PROD":
+                user_repository = UserRepository
+                token_repository = TokenRepository
+            case "TEST":
+                user_repository = InMemoryUserRepository
+                token_repository = InMemoryTokenRepository
+
+        token = Login(user_repository, token_repository).worker(CredentialDTO.json_to_self(credential))
     except CredentialInvalid:
         abort(401)
     except BannedAccount:
@@ -119,20 +132,37 @@ def register_api() -> Response:
         abort(415)
 
     token: TokenDTO
+    user_repository: UserRepositoryInterface
+    token_repository: TokenRepositoryInterface
+    student_license_repository: StudentLicenseRepositoryInterface
+    teacher_license_repository: TeacherLicenseRepositoryInterface
     try:
+        api_mode = os.getenv("API_MODE")
+        match api_mode:
+            case "PROD":
+                user_repository = UserRepository
+                token_repository = TokenRepository
+                student_license_repository = StudentLicenseRepository
+                teacher_license_repository = TeacherLicenseRepository
+            case "TEST":
+                user_repository = InMemoryUserRepository
+                token_repository = InMemoryTokenRepository
+                student_license_repository = InMemoryStudentLicenseRepository
+                teacher_license_repository = InMemoryTeacherLicenseRepository
+
         match account_type:
             case AccountType.Student:
-                token = Register(UserRepository,
-                                 TokenRepository,
-                                 student_license_repository=StudentLicenseRepository
+                token = Register(user_repository,
+                                 token_repository,
+                                 student_license_repository=student_license_repository
                                  ).worker(CredentialDTO.json_to_self(credential),
                                           account_type,
                                           document.stream,
                                           academic_years=credential["academic_years"])
             case AccountType.Teacher:
-                token = Register(UserRepository,
-                                 TokenRepository,
-                                 teacher_license_repository=TeacherLicenseRepository
+                token = Register(user_repository,
+                                 token_repository,
+                                 teacher_license_repository=teacher_license_repository
                                  ).worker(CredentialDTO.json_to_self(credential),
                                           account_type,
                                           document.stream)
