@@ -1,5 +1,7 @@
 from flask import Flask
 
+from api.controller.monitoring import monitoring
+
 
 class Api(object):
     """
@@ -10,12 +12,11 @@ class Api(object):
     host = '0.0.0.0'
 
     def __init__(self) -> None:
-        # add routes
-        # self.api.register_blueprint()
-        pass
+        self.api.register_blueprint(monitoring)
 
     def run(self) -> None:
         self.api.run(port=self.port, host=self.host)
 
 
-Api().run()
+if __name__ == "__main__":
+    Api().run()
