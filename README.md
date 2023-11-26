@@ -1,4 +1,24 @@
 # Projet CARMATE
+## Sommaire
+- [Comment lancer l'API manuellement](#comment-lancer-lapi-manuellement)
+
+## Comment lancer l'API manuellement
+Vous devez vous placez a la racine du projet, la base de la commande sera :
+```
+PYTHONPATH=./ python3 src/main.py
+```
+Mais cette base ne permet pas de faire fonctionner l'API, vous devez set des variables d'environnement supplémentaire :
+- `API_NAME` (optionnel)
+- `API_PORT` (**obligatoire**)
+- `API_MODE`, les valeurs possible (**obligatoire**):
+    - `PROD`
+    - `TEST`
+- `POSTGRES_DB` (obligatoire pour un environnement de `PROD`)
+- `POSTGRES_USER` (obligatoire pour un environnement de `PROD`)
+- `POSTGRES_PWD` (obligatoire pour un environnement de `PROD`)
+- `POSTGRES_HOST` (obligatoire pour un environnement de `PROD`)
+- `POSTGRES_PORT` (obligatoire pour un environnement de `PROD`)
+
 ## Structure du projet
 ### Fichier `.gitignore`
 Permet d'exclure les dossiers/fichiers qui ne concerne pas le code de l'API
