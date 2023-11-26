@@ -1,6 +1,7 @@
 import logging
 
 from flask import Flask
+from flask_cors import CORS
 
 from api.controller.user import auth
 
@@ -17,6 +18,7 @@ class Api(object):
     host = '0.0.0.0'
 
     def __init__(self) -> None:
+        self.cors = CORS(self.api, resources={r"*": {"origins": "*"}})
         logging.basicConfig(format=self.logging_format,
                             datefmt='%d/%m/%Y %I:%M:%S %p',
                             level=self.logging_level)

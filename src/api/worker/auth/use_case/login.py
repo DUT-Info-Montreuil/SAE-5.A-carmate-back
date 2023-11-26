@@ -1,3 +1,5 @@
+import secrets
+
 from datetime import datetime, timedelta
 from hashlib import sha512
 
@@ -52,11 +54,9 @@ class Login:
         except Exception as e:
             raise InternalServerError(str(e))
 
-        # Checks whether the password supplied matches the password registered for the user.
-        if sha512(credential.password.encode('utf-8')).hexdigest() != user.password:
+        if not secrets.compare_digest(sha512(credential.password.encode('utf-8')).digest(), user.password):
             raise CredentialInvalid()
 
-        # Creates a valid authentication token and inserts it into the database.
         token = Token.generate()
         expiration = datetime.now() + timedelta(days=1)
         try:
@@ -64,5 +64,4 @@ class Login:
         except Exception as e:
             raise InternalServerError(str(e))
 
-        # Returns a TokenDTO object containing the generated token information.
         return TokenDTO(token, expiration, user.id)

@@ -9,7 +9,7 @@ from database.schemas import UserTable
 
 class InMemoryUserRepository(UserRepositoryInterface):
     users: List[UserTable] = [
-        UserTable.to_self((1, "John", "Doe", "user@example.com", sha512("password".encode('utf-8')).hexdigest(), None))]
+        UserTable.to_self((1, "John", "Doe", "user@example.com", sha512("password".encode('utf-8')).digest(), None))]
     users_counter: int = 0
 
     @staticmethod
