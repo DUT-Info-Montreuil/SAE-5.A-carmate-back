@@ -4,13 +4,12 @@ from api.worker.auth.exceptions import EmailFormatInvalid, CredentialInvalid
 from api.worker.auth.models import CredentialDTO, TokenDTO
 from api.worker.auth.use_case.login import Login
 from database.exceptions import NotFound
-from mock.auth.in_memory_token_repository import InMemoryTokenRepository
-from mock.user.in_memory_user_repository import InMemoryUserRepository
+from mock import InMemoryUserRepository, InMemoryTokenRepository
 
 
 class LoginTestCase(unittest.TestCase):
     def setUp(self):
-        self.login = Login(InMemoryUserRepository, InMemoryTokenRepository)
+        self.login = Login(InMemoryUserRepository(), InMemoryTokenRepository())
 
     def test_successful_login(self):
         credential = CredentialDTO("John", "Doe", "user@example.com", "password")

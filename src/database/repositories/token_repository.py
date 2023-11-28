@@ -8,6 +8,7 @@ from psycopg2.errors import lookup
 from api import hash
 from database import establishing_connection
 from database.exceptions import *
+from database.repositories import UserRepository
 from database.schemas import UserTable, TokenTable
 
 
@@ -16,6 +17,9 @@ class TokenRepositoryInterface(ABC):
     def insert(token: str, expiration: datetime, user: UserTable) -> TokenTable: ...
     @staticmethod
     def get_expiration(token_hashed: bytes) -> datetime: ...
+
+    @staticmethod
+    def get_user(token: bytes) -> UserTable: ...
 
 
 class TokenRepository(TokenRepositoryInterface):
@@ -44,14 +48,14 @@ class TokenRepository(TokenRepositoryInterface):
         return TokenTable(token, expiration, user.id)
     
     @staticmethod
-    def get_expiration(token_hashed: str) -> datetime:
+    def get_expiration(token_hashed: bytes) -> datetime:
         query = f"""SELECT expire_at 
                     FROM carmate.{TokenRepository.POSTGRES_TABLE_NAME}
-                    WHERE token=decode('%s', 'hex')
+                    WHERE token=%s
                     LIMIT 1"""
-        
+
         conn: Any
-        expire_at: str
+        expire_at: datetime
         try:
             conn = establishing_connection()
         except InternalServer as e:
@@ -69,5 +73,32 @@ class TokenRepository(TokenRepositoryInterface):
                     raise InternalServer(str(e))
             conn.commit()
             conn.close()
-        
-        return datetime.strptime(expire_at, '%m/%d/%y %H:%M:%S')
+
+        return expire_at
+
+    @staticmethod
+    def get_user(token: bytes) -> UserTable:
+        query = f"""SELECT usr.id, usr.first_name, usr.last_name, usr.email_address, NULL, usr.account_status, usr.profile_picture
+                    FROM carmate."{UserRepository.POSTGRES_TABLE_NAME}" usr
+                    INNER JOIN carmate.{TokenRepository.POSTGRES_TABLE_NAME} tkn 
+                      ON usr.id = tkn.user_id 
+                    WHERE tkn.token=%s"""
+
+        conn: Any
+        try:
+            conn = establishing_connection()
+        except InternalServer as e:
+            raise InternalServer(str(e))
+        else:
+            with conn.cursor() as curs:
+                try:
+                    curs.execute(query, (token,))
+                    user = curs.fetchone()
+                except ProgrammingError:
+                    raise NotFound("token not found")
+                except IndexError:
+                    raise NotFound("token not found")
+                except Exception as e:
+                    raise InternalServer(str(e))
+            conn.close()
+        return UserTable.to_self(user)

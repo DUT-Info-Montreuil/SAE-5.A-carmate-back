@@ -2,6 +2,7 @@ from typing import IO, List
 from datetime import datetime, timedelta
 
 from api import check_email
+from api.worker.admin import DocumentType
 from api.worker.auth.exceptions import *
 from api.worker.auth.models import CredentialDTO, TokenDTO
 from api.worker.auth.use_case.token import Token
@@ -52,7 +53,7 @@ class Register(object):
             raise InternalServerError(str(e))
 
         try:
-            self.license_repository.insert(document.read(), user)
+            self.license_repository.insert(document.read(), user, DocumentType.Basic.name)
         except Exception as e:
             raise InternalServerError(str(e))
 

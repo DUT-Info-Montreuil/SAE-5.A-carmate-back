@@ -1,3 +1,4 @@
+import typing
 from abc import ABC
 from typing import Any
 
@@ -26,8 +27,8 @@ class UserRepository(UserRepositoryInterface):
     @staticmethod
     def insert(credential: CredentialDTO, account_status: AccountStatus) -> UserTable:
         first_name, last_name, email_address, password = credential.to_json().values()
-        query: str = f"""INSERT INTO carmate.{UserRepository.POSTGRES_TABLE_NAME}
-                         VALUES (DEFAULT, %s, %s, %s, %s, %s, DEFAULT) 
+        query: str = f"""INSERT INTO carmate.{UserRepository.POSTGRES_TABLE_NAME}(first_name, last_name, email_address, password, account_status)
+                         VALUES (%s, %s, %s, %s, %s) 
                          RETURNING id, first_name, last_name, email_address, password, account_status, profile_picture"""
 
         user: tuple
