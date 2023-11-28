@@ -10,22 +10,20 @@ from database.exceptions import InternalServer, UniqueViolation
 from database.schemas import StudentLicenseTable, UserTable
 
 
-class StudentLicenseRepositoryInterface(ABC):
+class LicenseRepositoryInterface(ABC):
     @staticmethod
     def insert(document: bytes,
-               academic_years: List[datetime],
                user: UserTable) -> StudentLicenseTable: ...
 
 
-class StudentLicenseRepository(StudentLicenseRepositoryInterface):
-    POSTGRES_TABLE_NAME: str = "student_license"
+class LicenseRepository(LicenseRepositoryInterface):
+    POSTGRES_TABLE_NAME: str = "license"
 
     @staticmethod
     def insert(document: bytes,
-               academic_years: List[datetime],
                user: UserTable) -> StudentLicenseTable:
-        query = f"""INSERT INTO carmate.{StudentLicenseRepository.POSTGRES_TABLE_NAME}(license_img, academic_years, user_id)
-                    VALUES (%s, %s, %s)
+        query = f"""INSERT INTO carmate.{LicenseRepository.POSTGRES_TABLE_NAME}(license_img, user_id)
+                    VALUES (%s, %s)
                     RETURNING id"""
 
         id: int
@@ -37,7 +35,7 @@ class StudentLicenseRepository(StudentLicenseRepositoryInterface):
         else:
             with conn.cursor() as curs:
                 try:
-                    curs.execute(query, (document.read(), academic_years, user.id,))
+                    curs.execute(query, (document.read(), user.id,))
                 except lookup(errorcodes.UNIQUE_VIOLATION) as e:
                     raise UniqueViolation(str(e))
                 except Exception as e:
@@ -46,4 +44,4 @@ class StudentLicenseRepository(StudentLicenseRepositoryInterface):
                     id = curs.fetchone()[0]
             conn.commit()
             conn.close()
-        return StudentLicenseTable(id, document.read(), academic_years, user.id)
+        return StudentLicenseTable(id, document.read(), user.id)

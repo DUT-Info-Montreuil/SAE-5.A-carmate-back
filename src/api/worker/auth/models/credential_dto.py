@@ -1,5 +1,4 @@
 from dataclasses import dataclass
-from typing import Self
 
 
 @dataclass(frozen=True)
@@ -10,7 +9,7 @@ class CredentialDTO:
     password: str
 
     @staticmethod
-    def json_to_self(json: dict) -> Self:
+    def json_to_self(json: dict):
         return CredentialDTO(
             json["first_name"],
             json["last_name"],
@@ -19,7 +18,7 @@ class CredentialDTO:
         )
 
     @staticmethod
-    def tuple_to_self(_tuple: tuple) -> Self:
+    def tuple_to_self(_tuple: tuple):
         return CredentialDTO(
             _tuple[0],
             _tuple[1],

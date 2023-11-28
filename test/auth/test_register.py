@@ -2,13 +2,11 @@ import os
 import io
 import unittest
 
-from datetime import datetime
-
-from api.worker.user import AccountType
+from api.worker.user import AccountStatus
 from api.worker.auth.exceptions import AccountAlreadyExist, LengthNameTooLong
 from api.worker.auth.models import CredentialDTO
 from api.worker.auth.use_case.register import Register
-from mock import InMemoryUserRepository, InMemoryTokenRepository, InMemoryStudentLicenseRepository, InMemoryTeacherLicenseRepository
+from mock import InMemoryUserRepository, InMemoryTokenRepository, InMemoryLicenseRepository
 
 
 class RegisterTestCase(unittest.TestCase):
@@ -18,18 +16,17 @@ class RegisterTestCase(unittest.TestCase):
         with open(os.path.join(os.path.dirname(__file__), "../res/teacher-contract.png"), "rb") as f:
             self.teacher_contract = io.BytesIO(f.read())
 
-        self.student_account_type = AccountType.Student
-        self.teacher_account_type = AccountType.Teacher
+        self.student_account_type = AccountStatus.Student
+        self.teacher_account_type = AccountStatus.Teacher
 
         self.register = Register(InMemoryUserRepository,
                                  InMemoryTokenRepository,
-                                 InMemoryStudentLicenseRepository,
-                                 InMemoryTeacherLicenseRepository)
+                                 InMemoryLicenseRepository)
 
     def test_regular_usage_for_student(self):
         credential = CredentialDTO("Davina", "Mcgovern", "davina.mcgovern@email.com", "pwd")
         try:
-            self.register.worker(credential, self.student_account_type, self.student_card, academic_years=[datetime.now(), datetime.now()])
+            self.register.worker(credential, self.student_account_type, self.student_card)
         except Exception as e:
             self.fail(e)
 

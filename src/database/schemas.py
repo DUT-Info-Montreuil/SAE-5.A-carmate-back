@@ -1,6 +1,6 @@
 from dataclasses import dataclass
 from datetime import datetime
-from typing import List, Optional, Self
+from typing import List, Optional
 
 
 @dataclass(frozen=True)
@@ -10,16 +10,18 @@ class UserTable:
     last_name: str
     email_address: str
     password: bytes
+    account_status: str
     profile_picture: Optional[bytes] = None
 
     @staticmethod
-    def to_self(_tuple: tuple) -> Self:
+    def to_self(_tuple: tuple):
         return UserTable(
             _tuple[0],
             _tuple[1],
             _tuple[2],
             _tuple[3],
-            _tuple[4]
+            _tuple[4],
+            _tuple[5]
         )
 
 
@@ -30,7 +32,7 @@ class TokenTable:
     user: int
 
     @staticmethod
-    def to_self(_tuple: tuple) -> Self:
+    def to_self(_tuple: tuple):
         return TokenTable(
             _tuple[0],
             _tuple[1],
@@ -42,16 +44,14 @@ class TokenTable:
 class StudentLicenseTable:
     id: int
     license_img: bytes
-    academic_years: List[datetime]
     user_id: int
 
     @staticmethod
-    def to_self(_tuple: tuple) -> Self:
+    def to_self(_tuple: tuple):
         return StudentLicenseTable(
             _tuple[0],
             _tuple[1],
             _tuple[2],
-            _tuple[3]
         )
 
 
@@ -62,7 +62,7 @@ class TeacherLicenseTable:
     user_id: int
 
     @staticmethod
-    def to_self(_tuple: tuple) -> Self:
+    def to_self(_tuple: tuple):
         return TeacherLicenseTable(
             _tuple[0],
             _tuple[1],
