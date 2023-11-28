@@ -6,6 +6,7 @@ from psycopg2.errors import lookup
 
 from api import hash
 from api.worker.auth.models import CredentialDTO
+from api.worker.user import AccountStatus
 from database import establishing_connection
 from database.exceptions import *
 from database.schemas import UserTable
@@ -13,7 +14,7 @@ from database.schemas import UserTable
 
 class UserRepositoryInterface(ABC):
     @staticmethod
-    def insert(credential: CredentialDTO) -> UserTable: ...
+    def insert(credential: CredentialDTO, account_status: AccountStatus) -> UserTable: ...
 
     @staticmethod
     def get_user_by_email(email: str) -> UserTable: ...
@@ -23,11 +24,11 @@ class UserRepository(UserRepositoryInterface):
     POSTGRES_TABLE_NAME: str = "user"
 
     @staticmethod
-    def insert(credential: CredentialDTO) -> UserTable:
+    def insert(credential: CredentialDTO, account_status: AccountStatus) -> UserTable:
         first_name, last_name, email_address, password = credential.to_json().values()
-        query: str = f"""INSERT INTO carmate.{UserRepository.POSTGRES_TABLE_NAME} 
-                         VALUES (DEFAULT, %s, %s, %s, %s, DEFAULT) 
-                         RETURNING id, first_name, last_name, email_address, password, profile_picture"""
+        query: str = f"""INSERT INTO carmate.{UserRepository.POSTGRES_TABLE_NAME}
+                         VALUES (DEFAULT, %s, %s, %s, %s, %s, DEFAULT) 
+                         RETURNING id, first_name, last_name, email_address, password, account_status, profile_picture"""
 
         user: tuple
         try:
@@ -38,7 +39,7 @@ class UserRepository(UserRepositoryInterface):
             with conn.cursor() as curs:
                 try:
                     curs.execute(query, (first_name, last_name,
-                                         email_address, hash(password),))
+                                         email_address, hash(password), account_status.name,))
                 except lookup(errorcodes.UNIQUE_VIOLATION) as e:
                     raise UniqueViolation(str(e))
                 except Exception as e:

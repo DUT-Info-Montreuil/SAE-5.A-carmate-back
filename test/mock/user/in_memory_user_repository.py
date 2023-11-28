@@ -2,6 +2,7 @@ from hashlib import sha512
 from typing import List
 
 from api.worker.auth.models import CredentialDTO
+from api.worker.user import AccountStatus
 from database.exceptions import NotFound, UniqueViolation
 from database.repositories import UserRepositoryInterface
 from database.schemas import UserTable
@@ -13,7 +14,7 @@ class InMemoryUserRepository(UserRepositoryInterface):
     users_counter: int = 0
 
     @staticmethod
-    def insert(credential: CredentialDTO) -> UserTable:
+    def insert(credential: CredentialDTO, account_status: AccountStatus) -> UserTable:
         for user in InMemoryUserRepository.users:
             if credential.email_address == user.email_address:
                 raise UniqueViolation("user already exist")
@@ -24,6 +25,7 @@ class InMemoryUserRepository(UserRepositoryInterface):
                                             last_name,
                                             email_address,
                                             password,
+                                            account_status.name,
                                             None))
         InMemoryUserRepository.users.append(in_memory_user)
         InMemoryUserRepository.users_counter = InMemoryUserRepository.users_counter + 1

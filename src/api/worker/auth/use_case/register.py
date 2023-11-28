@@ -5,10 +5,10 @@ from api import check_email
 from api.worker.auth.exceptions import *
 from api.worker.auth.models import CredentialDTO, TokenDTO
 from api.worker.auth.use_case.token import Token
-from api.worker.user import AccountType
+from api.worker.user import AccountStatus
 from database.exceptions import UniqueViolation
-from database.repositories import UserRepositoryInterface, TokenRepositoryInterface, StudentLicenseRepositoryInterface
-from database.repositories.teacher_license_repository import TeacherLicenseRepositoryInterface
+from database.repositories import UserRepositoryInterface, TokenRepositoryInterface
+from database.repositories.license_repository import LicenseRepositoryInterface
 from database.schemas import UserTable
 
 
@@ -19,18 +19,15 @@ class Register(object):
     def __init__(self,
                  user_repository: UserRepositoryInterface,
                  token_repository: TokenRepositoryInterface,
-                 student_license_repository: StudentLicenseRepositoryInterface = None,
-                 teacher_license_repository: TeacherLicenseRepositoryInterface = None):
+                 license_repository: LicenseRepositoryInterface):
         self.user_repository = user_repository
         self.token_repository = token_repository
-        self.student_license_repository = student_license_repository
-        self.teacher_license_repository = teacher_license_repository
+        self.license_repository = license_repository
 
     def worker(self,
                credential: CredentialDTO,
-               account_type: AccountType,
-               document: IO[bytes],
-               academic_years: List[datetime] = None) -> TokenDTO:
+               account_status: AccountStatus,
+               document: IO[bytes]) -> TokenDTO:
         """Register an user and return the session token
         
         :return TokenDTO: session token information
@@ -48,25 +45,16 @@ class Register(object):
 
         user: UserTable
         try:
-            user = self.user_repository.insert(credential)
+            user = self.user_repository.insert(credential, account_status)
         except UniqueViolation as e:
             raise AccountAlreadyExist(str(e))
         except Exception as e:
             raise InternalServerError(str(e))
 
-        match account_type:
-            case AccountType.Student:
-                try:
-                    self.student_license_repository.insert(document.read(), academic_years, user)
-                except Exception as e:
-                    raise InternalServerError(str(e))
-            case AccountType.Teacher:
-                try:
-                    self.teacher_license_repository.insert(document.read(), user)
-                except Exception as e:
-                    raise InternalServerError(str(e))
-            case _:
-                raise InternalServerError(f"{account_type} can't match in worker")
+        try:
+            self.license_repository.insert(document.read(), user)
+        except Exception as e:
+            raise InternalServerError(str(e))
 
         token = Token.generate()
         expiration = datetime.now() + timedelta(days=1)

@@ -1,6 +1,6 @@
 from enum import Enum
 
 
-class AccountType(Enum):
+class AccountStatus(Enum):
     Student = 1
     Teacher = 2

@@ -3,13 +3,15 @@ import os
 from flask import Blueprint, abort, jsonify, request, Response
 
 from api import IMAGE_FORMAT_ALLOWED_EXTENSIONS
-from api.worker.user import AccountType
+from api.worker.user import AccountStatus
 from api.worker.auth.models import TokenDTO, CredentialDTO
 from api.worker.auth.use_case.login import Login
 from api.worker.auth.exceptions import AccountAlreadyExist, BannedAccount, CredentialInvalid, LengthNameTooLong
 from api.worker.auth.use_case.register import Register
-from database.repositories import UserRepository, TokenRepository, StudentLicenseRepository, TeacherLicenseRepository, StudentLicenseRepositoryInterface, TeacherLicenseRepositoryInterface, TokenRepositoryInterface, UserRepositoryInterface
-from test.mock import InMemoryTeacherLicenseRepository, InMemoryStudentLicenseRepository, InMemoryTokenRepository, InMemoryUserRepository
+from database.repositories import UserRepository, TokenRepository, TokenRepositoryInterface, UserRepositoryInterface
+from database.repositories.license_repository import LicenseRepository, LicenseRepositoryInterface
+from test.mock import InMemoryTokenRepository, InMemoryUserRepository
+from test.mock.user.in_memory_license_repository import InMemoryLicenseRepository
 
 auth = Blueprint("auth", __name__,
                  url_prefix="/auth")
@@ -98,7 +100,7 @@ def register_api() -> Response:
         abort(415)
 
     credential: dict
-    account_type: AccountType
+    account_status: AccountStatus
     try:
         credential = {
             "first_name": request.form.get("first_name"),
@@ -107,22 +109,13 @@ def register_api() -> Response:
             "password": request.form.get("password"),
             "type": request.form.get("type")
         }
-        account_type = AccountType[credential["type"]]
+        account_status = AccountStatus[credential["type"]]
     except ValueError:
         abort(400)
     except KeyError:
         abort(400)
     except Exception:
         abort(500)
-
-    # and not "academic_years" in credential.keys():
-    if account_type == AccountType.Student:
-        try:
-            credential["academic_years"] = [request.form.get("academic_year_start"), request.form.get("academic_year_end")]
-        except ValueError:
-            abort(400)
-        except Exception:
-            abort(500)
 
     if "document" not in request.files:
         abort(415)
@@ -134,38 +127,23 @@ def register_api() -> Response:
     token: TokenDTO
     user_repository: UserRepositoryInterface
     token_repository: TokenRepositoryInterface
-    student_license_repository: StudentLicenseRepositoryInterface
-    teacher_license_repository: TeacherLicenseRepositoryInterface
+    license_repository: LicenseRepositoryInterface
     try:
-        api_mode = os.getenv("API_MODE")
-        match api_mode:
+        match os.getenv("API_MODE"):
             case "PROD":
                 user_repository = UserRepository
                 token_repository = TokenRepository
-                student_license_repository = StudentLicenseRepository
-                teacher_license_repository = TeacherLicenseRepository
+                license_repository = LicenseRepository
             case "TEST":
                 user_repository = InMemoryUserRepository
                 token_repository = InMemoryTokenRepository
-                student_license_repository = InMemoryStudentLicenseRepository
-                teacher_license_repository = InMemoryTeacherLicenseRepository
+                license_repository = InMemoryLicenseRepository
 
-        match account_type:
-            case AccountType.Student:
-                token = Register(user_repository,
-                                 token_repository,
-                                 student_license_repository=student_license_repository
-                                 ).worker(CredentialDTO.json_to_self(credential),
-                                          account_type,
-                                          document.stream,
-                                          academic_years=credential["academic_years"])
-            case AccountType.Teacher:
-                token = Register(user_repository,
-                                 token_repository,
-                                 teacher_license_repository=teacher_license_repository
-                                 ).worker(CredentialDTO.json_to_self(credential),
-                                          account_type,
-                                          document.stream)
+        token = Register(user_repository,
+                         token_repository,
+                         license_repository).worker(CredentialDTO.json_to_self(credential),
+                                                    account_status,
+                                                    document.stream)
     except AccountAlreadyExist:
         abort(409)
     except LengthNameTooLong:
