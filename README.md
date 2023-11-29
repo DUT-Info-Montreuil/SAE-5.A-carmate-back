@@ -1,67 +1,40 @@
 # Projet CARMATE
-## Structure du projet
-### Fichier `.gitignore`
-Permet d'exclure les dossiers/fichiers qui ne concerne pas le code de l'API
-### Dans le dossier `src`:
-#### Dossier `handlers`
-Permet de déclarer toute les routes de chaque module
+## Sommaire
+- [Image Docker](#image-docker)
+    - [Variable d'environment](#variable-denvironment)
+    - [Comment execute l'image](#comment-execute-limage)
+- [Endroit pratique pour le development](#endroit-pratique-pour-le-development)
 
-__Exemple:__
-Vous avez un module `test` dans votre dossier `src` et vous devez déclarer deux route `route1` et la route `route2`.
-Pour faire cela, vous devez crée un fichier Python qui porte le nom de votre module dans `handlers` :
-```python
-# code d'exemple du fichier test dans le dossier handlers
-"""
-All routes about test here
-"""
-from flask import Blueprint
-
-test = Blueprint('test', __name__)
-
-
-@test.route("/route1")
-def say_hello() -> (int, str):
-    """Say hello"""
-    return 200, "hello"
-
-
-@test.route("/route2")
-def do_something() -> (int, str):
-    # ...
-    return 200, "sucess"
+## Image Docker
+### Variable d'environment 
+- `API_NAME`
+- `API_PORT`
+- `API_MODE`, valeurs possible :
+    - `PROD`
+    - `TEST`
+- `POSTGRES_DB`
+- `POSTGRES_USER`
+- `POSTGRES_PWD`
+- `POSTGRES_HOST`
+- `POSTGRES_PORT`
+### Comment execute l'image ?
+Pour lancer l'image Docker depuis votre machine, vous devez tous d'abord `pull` l'image :
 ```
-#### Dossier `models`
-Permet de déclarer toute les classes de type DTO qui sera utilisé dans le code
-
-__Exemple:__
-```python
-from dataclasses import dataclass
-
-@dataclass
-class UserDTO:
-    id: int
-    login: str
-    email_address: str
-
-    def to_json(self) -> str:
-        return self.__dict__
+docker pull ghcr.io/dut-info-montreuil/sae-5.a-carmate-back:master
 ```
-#### Dossier `<nom-du-module>`
-Contien tous le code côté process de la donnée
-__Exemple:__
-Arborescence du projet:
+Ensuite, lancez l'image Docker :
 ```
-- src
-  |- handlers
-  |- models
-  |- nom-du-module
-  |  |- user.py
-  |  |- message.py
-  |- main.py
-  |- tools.py
+docker run \
+    --env API_PORT=5000
+    --env API_MODE=TEST \
+    --name carmate-back \
+    -p 5432:5432 \
+    -d ghcr.io/dut-info-montreuil/sae-5.a-carmate-back:master
 ```
-Le `nom-du-module` portera le nom de votre module qui aura toute les fonctions de traitement de la données (Recuperation vers des objets DTO)
-#### Fichier `main.py`
-Uniquement l'ajout des `Blueprint` et des informations qui concerne le lancement de l'API
-#### Fichier `tools.py`
-Fichier qui contient des fonctions qui sont utilisé partout voir presque partout dans le code
+
+## Endroit pratique pour le development
+Un `CODESTYLE` est disponible [ici](/docs/CODESTYLE.md)
+
+Un `HOWTO` est disponible [ici](/docs/HOWTO.md)
+
+Un `DEVELOPMENT` est disponible [ici](/docs/DEVELOPMENT.md)
