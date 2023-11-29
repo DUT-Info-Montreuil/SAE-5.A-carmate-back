@@ -4,6 +4,7 @@ from flask import Blueprint, abort, jsonify, request, Response
 
 from api import IMAGE_FORMAT_ALLOWED_EXTENSIONS
 from api.worker.user import AccountStatus
+from api.worker.auth.use_case.check_token import CheckToken
 from api.worker.auth.models import TokenDTO, CredentialDTO
 from api.worker.auth.use_case.login import Login
 from api.worker.auth.exceptions import AccountAlreadyExist, BannedAccount, CredentialInvalid, LengthNameTooLong
@@ -15,6 +16,37 @@ from test.mock.user.in_memory_license_repository import InMemoryLicenseRepositor
 
 auth = Blueprint("auth", __name__,
                  url_prefix="/auth")
+
+
+@auth.route("/check-token", methods=["POST"])
+def check_token_api() -> Response:
+    if not request.is_json:
+        abort(415)
+
+    token: str
+    try:
+        token = request.get_json()["token"]
+    except KeyError:
+        abort(400)
+    except Exception:
+        abort(500)
+
+    token_is_valid: bool
+    token_repository: TokenRepositoryInterface
+    try:
+        match os.getenv("API_MODE"):
+            case "PROD":
+                token_repository = TokenRepository
+            case "TEST":
+                token_repository = InMemoryTokenRepository
+
+        token_is_valid = CheckToken(token_repository).worker(token)
+    except Exception:
+        abort(500)
+
+    if token_is_valid:
+        return '', 204
+    return '', 401
 
 
 @auth.route("/login", methods=["POST"])
