@@ -18,6 +18,11 @@ class UniqueViolation(DatabaseError):
         super().__init__(message)
 
 
+class InvalidInputEnumValue(DatabaseError):
+    def __init__(self, message: str):
+        super().__init__(message)
+
+
 class DocumentAlreadyChecked(Exception):
     def __init__(self, message: str):
         super().__init__(message)

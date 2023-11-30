@@ -39,3 +39,10 @@ class InMemoryUserRepository(UserRepositoryInterface):
                 return user
 
         raise NotFound("user not found")
+    
+    def get_user_by_id(self, id: int) -> UserTable:
+        for user in self.users:
+            if user.id == id:
+                return user
+
+        raise NotFound("user not found")

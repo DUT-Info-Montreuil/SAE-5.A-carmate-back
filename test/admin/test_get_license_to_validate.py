@@ -85,3 +85,7 @@ class GetLicensesToValidateTestCase(unittest.TestCase):
 
         except Exception as e:
             self.fail(e)
+
+
+if __name__ == '__main__':
+    unittest.main()

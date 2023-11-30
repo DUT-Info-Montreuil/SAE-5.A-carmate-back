@@ -65,6 +65,8 @@ class TokenRepository(TokenRepositoryInterface):
                 try:
                     curs.execute(query, (token_hashed,))
                     expire_at = curs.fetchone()[0]
+                except TypeError:
+                    raise NotFound("token not found")
                 except ProgrammingError:
                     raise NotFound("token not found")
                 except IndexError:

@@ -1,6 +1,6 @@
 
 from database.repositories import LicenseRepositoryInterface
-from src.api.worker.admin.models.license_to_validate import LicenseToValidate
+from api.worker.admin.models.license_to_validate import LicenseToValidate
 
 
 class GetLicenseToValidate:

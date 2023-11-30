@@ -3,7 +3,7 @@ from typing import List, Dict, Union
 
 from api.worker.admin import ValidationStatus
 from api.worker.admin.models import LicenseToValidateDTO, LicenseToValidate
-from database.exceptions import NotFound, DocumentAlreadyChecked
+from database.exceptions import InvalidInputEnumValue, NotFound, DocumentAlreadyChecked
 from database.repositories import LicenseRepositoryInterface
 from database.schemas import LicenseTable, UserTable
 
@@ -11,7 +11,10 @@ from database.schemas import LicenseTable, UserTable
 class InMemoryLicenseRepository(LicenseRepositoryInterface):
     def __init__(self, user_repo = None):
         self.user_repo = user_repo
-        self.licenses: List[LicenseTable] = []
+        self.licenses: List[LicenseTable] = [
+            LicenseTable(1, bytes(1), "Basic", "Pending", datetime.now(), 1),
+            LicenseTable(2, bytes(1), "Basic", "Pending", datetime.now(), 1)
+        ]
         self.licenses_count = 0
 
     def insert(self, document: bytes,
@@ -92,3 +95,21 @@ class InMemoryLicenseRepository(LicenseRepositoryInterface):
         ))
 
         return license_to_validate
+
+    def update_status(self, license_id: int, validation_status: str) -> None:
+        try:
+            ValidationStatus[validation_status]
+        except KeyError:
+            raise InvalidInputEnumValue(f"{validation_status} not valid")
+
+        for i in range(len(self.licenses)):
+            if self.licenses[i].id == license_id:
+                self.licenses[i].validation_status = validation_status
+                return
+        raise NotFound("license not found")
+
+    def get(self, license_id: int) -> LicenseTable:
+        for license in self.licenses:
+            if license.id == license_id:
+                return license
+        raise NotFound("license not found")

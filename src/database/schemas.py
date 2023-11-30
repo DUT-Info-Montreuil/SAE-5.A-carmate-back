@@ -43,7 +43,7 @@ class TokenTable:
         )
 
 
-@dataclass(frozen=True)
+@dataclass
 class LicenseTable:
     id: int
     license_img: bytes

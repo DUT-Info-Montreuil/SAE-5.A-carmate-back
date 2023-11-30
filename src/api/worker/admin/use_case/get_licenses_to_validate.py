@@ -1,9 +1,7 @@
-from typing import List, Set, Dict, Union
+from typing import List, Dict, Union
 
-from flask import abort
-
-from database.repositories import UserRepositoryInterface, LicenseRepositoryInterface
-from src.api.worker.admin.models.license_to_validate import LicenseToValidateDTO
+from api.worker.admin.models.license_to_validate import LicenseToValidateDTO
+from database.repositories import LicenseRepositoryInterface
 
 
 class GetLicensesToValidate:

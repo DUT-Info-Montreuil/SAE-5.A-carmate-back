@@ -22,10 +22,10 @@ class InMemoryTokenRepository(TokenRepositoryInterface):
         self.tokens.append(in_memory_token)
         return in_memory_token
 
-    def get_expiration(self, token_hashed: str) -> datetime:
+    def get_expiration(self, token_hashed: bytes) -> datetime:
         token_found: TokenTable = None
         for token in self.tokens:
-            if secrets.compare_digest(bytes.fromhex(token_hashed), token.token):
+            if secrets.compare_digest(token_hashed, token.token):
                 token_found = token
         
         if not token_found:
@@ -40,7 +40,7 @@ class InMemoryTokenRepository(TokenRepositoryInterface):
         found_user: UserTable | None = None
 
         for db_token in self.tokens:
-            if secrets.compare_digest(sha512(token.encode()).digest(), db_token.token):
+            if secrets.compare_digest(token, db_token.token):
                 found_token = db_token
 
         if found_token is None:
