@@ -87,7 +87,8 @@ class ProfilesRoutes(Blueprint):
         try:
             user_infos = CheckToken(self.token_repository,
                                     self.user_banned_repository,
-                                    self.user_admin_repository).worker(token)
+                                    self.user_admin_repository,
+                                    self.license_repository).worker(token)
         except Exception:
             abort(500)
 

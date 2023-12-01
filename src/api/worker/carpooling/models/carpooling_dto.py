@@ -9,7 +9,7 @@ from database.schemas import CarpoolingTable
 class CarpoolingDTO:
     starting_point: List[float]
     destination: List[float]
-    max_passagers: int
+    max_passengers: int
     price: float
     is_canceled: bool
     departure_date_time: datetime
@@ -20,7 +20,7 @@ class CarpoolingDTO:
         return CarpoolingDTO(
             table.starting_point,
             table.destination,
-            table.max_passagers,
+            table.max_passengers,
             table.price,
             table.is_canceled,
             table.departure_date_time,

@@ -1,6 +1,7 @@
 from flask import Blueprint, Response, jsonify, abort, request
 
 from api.exceptions import InvalidValidationStatus, LicenseNotFound
+from api.worker.auth.models import UserInformationDTO
 from api.worker.auth.use_case import CheckToken
 from api.worker.admin import DocumentType
 from api.worker.admin.use_case import (
@@ -14,7 +15,7 @@ from database.repositories import (
     UserAdminRepositoryInterface,
     UserBannedRepositoryInterface,
     UserRepositoryInterface,
-    LicenseRepositoryInterface, 
+    LicenseRepositoryInterface,
     TokenRepositoryInterface
 )
 
@@ -32,9 +33,9 @@ class AdminRoutes(Blueprint):
                  user_banned_repository: UserBannedRepositoryInterface,
                  token_repository: TokenRepositoryInterface,
                  license_repository: LicenseRepositoryInterface):
-        super(AdminRoutes, self).__init__("admin", __name__, 
+        super(AdminRoutes, self).__init__("admin", __name__,
                                           url_prefix="/admin")
-        
+
         self.token_repository = token_repository
         self.user_repository = user_repository
         self.user_admin_repository = user_admin_repository
@@ -42,11 +43,11 @@ class AdminRoutes(Blueprint):
         self.license_repository = license_repository
 
         self.before_request(self.check_is_admin)
-        self.route("/license/to-validate", 
+        self.route("/license/to-validate",
                    methods=["GET"])(self.license_to_validate_api)
-        self.route("/license", 
+        self.route("/license",
                    methods=["GET"])(self.get_license_api)
-        self.route("/license/validate", 
+        self.route("/license/validate",
                    methods=["POST"])(self.validate_license_api)
 
     def check_is_admin(self) -> None:
@@ -65,15 +66,16 @@ class AdminRoutes(Blueprint):
         if len(authorization_value) != 2 or authorization_value[0].lower() != "bearer":
             abort(401)
 
-        is_token_valid: bool
+        user_info_dto: UserInformationDTO
         try:
-            is_token_valid = CheckToken(self.token_repository,
-                                        self.user_banned_repository,
-                                        self.user_admin_repository).worker(authorization_value[1])
+            user_info_dto = CheckToken(self.token_repository,
+                                       self.user_banned_repository,
+                                       self.user_admin_repository,
+                                       self.license_repository).worker(authorization_value[1])
         except Exception:
             abort(500)
 
-        if not is_token_valid:
+        if not user_info_dto:
             abort(401)
 
         if not IsUserAdmin(self.token_repository, self.user_admin_repository).worker(authorization_value[1]):
@@ -150,7 +152,7 @@ class AdminRoutes(Blueprint):
             - 500: InternalServerError (other)
         Return: nothing or the next document_id
         """
-        
+
         if not request.is_json:
             abort(415)
 
@@ -170,7 +172,8 @@ class AdminRoutes(Blueprint):
         next_document_id: int | None
         try:
             next_document_id = ValidateLicense(self.license_repository, self.user_repository).worker(license_id,
-                                                                                                     validation_information["statut"])
+                                                                                                     validation_information[
+                                                                                                         "statut"])
         except LicenseNotFound:
             abort(404)
         except InvalidValidationStatus:

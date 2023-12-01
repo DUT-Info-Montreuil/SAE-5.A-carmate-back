@@ -95,7 +95,7 @@ class UserRepository(UserRepositoryInterface):
                 except Exception as e:
                     raise InternalServer(str(e))
             conn.close()
-        
+
         if user_data is None:
             raise NotFound("user not found")
         return UserTable.to_self(user_data)
