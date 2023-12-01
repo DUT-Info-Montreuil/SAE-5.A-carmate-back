@@ -16,7 +16,7 @@ class CheckToken:
     def worker(self, token: str) -> bool:
         token_expiration: datetime
         try:
-            token_expiration = self.token_repository.get_expiration(sha512(token.encode()).hexdigest())
+            token_expiration = self.token_repository.get_expiration(sha512(token.encode()).digest())
         except NotFound:
             return False
         except Exception as e:

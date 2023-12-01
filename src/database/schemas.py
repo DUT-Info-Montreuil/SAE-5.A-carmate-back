@@ -1,6 +1,8 @@
 from dataclasses import dataclass
 from datetime import datetime
-from typing import List, Optional
+from typing import Optional
+
+from api.worker.user import AccountStatus
 
 
 @dataclass(frozen=True)
@@ -21,7 +23,8 @@ class UserTable:
             _tuple[2],
             _tuple[3],
             _tuple[4],
-            _tuple[5]
+            _tuple[5],
+            _tuple[6],
         )
 
 
@@ -40,31 +43,22 @@ class TokenTable:
         )
 
 
-@dataclass(frozen=True)
-class StudentLicenseTable:
+@dataclass
+class LicenseTable:
     id: int
     license_img: bytes
+    document_type: str
+    validation_status: str
+    created_at: datetime
     user_id: int
 
     @staticmethod
     def to_self(_tuple: tuple):
-        return StudentLicenseTable(
+        return LicenseTable(
             _tuple[0],
             _tuple[1],
             _tuple[2],
-        )
-
-
-@dataclass(frozen=True)
-class TeacherLicenseTable:
-    id: int
-    license_img: bytes
-    user_id: int
-
-    @staticmethod
-    def to_self(_tuple: tuple):
-        return TeacherLicenseTable(
-            _tuple[0],
-            _tuple[1],
-            _tuple[2],
+            _tuple[3],
+            _tuple[4],
+            _tuple[5],
         )

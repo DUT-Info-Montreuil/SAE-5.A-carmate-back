@@ -1,7 +1,8 @@
+import typing
 from abc import ABC
 from typing import Any
 
-from psycopg2 import errorcodes
+from psycopg2 import ProgrammingError, errorcodes
 from psycopg2.errors import lookup
 
 from api import hash
@@ -19,6 +20,9 @@ class UserRepositoryInterface(ABC):
     @staticmethod
     def get_user_by_email(email: str) -> UserTable: ...
 
+    @staticmethod
+    def get_user_by_id(id: int) -> UserTable: ...
+
 
 class UserRepository(UserRepositoryInterface):
     POSTGRES_TABLE_NAME: str = "user"
@@ -26,8 +30,8 @@ class UserRepository(UserRepositoryInterface):
     @staticmethod
     def insert(credential: CredentialDTO, account_status: AccountStatus) -> UserTable:
         first_name, last_name, email_address, password = credential.to_json().values()
-        query: str = f"""INSERT INTO carmate.{UserRepository.POSTGRES_TABLE_NAME}
-                         VALUES (DEFAULT, %s, %s, %s, %s, %s, DEFAULT) 
+        query: str = f"""INSERT INTO carmate.{UserRepository.POSTGRES_TABLE_NAME}(first_name, last_name, email_address, password, account_status)
+                         VALUES (%s, %s, %s, %s, %s) 
                          RETURNING id, first_name, last_name, email_address, password, account_status, profile_picture"""
 
         user: tuple
@@ -69,4 +73,28 @@ class UserRepository(UserRepositoryInterface):
             conn.close()
             if not user_data:
                 raise NotFound("user not found")
+        return UserTable.to_self(user_data)
+
+    @staticmethod
+    def get_user_by_id(id: int) -> UserTable:
+        query = f"""SELECT * FROM carmate.{UserRepository.POSTGRES_TABLE_NAME} 
+                    WHERE id=%s"""
+
+        conn: Any
+        user_data: tuple
+        try:
+            conn = establishing_connection()
+        except Exception as e:
+            raise InternalServer(str(e))
+        else:
+            with conn.cursor() as curs:
+                try:
+                    curs.execute(query, (id,))
+                    user_data = curs.fetchone()
+                except ProgrammingError:
+                    raise NotFound("user not found")
+                except Exception as e:
+                    raise InternalServer(str(e))
+            conn.close()
+
         return UserTable.to_self(user_data)

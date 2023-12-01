@@ -5,6 +5,7 @@ from waitress import serve
 from flask import Flask
 from flask_cors import CORS
 
+from api.controller.admin import admin
 from api.controller.user import auth
 
 
@@ -29,6 +30,7 @@ class Api(object):
         self.cors = CORS(self.api, resources={r"*": {"origins": "*"}})
 
         self.api.register_blueprint(auth)
+        self.api.register_blueprint(admin)
 
     def run(self) -> None:
         if not os.getenv("API_PORT"):
