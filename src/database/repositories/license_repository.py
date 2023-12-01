@@ -60,7 +60,7 @@ class LicenseRepository(LicenseRepositoryInterface):
             conn.close()
         return LicenseTable(id, document.read(), False, user.id)
 
-    def get_licences_not_validated(self, page: int | None) -> Dict[str, Union[int, List[LicenseToValidateDTO]]]:
+    def get_licenses_not_validated(self, page: int | None) -> Dict[str, Union[int, List[LicenseToValidateDTO]]]:
         offset = (page - 1) * 30 if page is not None else 0
         query = f"""SELECT ur.first_name, ur.last_name, ur.account_status, lr.published_at, lr.document_type, lr.id
                     FROM carmate.{LicenseRepository.POSTGRES_TABLE_NAME} lr
@@ -113,13 +113,18 @@ class LicenseRepository(LicenseRepositoryInterface):
                 try:
                     curs.execute(query, (document_id, ))
                 except ProgrammingError:
+                    print("lll")
                     raise NotFound("document not found")
                 except IndexError:
+                    print("lllll")
                     raise NotFound("document not found")
                 except Exception as e:
                     raise InternalServer(str(e))
                 else:
                     found_license = curs.fetchone()
+
+                    if not found_license:
+                        raise NotFound("document not found")
             conn.close()
 
         if found_license[6] != ValidationStatus.Pending.name:

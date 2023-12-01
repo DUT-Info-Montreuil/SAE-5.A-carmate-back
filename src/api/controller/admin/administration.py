@@ -1,7 +1,7 @@
 import os
 
 from flask import Blueprint, Response, jsonify, abort, request
-from api.worker.admin import ValidationStatus
+from api.worker.admin import DocumentType
 
 from api.worker.admin.use_case.get_license_to_validate import GetLicenseToValidate
 from api.worker.admin.use_case.get_licenses_to_validate import GetLicensesToValidate
@@ -84,7 +84,7 @@ def license_to_validate_api() -> Response:
 
     except ValueError:
         abort(400)
-    except Exception:
+    except Exception as e:
         abort(500)
 
     return jsonify(licenses_to_validate)
@@ -136,7 +136,7 @@ def valide_license_api():
         abort(400)
 
     try:
-        ValidationStatus[validation_information["document_type"]]
+        DocumentType[validation_information["document_type"]]
     except ValueError:
         abort(400)
 
