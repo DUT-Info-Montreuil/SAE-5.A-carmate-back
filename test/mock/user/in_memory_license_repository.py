@@ -10,17 +10,20 @@ from database.schemas import LicenseTable, UserTable
 
 class InMemoryLicenseRepository(LicenseRepositoryInterface):
     def __init__(self, user_repo = None):
+        if user_repo is None:
+            raise Exception("InMemoryLicenseRepository won't work without user repository")
+        
         self.user_repo = user_repo
+        
+        self.licenses_count = 0
         self.licenses: List[LicenseTable] = [
             LicenseTable(1, bytes(1), "Basic", "Pending", datetime.now(), 1),
             LicenseTable(2, bytes(1), "Basic", "Pending", datetime.now(), 1)
         ]
-        self.licenses_count = 0
 
     def insert(self, document: bytes,
                user: UserTable,
                document_type: str) -> LicenseTable:
-
         in_memory_student_license = LicenseTable.to_self((self.licenses_count, document, document_type, ValidationStatus.Pending.name, datetime.now(), user.id))
 
         self.licenses.append(in_memory_student_license)
@@ -28,9 +31,6 @@ class InMemoryLicenseRepository(LicenseRepositoryInterface):
         return in_memory_student_license
 
     def get_licenses_not_validated(self, page: int | None) -> Dict[str, Union[int, List[LicenseToValidateDTO]]]:
-        if self.user_repo is None:
-            raise Exception("The function get_licenses_not_validated won't work without user repository")
-
         list_license_to_validate: List[LicenseToValidateDTO] = []
         licenses_not_validated = list(filter(lambda lic: lic.validation_status is ValidationStatus.Pending.name, self.licenses))
 
@@ -61,9 +61,6 @@ class InMemoryLicenseRepository(LicenseRepositoryInterface):
         }
 
     def get_license_not_validated(self, document_id: int) -> LicenseToValidate:
-        if self.user_repo is None:
-            raise Exception("The function get_licenses_not_validated won't work without user repository")
-
         license_to_validate: LicenseToValidate | None = None
         document_found: LicenseTable | None = None
         user_found: UserTable | None = None

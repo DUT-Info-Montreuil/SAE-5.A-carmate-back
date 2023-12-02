@@ -1,175 +1,145 @@
-import os
-
 from flask import Blueprint, Response, jsonify, abort, request
-from api.worker.admin import DocumentType
 
-from api.worker.admin.use_case.get_license_to_validate import GetLicenseToValidate
-from api.worker.admin.use_case.get_licenses_to_validate import GetLicensesToValidate
-from api.worker.admin.use_case.is_user_admin import IsUserAdmin
 from api.worker.auth.exceptions import InvalidValidationStatus, LicenseNotFound
-from api.worker.auth.use_case.check_token import CheckToken
-from api.worker.admin.use_case import GetLicenseToValidate
-from api.worker.admin.use_case import ValidateLicense
+from api.worker.auth.use_case import CheckToken
+from api.worker.admin import DocumentType
+from api.worker.admin.use_case import (
+    GetLicenseToValidate,
+    GetLicensesToValidate,
+    IsUserAdmin,
+    ValidateLicense
+)
 from database.exceptions import NotFound, DocumentAlreadyChecked
-from database.repositories import LicenseRepositoryInterface, LicenseRepository, TokenRepositoryInterface, \
-    TokenRepository
-from database.repositories.user_admin_repository import UserAdminRepositoryInterface, UserAdminRepository
-from database.repositories.user_repository import UserRepository, UserRepositoryInterface
-from test.mock import InMemoryLicenseRepository, InMemoryTokenRepository
-from test.mock.admin import InMemoryUserAdminRepository
-from test.mock.user import InMemoryUserRepository
-
-admin = Blueprint("admin", __name__,
-                  url_prefix="/admin")
+from database.repositories import (
+    UserAdminRepositoryInterface,
+    UserRepositoryInterface,
+    LicenseRepositoryInterface, 
+    TokenRepositoryInterface
+)
 
 
-@admin.before_request
-def check_is_admin():
-    authorization = request.headers.get("Authorization")
-
-    if authorization is None:
-        abort(401)
-
-    authorization_value = authorization.split(" ")
-    if len(authorization_value) != 2 or authorization_value[0].lower() != "bearer":
-        abort(401)
-
-    token_repository: TokenRepositoryInterface
+class AdminRoutes(Blueprint):
+    user_repository: UserRepositoryInterface
     user_admin_repository: UserAdminRepositoryInterface
-    is_token_valid: bool
-    try:
-        match os.getenv("API_MODE"):
-            case "PROD":
-                token_repository = TokenRepository()
-                user_admin_repository = UserAdminRepository()
-            case "TEST":
-                token_repository = InMemoryTokenRepository(InMemoryUserRepository())
-                user_admin_repository = InMemoryUserAdminRepository()
-            case _:
-                raise Exception()
+    license_repository = LicenseRepositoryInterface
+    token_repository: TokenRepositoryInterface
 
-        is_token_valid = CheckToken(token_repository).worker(authorization_value[1])
-    except Exception:
-        abort(500)
+    def __init__(self,
+                 user_repository: UserRepositoryInterface,
+                 user_admin_repository: UserAdminRepositoryInterface,
+                 token_repository: TokenRepositoryInterface,
+                 license_repository: LicenseRepositoryInterface):
+        super(AdminRoutes, self).__init__("admin", __name__, 
+                                          url_prefix="/admin")
+        
+        self.token_repository = token_repository
+        self.user_repository = user_repository
+        self.user_admin_repository = user_admin_repository
+        self.license_repository = license_repository
 
-    if not is_token_valid:
-        abort(401)
+        self.before_request(self.check_is_admin)
+        self.route("/license/to-validate", 
+                   methods=["GET"])(self.license_to_validate_api)
+        self.route("/license", 
+                   methods=["GET"])(self.get_license_api)
+        self.route("/license/validate", 
+                   methods=["POST"])(self.validate_license_api)
 
-    if not IsUserAdmin(token_repository, user_admin_repository).worker(authorization_value[1]):
-        abort(403)
+    def check_is_admin(self):
+        authorization = request.headers.get("Authorization")
+        if not authorization:
+            abort(401)
 
+        authorization_value = authorization.split(" ")
+        if len(authorization_value) != 2 or authorization_value[0].lower() != "bearer":
+            abort(401)
 
-@admin.route("/license/to-validate", methods=["GET"])
-def license_to_validate_api() -> Response:
-    license_repository: LicenseRepositoryInterface
-    page: int | None = None
+        is_token_valid: bool
+        try:
+            is_token_valid = CheckToken(self.token_repository).worker(authorization_value[1])
+        except Exception:
+            abort(500)
 
-    try:
-        match os.getenv("API_MODE"):
-            case "PROD":
-                license_repository = LicenseRepository()
-            case "TEST":
-                license_repository = InMemoryLicenseRepository()
-            case _:
-                raise Exception()
+        if not is_token_valid:
+            abort(401)
 
+        if not IsUserAdmin(self.token_repository, self.user_admin_repository).worker(authorization_value[1]):
+            abort(403)
+
+    def license_to_validate_api(self) -> Response:
         query_data = request.args.to_dict()
 
+        page: int | None = None
         try:
             page = int(query_data["page"])
         except Exception:
             pass
 
-        licenses_to_validate = GetLicensesToValidate(license_repository).worker(page)
+        try:
+            licenses_to_validate = GetLicensesToValidate(self.license_repository).worker(page)
+        except ValueError:
+            abort(400)
+        except Exception:
+            abort(500)
+        return jsonify(licenses_to_validate)
 
-    except ValueError:
-        abort(400)
-    except Exception as e:
-        abort(500)
-
-    return jsonify(licenses_to_validate)
-
-
-@admin.route("/license", methods=["GET"])
-def get_license():
-    license_repository: LicenseRepositoryInterface
-    document_id: int | None = None
-
-    try:
-        match os.getenv("API_MODE"):
-            case "PROD":
-                license_repository = LicenseRepository()
-            case "TEST":
-                license_repository = InMemoryLicenseRepository()
-            case _:
-                raise Exception()
-
+    def get_license_api(self):
         query_data = request.args.to_dict()
 
+        document_id: int | None = None
         try:
             document_id = int(query_data["document_id"])
         except Exception:
             pass
 
-        licenses_to_validate = GetLicenseToValidate(license_repository).worker(document_id)
+        try:
+            licenses_to_validate = GetLicenseToValidate(self.license_repository).worker(document_id)
+        except ValueError:
+            abort(400)
+        except NotFound:
+            abort(404)
+        except DocumentAlreadyChecked:
+            abort(410)
+        except Exception:
+            abort(500)
+        return jsonify(licenses_to_validate.to_json())
 
-    except ValueError:
-        abort(400)
-    except NotFound:
-        abort(404)
-    except DocumentAlreadyChecked:
-        abort(410)
-    except Exception:
-        abort(500)
+    def validate_license_api(self) -> Response:
+        if not request.is_json:
+            abort(415)
 
-    return jsonify(licenses_to_validate.to_json())
+        validation_information = request.json
+        validation_information_args = validation_information.keys()
+        if "statut" not in validation_information_args:
+            abort(400)
 
+        try:
+            DocumentType[validation_information["document_type"]]
+        except ValueError:
+            abort(400)
 
-@admin.route("/license/validate", methods=["POST"])
-def valide_license_api():
-    if not request.is_json:
-        abort(415)
+        query_data = request.args.to_dict()
 
-    validation_information = request.json
-    validation_information_args = validation_information.keys()
-    if any(["statut" not in validation_information_args, "document_type" not in validation_information_args, "email" not in validation_information_args]):
-        abort(400)
+        license_id: int
+        try:
+            license_id = int(query_data["license_id"])
+        except Exception:
+            abort(400)
 
-    try:
-        DocumentType[validation_information["document_type"]]
-    except ValueError:
-        abort(400)
+        next_document: tuple | None
+        try:
+            next_document = ValidateLicense(self.license_repository, self.user_repository).worker(license_id,
+                                                                                                  validation_information["statut"])
+        except LicenseNotFound:
+            abort(404)
+        except InvalidValidationStatus:
+            abort(400)
+        except Exception:
+            abort(500)
 
-    query_data = request.args.to_dict()
-
-    license_id: int 
-    try:
-        license_id = int(query_data["license_id"])
-    except Exception:
-        abort(400)
-
-    next_document: tuple | None
-    license_repository: LicenseRepositoryInterface
-    user_repository: UserRepositoryInterface
-    try:
-        match os.getenv("API_MODE"):
-            case "PROD":
-                license_repository = LicenseRepository()
-                user_repository = UserRepository()
-            case "TEST":
-                license_repository = InMemoryLicenseRepository()
-                user_repository = InMemoryUserRepository()
-
-        next_document = ValidateLicense(license_repository, 
-                                        user_repository).worker(license_id, 
-                                                                validation_information["statut"])
-    except LicenseNotFound:
-        abort(404)
-    except InvalidValidationStatus:
-        abort(400)
-    except Exception:
-        abort(500)
-
-    if not next_document:
-        return '', 204
-    return jsonify({"next_email": next_document[1].email_address, "next_document_type": next_document[0].document_type})
+        if not next_document:
+            return '', 204
+        return jsonify({
+            "next_email": next_document[1].email_address,
+            "next_document_type": next_document[0].document_type
+        })

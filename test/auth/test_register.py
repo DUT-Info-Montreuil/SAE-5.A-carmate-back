@@ -19,9 +19,10 @@ class RegisterTestCase(unittest.TestCase):
         self.student_account_type = AccountStatus.Student
         self.teacher_account_type = AccountStatus.Teacher
 
-        self.register = Register(InMemoryUserRepository(),
+        user_repository = InMemoryUserRepository()
+        self.register = Register(user_repository,
                                  InMemoryTokenRepository(),
-                                 InMemoryLicenseRepository())
+                                 InMemoryLicenseRepository(user_repository))
 
     def test_regular_usage_for_student(self):
         credential = CredentialDTO("Davina", "Mcgovern", "davina.mcgovern@email.com", "pwd")
