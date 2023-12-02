@@ -1,0 +1,21 @@
+name: Launch unittest
+on: [ push ]
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: [ 3.11 ]
+    steps:
+      - uses: actions/checkout@v2
+      - name: Set up Python all python version
+        uses: actions/setup-python@v2
+        with:
+          python-version: ${{ matrix.python-version }}
+          architecture: x64
+
+      - name: Install dependencies
+        run: pip install -r src/requirements.txt
+
+      - name: Run Test
+        run: cd src && python -m unittest discover -s ../test
