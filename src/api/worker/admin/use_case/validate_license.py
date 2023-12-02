@@ -1,4 +1,4 @@
-from api.worker.auth.exceptions import InternalServerError, InvalidValidationStatus, LicenseNotFound
+from api.exceptions import InternalServerError, InvalidValidationStatus, LicenseNotFound
 from database.exceptions import InvalidInputEnumValue, NotFound
 from database.repositories import LicenseRepositoryInterface, UserRepositoryInterface
 from database.schemas import LicenseTable, UserTable

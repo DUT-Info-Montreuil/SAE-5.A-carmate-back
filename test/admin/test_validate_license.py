@@ -2,7 +2,7 @@ import unittest
 
 from api.worker.admin import ValidationStatus
 from api.worker.admin.use_case import ValidateLicense
-from api.worker.auth.exceptions import InvalidValidationStatus, LicenseNotFound
+from api.exceptions import InvalidValidationStatus, LicenseNotFound
 from mock.user import InMemoryLicenseRepository, InMemoryUserRepository
 
 

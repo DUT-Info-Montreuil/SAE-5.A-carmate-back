@@ -3,7 +3,7 @@ from flask import Blueprint, abort, jsonify, request, Response
 from api import IMAGE_FORMAT_ALLOWED_EXTENSIONS
 from api.worker.user import AccountStatus
 from api.worker.auth.models import TokenDTO, CredentialDTO
-from api.worker.auth.exceptions import AccountAlreadyExist, BannedAccount, CredentialInvalid, LengthNameTooLong
+from api.exceptions import AccountAlreadyExist, BannedAccount, CredentialInvalid, LengthNameTooLong
 from api.worker.auth.use_case import Register, Login, CheckToken
 from database.repositories import (
     TokenRepositoryInterface,
