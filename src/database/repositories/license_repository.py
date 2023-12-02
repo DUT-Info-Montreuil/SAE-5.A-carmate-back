@@ -6,7 +6,6 @@ from psycopg2.errors import lookup, ProgrammingError, InvalidTextRepresentation
 
 from api.worker.admin import ValidationStatus
 from api.worker.admin.models import LicenseToValidateDTO, LicenseToValidate
-from api.worker.auth.exceptions import InvalidValidationStatus
 from database import establishing_connection
 from database.exceptions import InternalServer, InvalidInputEnumValue, NotFound, UniqueViolation, DocumentAlreadyChecked
 from database.repositories import UserRepository

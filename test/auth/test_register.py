@@ -2,10 +2,10 @@ import os
 import io
 import unittest
 
+from api.exceptions import AccountAlreadyExist, LengthNameTooLong
 from api.worker.user import AccountStatus
-from api.worker.auth.exceptions import AccountAlreadyExist, LengthNameTooLong
 from api.worker.auth.models import CredentialDTO
-from api.worker.auth.use_case.register import Register
+from api.worker.auth.use_case import Register
 from mock import InMemoryUserRepository, InMemoryTokenRepository, InMemoryLicenseRepository
 
 

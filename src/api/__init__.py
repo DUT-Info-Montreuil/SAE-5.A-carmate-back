@@ -2,10 +2,11 @@ import re
 
 from hashlib import sha512
 
-from api.worker.auth.exceptions import EmailFormatInvalid
+from .exceptions import EmailFormatInvalid
 
 IMAGE_FORMAT_ALLOWED_EXTENSIONS = ["jpg", "jpeg", "png"]
 EMAIL_FORMAT_REGEX = r'([A-Za-z0-9]+[.-_])*[A-Za-z0-9]+@[A-Za-z0-9-]+(\.[A-Z|a-z]{2,})+'
+
 
 def hash(token: str) -> bytes:
     return sha512(token.encode()).digest()

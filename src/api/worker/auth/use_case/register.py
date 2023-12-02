@@ -3,7 +3,7 @@ from datetime import datetime, timedelta
 
 from api import check_email
 from api.worker.admin import DocumentType
-from api.worker.auth.exceptions import *
+from api.exceptions import *
 from api.worker.auth.models import CredentialDTO, TokenDTO
 from api.worker.auth.use_case.token import Token
 from api.worker.user import AccountStatus

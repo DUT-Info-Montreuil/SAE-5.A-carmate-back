@@ -4,7 +4,7 @@ from datetime import datetime, timedelta
 from hashlib import sha512
 
 from api import check_email
-from api.worker.auth.exceptions import CredentialInvalid, InternalServerError
+from api.exceptions import CredentialInvalid, InternalServerError
 from api.worker.auth.models.credential_dto import CredentialDTO
 from api.worker.auth.models.token_dto import TokenDTO
 from api.worker.auth.use_case.token import Token

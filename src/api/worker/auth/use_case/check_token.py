@@ -1,7 +1,7 @@
 from datetime import datetime
 from hashlib import sha512
 
-from api.worker.auth.exceptions import InternalServerError
+from api.exceptions import InternalServerError
 from database.exceptions import NotFound
 from database.repositories import TokenRepositoryInterface
 
