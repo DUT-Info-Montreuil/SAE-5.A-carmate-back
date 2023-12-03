@@ -8,7 +8,8 @@ class MonitoringRoutes(Blueprint):
         super().__init__("monitoring", __name__,
                          url_prefix="/monitoring")
         
-        self.route("/liveness")(self.liveness_api)
+        self.route("/liveness",
+                   methods=["GET"])(self.liveness_api)
         self.route("/readiness",
                    methods=["GET"])(self.readiness_api)
 

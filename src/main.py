@@ -6,16 +6,16 @@ from flask import Flask
 from flask_cors import CORS
 
 from api.controller import (
-    AdminRoutes, 
+    AdminRoutes,
     AuthRoutes,
     MonitoringRoutes
 )
 from database.repositories import (
-    TokenRepositoryInterface, 
-    UserAdminRepositoryInterface, 
+    TokenRepositoryInterface,
+    UserAdminRepositoryInterface,
     LicenseRepositoryInterface,
     UserRepositoryInterface,
-    LicenseRepository, 
+    LicenseRepository,
     UserRepository,
     TokenRepository,
     UserAdminRepository,
@@ -45,26 +45,32 @@ class Api(object):
     def __init__(self) -> None:
         self.api = Flask("carmate-api" if not os.getenv("API_NAME") else os.getenv("API_NAME"))
         self.cors = CORS(self.api, resources={r"*": {"origins": "*"}})
-    
-        monitoring = MonitoringRoutes()
-        match os.getenv("API_MODE"):
-            case "PROD":
-                self.postgres()
-                self.api.before_request(monitoring.readiness_api)
-            case "TEST":
-                self.mock()
-            case None:
-                raise Exception("API_MODE must be set !")
-            case _:
-                raise Exception(f"Value error in API_MODE ({os.getenv('API_MODE')} invalid)")
 
         logging.basicConfig(format=self.logging_format,
                             datefmt='%d/%m/%Y %I:%M:%S %p',
                             level=self.logging_level)
 
+        match os.getenv("API_MODE"):
+            case "PROD":
+                self.postgres()
+            case "TEST":
+                self.mock()
+            case None:
+                raise Exception("API_MODE must be set !")
+            case _:
+                raise Exception(
+                    f"Value error in API_MODE ({os.getenv('API_MODE')} invalid)")
+
+        monitoring = MonitoringRoutes()
+        auth = AuthRoutes(self.user_repository, self.token_repository, self.license_repository)
+        admin = AdminRoutes(self.user_repository, self.user_admin_repository, self.token_repository, self.license_repository)
+        if os.getenv("API_MODE") == "PROD":
+            auth.before_request(monitoring.readiness_api)
+            admin.before_request(monitoring.readiness_api)
+
         self.api.register_blueprint(monitoring)
-        self.api.register_blueprint(AuthRoutes(self.user_repository, self.token_repository, self.license_repository))
-        self.api.register_blueprint(AdminRoutes(self.user_repository, self.user_admin_repository, self.token_repository, self.license_repository))
+        self.api.register_blueprint(auth)
+        self.api.register_blueprint(admin)
 
     def mock(self) -> None:
         self.user_repository = InMemoryUserRepository()
