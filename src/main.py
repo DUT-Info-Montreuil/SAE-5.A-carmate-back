@@ -43,9 +43,14 @@ class Api(object):
     license_repository = LicenseRepositoryInterface
 
     def __init__(self) -> None:
+        self.api = Flask("carmate-api" if not os.getenv("API_NAME") else os.getenv("API_NAME"))
+        self.cors = CORS(self.api, resources={r"*": {"origins": "*"}})
+    
+        monitoring = MonitoringRoutes()
         match os.getenv("API_MODE"):
             case "PROD":
                 self.postgres()
+                self.api.before_request(monitoring.readiness_api)
             case "TEST":
                 self.mock()
             case None:
@@ -57,10 +62,7 @@ class Api(object):
                             datefmt='%d/%m/%Y %I:%M:%S %p',
                             level=self.logging_level)
 
-        self.api = Flask("carmate-api" if not os.getenv("API_NAME") else os.getenv("API_NAME"))
-        self.cors = CORS(self.api, resources={r"*": {"origins": "*"}})
-
-        self.api.register_blueprint(MonitoringRoutes())
+        self.api.register_blueprint(monitoring)
         self.api.register_blueprint(AuthRoutes(self.user_repository, self.token_repository, self.license_repository))
         self.api.register_blueprint(AdminRoutes(self.user_repository, self.user_admin_repository, self.token_repository, self.license_repository))
 
