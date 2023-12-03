@@ -8,6 +8,7 @@ from flask_cors import CORS
 from api.controller import (
     AdminRoutes, 
     AuthRoutes,
+    MonitoringRoutes
 )
 from database.repositories import (
     TokenRepositoryInterface, 
@@ -59,6 +60,7 @@ class Api(object):
         self.api = Flask("carmate-api" if not os.getenv("API_NAME") else os.getenv("API_NAME"))
         self.cors = CORS(self.api, resources={r"*": {"origins": "*"}})
 
+        self.api.register_blueprint(MonitoringRoutes())
         self.api.register_blueprint(AuthRoutes(self.user_repository, self.token_repository, self.license_repository))
         self.api.register_blueprint(AdminRoutes(self.user_repository, self.user_admin_repository, self.token_repository, self.license_repository))
 
