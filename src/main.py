@@ -8,7 +8,8 @@ from flask_cors import CORS
 from api.controller import (
     AdminRoutes,
     AuthRoutes,
-    MonitoringRoutes
+    MonitoringRoutes,
+    ProfilesRoutes
 )
 from database.repositories import (
     TokenRepositoryInterface,
@@ -16,18 +17,24 @@ from database.repositories import (
     UserBannedRepositoryInterface,
     LicenseRepositoryInterface,
     UserRepositoryInterface,
+    DriverProfileRepositoryInterface,
+    PassengerProfileRepositoryInterface,
     LicenseRepository,
     UserRepository,
     TokenRepository,
     UserAdminRepository,
-    UserBannedRepository
+    UserBannedRepository,
+    DriverProfileRepository,
+    PassengerProfileRepository
 )
 from test.mock import (
     InMemoryLicenseRepository,
     InMemoryUserAdminRepository,
     InMemoryUserBannedRepository,
     InMemoryTokenRepository,
-    InMemoryUserRepository
+    InMemoryUserRepository,
+    InMemoryDriverProfileRepository,
+    InMemoryPassengerProfileRepository
 )
 
 
@@ -42,6 +49,8 @@ class Api(object):
 
     token_repository: TokenRepositoryInterface
     user_repository: UserRepositoryInterface
+    driver_profile_repository: DriverProfileRepositoryInterface
+    passenger_profile_repository: PassengerProfileRepositoryInterface
     user_admin_repository: UserAdminRepositoryInterface
     user_banned_repository: UserBannedRepositoryInterface
     license_repository = LicenseRepositoryInterface
@@ -66,15 +75,21 @@ class Api(object):
                     f"Value error in API_MODE ({os.getenv('API_MODE')} invalid)")
 
         monitoring = MonitoringRoutes()
+        auth = AuthRoutes(self.user_repository, self.user_banned_repository, self.user_admin_repository, self.token_repository, self.license_repository)
+        profiles = ProfilesRoutes(self.user_repository, self.driver_profile_repository, self.passenger_profile_repository, self.license_repository, self.token_repository)
         self.api.register_blueprint(monitoring)
-        self.api.register_blueprint(AuthRoutes(self.user_repository, self.user_banned_repository, self.user_admin_repository, self.token_repository, self.license_repository))
         self.api.register_blueprint(AdminRoutes(self.user_repository, self.user_admin_repository, self.user_banned_repository, self.token_repository, self.license_repository))
+        self.api.register_blueprint(profiles)
+        auth.after_request(profiles.create_passenger_profile_api)
+        self.api.register_blueprint(auth)
 
         if os.getenv("API_MODE") == "PROD":
             self.api.before_request(monitoring.readiness_api)
 
     def mock(self) -> None:
         self.user_repository = InMemoryUserRepository()
+        self.driver_profile_repository = InMemoryDriverProfileRepository()
+        self.passenger_profile_repository = InMemoryPassengerProfileRepository()
         self.user_admin_repository = InMemoryUserAdminRepository()
         self.user_banned_repository = InMemoryUserBannedRepository()
         self.token_repository = InMemoryTokenRepository(self.user_repository)
@@ -82,6 +97,8 @@ class Api(object):
 
     def postgres(self) -> None:
         self.user_repository = UserRepository()
+        self.driver_profile_repository = DriverProfileRepository()
+        self.passenger_profile_repository = PassengerProfileRepository()
         self.user_admin_repository = UserAdminRepository()
         self.user_banned_repository = UserBannedRepository()
         self.token_repository = TokenRepository()
