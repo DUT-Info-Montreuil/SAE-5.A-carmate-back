@@ -8,17 +8,20 @@ from api.worker.auth.use_case import Register, Login, CheckToken
 from database.repositories import (
     TokenRepositoryInterface,
     UserRepositoryInterface,
+    UserBannedRepositoryInterface,
     LicenseRepositoryInterface
 )
 
 
 class AuthRoutes(Blueprint):
     user_repository: UserRepositoryInterface
+    user_banned_repository: UserBannedRepositoryInterface
     token_repository: TokenRepositoryInterface
     license_repository: LicenseRepositoryInterface
 
     def __init__(self,
                  user_repository: UserRepositoryInterface,
+                 user_banned_repository: UserBannedRepositoryInterface,
                  token_repository: TokenRepositoryInterface,
                  license_repository: LicenseRepositoryInterface):
         super().__init__("auth", __name__,
@@ -26,6 +29,7 @@ class AuthRoutes(Blueprint):
 
         self.token_repository = token_repository
         self.user_repository = user_repository
+        self.user_banned_repository = user_banned_repository
         self.license_repository = license_repository
 
         self.route("/check-token",

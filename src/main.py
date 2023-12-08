@@ -13,16 +13,19 @@ from api.controller import (
 from database.repositories import (
     TokenRepositoryInterface,
     UserAdminRepositoryInterface,
+    UserBannedRepositoryInterface,
     LicenseRepositoryInterface,
     UserRepositoryInterface,
     LicenseRepository,
     UserRepository,
     TokenRepository,
     UserAdminRepository,
+    UserBannedRepository
 )
 from test.mock import (
     InMemoryLicenseRepository,
     InMemoryUserAdminRepository,
+    InMemoryUserBannedRepository,
     InMemoryTokenRepository,
     InMemoryUserRepository
 )
@@ -40,6 +43,7 @@ class Api(object):
     token_repository: TokenRepositoryInterface
     user_repository: UserRepositoryInterface
     user_admin_repository: UserAdminRepositoryInterface
+    user_banned_repository: UserBannedRepositoryInterface
     license_repository = LicenseRepositoryInterface
 
     def __init__(self) -> None:
@@ -62,7 +66,7 @@ class Api(object):
                     f"Value error in API_MODE ({os.getenv('API_MODE')} invalid)")
 
         monitoring = MonitoringRoutes()
-        auth = AuthRoutes(self.user_repository, self.token_repository, self.license_repository)
+        auth = AuthRoutes(self.user_repository, self.user_banned_repository, self.token_repository, self.license_repository)
         admin = AdminRoutes(self.user_repository, self.user_admin_repository, self.token_repository, self.license_repository)
         if os.getenv("API_MODE") == "PROD":
             auth.before_request(monitoring.readiness_api)
@@ -75,12 +79,14 @@ class Api(object):
     def mock(self) -> None:
         self.user_repository = InMemoryUserRepository()
         self.user_admin_repository = InMemoryUserAdminRepository()
+        self.user_banned_repository = InMemoryUserBannedRepository()
         self.token_repository = InMemoryTokenRepository(self.user_repository)
         self.license_repository = InMemoryLicenseRepository(self.user_admin_repository)
 
     def postgres(self) -> None:
         self.user_repository = UserRepository()
         self.user_admin_repository = UserAdminRepository()
+        self.user_banned_repository = UserBannedRepository()
         self.token_repository = TokenRepository()
         self.license_repository = LicenseRepository()
 
