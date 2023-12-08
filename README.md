@@ -3,6 +3,10 @@
 - [Comment lancer l'API manuellement](#comment-lancer-lapi-manuellement)
     - [Commande pour lancer l'API en mode `TEST`](#commande-pour-lancer-lapi-en-mode-test)
     - [Commande pour lancer l'API en mode `PROD`](#commande-pour-lancer-lapi-en-mode-prod)
+- [Image Docker](#image-docker)
+    - [Variable d'environment](#variable-denvironment)
+    - [Comment execute l'image](#comment-execute-limage)
+- [Endroit pratique pour le development](#endroit-pratique-pour-le-development)
 
 ## Comment lancer l'API manuellement
 Vous devez vous placez a la racine du projet, la base de la commande sera :
@@ -39,3 +43,37 @@ POSTGRES_HOST=localhost \
 POSTGRES_PORT=5432 \
 python3 src/main.py
 ``` 
+
+## Image Docker
+### Variable d'environment 
+- `API_NAME`
+- `API_PORT`
+- `API_MODE`, valeurs possible :
+    - `PROD`
+    - `TEST`
+- `POSTGRES_DB`
+- `POSTGRES_USER`
+- `POSTGRES_PWD`
+- `POSTGRES_HOST`
+- `POSTGRES_PORT`
+### Comment execute l'image ?
+Pour lancer l'image Docker depuis votre machine, vous devez tous d'abord `pull` l'image :
+```
+docker pull ghcr.io/dut-info-montreuil/sae-5.a-carmate-back:master
+```
+Ensuite, lancez l'image Docker :
+```
+docker run \
+    --env API_PORT=5000
+    --env API_MODE=TEST \
+    --name carmate-back \
+    -p 5000:5000 \
+    -d ghcr.io/dut-info-montreuil/sae-5.a-carmate-back:latest
+```
+
+## Endroit pratique pour le development
+Un `CODESTYLE` est disponible [ici](/docs/CODESTYLE.md)
+
+Un `HOWTO` est disponible [ici](/docs/HOWTO.md)
+
+Un `DEVELOPMENT` est disponible [ici](/docs/DEVELOPMENT.md)
