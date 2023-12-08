@@ -17,6 +17,9 @@ class MonitoringRoutes(Blueprint):
         return '', 204
 
     def readiness_api(self) -> None:
+        if request.endpoint in "liveness" or request.endpoint in "readiness":
+            return None
+
         try:
             conn = establishing_connection()
         except Exception:

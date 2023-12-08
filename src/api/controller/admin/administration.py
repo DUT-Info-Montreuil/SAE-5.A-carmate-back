@@ -12,6 +12,7 @@ from api.worker.admin.use_case import (
 from database.exceptions import NotFound, DocumentAlreadyChecked
 from database.repositories import (
     UserAdminRepositoryInterface,
+    UserBannedRepositoryInterface,
     UserRepositoryInterface,
     LicenseRepositoryInterface, 
     TokenRepositoryInterface
@@ -21,12 +22,14 @@ from database.repositories import (
 class AdminRoutes(Blueprint):
     user_repository: UserRepositoryInterface
     user_admin_repository: UserAdminRepositoryInterface
-    license_repository = LicenseRepositoryInterface
+    user_banned_repository: UserBannedRepositoryInterface
+    license_repository: LicenseRepositoryInterface
     token_repository: TokenRepositoryInterface
 
     def __init__(self,
                  user_repository: UserRepositoryInterface,
                  user_admin_repository: UserAdminRepositoryInterface,
+                 user_banned_repository: UserBannedRepositoryInterface,
                  token_repository: TokenRepositoryInterface,
                  license_repository: LicenseRepositoryInterface):
         super(AdminRoutes, self).__init__("admin", __name__, 
@@ -35,6 +38,7 @@ class AdminRoutes(Blueprint):
         self.token_repository = token_repository
         self.user_repository = user_repository
         self.user_admin_repository = user_admin_repository
+        self.user_banned_repository = user_banned_repository
         self.license_repository = license_repository
 
         self.before_request(self.check_is_admin)
@@ -56,7 +60,9 @@ class AdminRoutes(Blueprint):
 
         is_token_valid: bool
         try:
-            is_token_valid = CheckToken(self.token_repository).worker(authorization_value[1])
+            is_token_valid = CheckToken(self.token_repository,
+                                        self.user_banned_repository,
+                                        self.user_admin_repository).worker(authorization_value[1])
         except Exception:
             abort(500)
 
@@ -79,7 +85,7 @@ class AdminRoutes(Blueprint):
             licenses_to_validate = GetLicensesToValidate(self.license_repository).worker(page)
         except ValueError:
             abort(400)
-        except Exception:
+        except Exception as e:
             abort(500)
         return jsonify(licenses_to_validate)
 

@@ -35,8 +35,8 @@ class CheckToken:
             return None
         except Exception as e:
             raise InternalServerError(str(e))
-
-        if not token_expiration < datetime.today():
+        
+        if token_expiration < datetime.today():
             return None
         
         user: UserTable
