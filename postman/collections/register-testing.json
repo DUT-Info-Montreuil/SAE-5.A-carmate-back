@@ -1,0 +1,1660 @@
+{
+	"info": {
+		"_postman_id": "89f81898-2204-4fe7-a761-b62d86cc0dbe",
+		"name": "Register Testing",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_uid": "31539900-89f81898-2204-4fe7-a761-b62d86cc0dbe"
+	},
+	"item": [
+		{
+			"name": "Student",
+			"item": [
+				{
+					"name": "Clé manquante dans le JSON de la requête (Pas de Prénom)(400 Bad Request)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "4c0540f2-8135-41da-91ae-824c84cacf37",
+								"exec": [
+									"pm.test(\"Status code is 400\", function () {",
+									"    pm.response.to.have.status(400);",
+									"});",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"id": "8ba95699-f485-4c85-a86c-8a72c5b5e369",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true,
+						"disabledSystemHeaders": {}
+					},
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "",
+								"value": "",
+								"type": "text",
+								"disabled": true
+							}
+						],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "last_name",
+									"value": "Bouche",
+									"type": "text"
+								},
+								{
+									"key": "email_address",
+									"value": "abouche0603@gmail.com",
+									"type": "text"
+								},
+								{
+									"key": "password",
+									"value": "babajeman",
+									"type": "text"
+								},
+								{
+									"key": "type",
+									"value": "Student",
+									"type": "text"
+								},
+								{
+									"key": "document",
+									"type": "file",
+									"fileNotInWorkingDirectoryWarning": "This file isn't in your working directory. Teammates you share this request with won't be able to use this file. To make collaboration easier you can setup your working directory in Settings.",
+									"src": [
+										"/home/boucheantoine/Téléchargements/moi.jpg"
+									]
+								},
+								{
+									"key": "academic_year_start",
+									"value": "2021",
+									"type": "text"
+								},
+								{
+									"key": "academic_year_end",
+									"value": "2022",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "http://localhost:5000/auth/register",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "5000",
+							"path": [
+								"auth",
+								"register"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Clé manquante dans le JSON de la requête (Pas de Nom)(400 Bad Request)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "e0575fc4-a155-46bb-b3d5-06e2c44ab7f1",
+								"exec": [
+									"pm.test(\"Status code is 400\", function () {",
+									"    pm.response.to.have.status(400);",
+									"});",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"id": "f4a5804e-eae1-47c9-9c82-8c508dc2f7f9",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "first_name",
+									"value": "Antoine",
+									"type": "text"
+								},
+								{
+									"key": "email_address",
+									"value": "abouche0603@gmail.com",
+									"type": "text"
+								},
+								{
+									"key": "password",
+									"value": "babajeman",
+									"type": "text"
+								},
+								{
+									"key": "type",
+									"value": "Student",
+									"type": "text"
+								},
+								{
+									"key": "document",
+									"type": "file",
+									"fileNotInWorkingDirectoryWarning": "This file isn't in your working directory. Teammates you share this request with won't be able to use this file. To make collaboration easier you can setup your working directory in Settings.",
+									"src": [
+										"/home/boucheantoine/Téléchargements/moi.jpg"
+									]
+								},
+								{
+									"key": "academic_year_start",
+									"value": "2021",
+									"type": "text"
+								},
+								{
+									"key": "academic_year_end",
+									"value": "2022",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "http://localhost:5000/auth/register",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "5000",
+							"path": [
+								"auth",
+								"register"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Clé manquante dans le JSON de la requête (Pas d'email)(400 Bad Request)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "a5b96862-11d1-4a4f-8174-e6fedf6c7560",
+								"exec": [
+									"pm.test(\"Status code is 400\", function () {",
+									"    pm.response.to.have.status(400);",
+									"});",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"id": "fdb5e00a-af86-45a5-8acd-0bb4975b0616",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "first_name",
+									"value": "Antoine",
+									"type": "text"
+								},
+								{
+									"key": "last_name",
+									"value": "Bouche",
+									"type": "text"
+								},
+								{
+									"key": "password",
+									"value": "babajeman",
+									"type": "text"
+								},
+								{
+									"key": "type",
+									"value": "Student",
+									"type": "text"
+								},
+								{
+									"key": "document",
+									"type": "file",
+									"fileNotInWorkingDirectoryWarning": "This file isn't in your working directory. Teammates you share this request with won't be able to use this file. To make collaboration easier you can setup your working directory in Settings.",
+									"src": [
+										"/home/boucheantoine/Téléchargements/moi.jpg"
+									]
+								},
+								{
+									"key": "academic_years_start",
+									"value": "2021",
+									"type": "text"
+								},
+								{
+									"key": "academic_years_end",
+									"value": "2022",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "http://localhost:5000/auth/register",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "5000",
+							"path": [
+								"auth",
+								"register"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Clé manquante dans le JSON de la requête (Pas de mdp)(400 Bad Request)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "105e66bf-0227-4231-bd05-ff23de00520b",
+								"exec": [
+									"pm.test(\"Status code is 400\", function () {",
+									"    pm.response.to.have.status(400);",
+									"});",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"id": "61290542-311f-4d98-8be2-399c21f9def2",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "first_name",
+									"value": "Antoine",
+									"type": "text"
+								},
+								{
+									"key": "last_name",
+									"value": "Bouche",
+									"type": "text"
+								},
+								{
+									"key": "email_address",
+									"value": "abouche0603@gmail.com",
+									"type": "text"
+								},
+								{
+									"key": "type",
+									"value": "Student",
+									"type": "text"
+								},
+								{
+									"key": "document",
+									"type": "file",
+									"fileNotInWorkingDirectoryWarning": "This file isn't in your working directory. Teammates you share this request with won't be able to use this file. To make collaboration easier you can setup your working directory in Settings.",
+									"src": [
+										"/home/boucheantoine/Téléchargements/moi.jpg"
+									]
+								},
+								{
+									"key": "academic_years_start",
+									"value": "2021",
+									"type": "text"
+								},
+								{
+									"key": "academic_years_end",
+									"value": "2022",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "http://localhost:5000/auth/register",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "5000",
+							"path": [
+								"auth",
+								"register"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Clé manquante dans le JSON de la requête (Pas de AYStart)(400 Bad Request)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "3a83072c-05a9-4f15-bdef-61801a678a0b",
+								"exec": [
+									"pm.test(\"Status code is 400\", function () {",
+									"    pm.response.to.have.status(400);",
+									"});",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"id": "df3d5d44-4fae-4c94-9795-ed508b029bab",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "first_name",
+									"value": "Antoine",
+									"type": "text"
+								},
+								{
+									"key": "last_name",
+									"value": "Bouche",
+									"type": "text"
+								},
+								{
+									"key": "email_address",
+									"value": "abouche0603@gmail.com",
+									"type": "text"
+								},
+								{
+									"key": "type",
+									"value": "Student",
+									"type": "text"
+								},
+								{
+									"key": "document",
+									"type": "file",
+									"fileNotInWorkingDirectoryWarning": "This file isn't in your working directory. Teammates you share this request with won't be able to use this file. To make collaboration easier you can setup your working directory in Settings.",
+									"src": [
+										"/home/boucheantoine/Téléchargements/moi.jpg"
+									]
+								},
+								{
+									"key": "academic_years",
+									"value": "2021-2022",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "http://localhost:5000/auth/register",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "5000",
+							"path": [
+								"auth",
+								"register"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Clé manquante dans le JSON de la requête (Pas de AYEnd)(400 Bad Request)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "061ffcf9-14c5-421e-8746-e24d10731540",
+								"exec": [
+									"pm.test(\"Status code is 400\", function () {",
+									"    pm.response.to.have.status(400);",
+									"});",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"id": "90ace03d-fa70-4c97-809b-3b98d10e5282",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "first_name",
+									"value": "Antoine",
+									"type": "text"
+								},
+								{
+									"key": "last_name",
+									"value": "Bouche",
+									"type": "text"
+								},
+								{
+									"key": "email_address",
+									"value": "abouche0603@gmail.com",
+									"type": "text"
+								},
+								{
+									"key": "type",
+									"value": "Student",
+									"type": "text"
+								},
+								{
+									"key": "document",
+									"type": "file",
+									"fileNotInWorkingDirectoryWarning": "This file isn't in your working directory. Teammates you share this request with won't be able to use this file. To make collaboration easier you can setup your working directory in Settings.",
+									"src": [
+										"/home/boucheantoine/Téléchargements/moi.jpg"
+									]
+								},
+								{
+									"key": "academic_years",
+									"value": "2021-2022",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "http://localhost:5000/auth/register",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "5000",
+							"path": [
+								"auth",
+								"register"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Prénom trop long (400 Bad Request)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "67bcae11-a664-405b-83bd-8f34dc6100d5",
+								"exec": [
+									"pm.test(\"Status code is 400\", function () {",
+									"    pm.response.to.have.status(400);",
+									"});",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"id": "abcf776c-3238-4be5-abc0-d030b683b63d",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "first_name",
+									"value": "Jugemu jugemu goko no surikire kaijarisuigyo no suigyomatsu unraimatsu furaimatsu ku neru tokoro ni sumu tokoro yabura koji no bura koji paipo-paipo paipo no shuringan shuringan no gurindai gurindai no ponpokopi no ponpokona non chokyumei no chosuke",
+									"type": "text"
+								},
+								{
+									"key": "last_name",
+									"value": "Dujardin",
+									"type": "text"
+								},
+								{
+									"key": "email_address",
+									"value": "abouche0603@gmail.com",
+									"type": "text"
+								},
+								{
+									"key": "type",
+									"value": "Student",
+									"type": "text"
+								},
+								{
+									"key": "document",
+									"type": "file",
+									"fileNotInWorkingDirectoryWarning": "This file isn't in your working directory. Teammates you share this request with won't be able to use this file. To make collaboration easier you can setup your working directory in Settings.",
+									"src": [
+										"/home/boucheantoine/Téléchargements/moi.jpg"
+									]
+								},
+								{
+									"key": "academic years-start",
+									"value": "2021",
+									"type": "text"
+								},
+								{
+									"key": "academic_years_end",
+									"value": "2022",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "http://localhost:5000/auth/register",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "5000",
+							"path": [
+								"auth",
+								"register"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Nom trop long (400 Bad Request)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "12cf0e62-70fc-44bf-8a91-429a880b0ef9",
+								"exec": [
+									"pm.test(\"Status code is 400\", function () {",
+									"    pm.response.to.have.status(400);",
+									"});",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"id": "420b1a43-18d2-4a2b-95d0-239dae3f7244",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "first_name",
+									"value": "Jean",
+									"type": "text"
+								},
+								{
+									"key": "last_name",
+									"value": "Jugemu jugemu goko no surikire kaijarisuigyo no suigyomatsu unraimatsu furaimatsu ku neru tokoro ni sumu tokoro yabura koji no bura koji paipo-paipo paipo no shuringan shuringan no gurindai gurindai no ponpokopi no ponpokona non chokyumei no chosuke",
+									"type": "text"
+								},
+								{
+									"key": "email_address",
+									"value": "abouche0603@gmail.com",
+									"type": "text"
+								},
+								{
+									"key": "type",
+									"value": "Student",
+									"type": "text"
+								},
+								{
+									"key": "document",
+									"type": "file",
+									"fileNotInWorkingDirectoryWarning": "This file isn't in your working directory. Teammates you share this request with won't be able to use this file. To make collaboration easier you can setup your working directory in Settings.",
+									"src": [
+										"/home/boucheantoine/Téléchargements/moi.jpg"
+									]
+								},
+								{
+									"key": "academic_years-start",
+									"value": "2021",
+									"type": "text"
+								},
+								{
+									"key": "academic_years_end",
+									"value": "2022",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "http://localhost:5000/auth/register",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "5000",
+							"path": [
+								"auth",
+								"register"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Utilisateur déjà existant(409 Conflict)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "7af11421-97e7-483d-8d6b-b069490e726a",
+								"exec": [
+									"pm.test(\"Status code is 409\", function () {",
+									"    pm.response.to.have.status(409);",
+									"});",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"id": "b31de406-f6f6-47ce-a4af-3553a016b628",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "first_name",
+									"value": "Antoine",
+									"type": "text"
+								},
+								{
+									"key": "last_name",
+									"value": "Bouche",
+									"type": "text"
+								},
+								{
+									"key": "email_address",
+									"value": "abouche0603@gmail.com",
+									"type": "text"
+								},
+								{
+									"key": "password",
+									"value": "Babajeman",
+									"type": "text"
+								},
+								{
+									"key": "type",
+									"value": "Student",
+									"type": "text"
+								},
+								{
+									"key": "document",
+									"type": "file",
+									"fileNotInWorkingDirectoryWarning": "This file isn't in your working directory. Teammates you share this request with won't be able to use this file. To make collaboration easier you can setup your working directory in Settings.",
+									"src": [
+										"/home/boucheantoine/Téléchargements/moi.jpg"
+									]
+								},
+								{
+									"key": "academic_years_start",
+									"value": "2021",
+									"type": "text"
+								},
+								{
+									"key": "academic_years_end",
+									"value": "2022",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "http://localhost:5000/auth/register",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "5000",
+							"path": [
+								"auth",
+								"register"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "mauvais type de donnée reçus(415 Unsupported Media Type)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "a542a2a2-f44c-411d-8b1d-4734471fdf8c",
+								"exec": [
+									"pm.test(\"Status code is 415\", function () {",
+									"    pm.response.to.have.status(415);",
+									"});",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"id": "b21feeef-a8ac-4291-93d3-d07c00f3d4ef",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "text/plain",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "Ceci est un texte arbitraire pour tester l'erreur 415 Unsypportted Media Type",
+							"options": {
+								"raw": {
+									"language": "text"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:5000/auth/register",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "5000",
+							"path": [
+								"auth",
+								"register"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "regular_usage (expect 200)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "43c46600-9149-4bc1-86e5-2e9a83fc364b",
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"id": "a6869bcf-c565-4de8-93e6-b5e3468b0d8d",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "first_name",
+									"value": "Titi",
+									"type": "text"
+								},
+								{
+									"key": "last_name",
+									"value": "Toto",
+									"type": "text"
+								},
+								{
+									"key": "email_address",
+									"value": "vava@bruh.com",
+									"type": "text"
+								},
+								{
+									"key": "password",
+									"value": "tititoto974",
+									"type": "text"
+								},
+								{
+									"key": "type",
+									"value": "Student",
+									"type": "text"
+								},
+								{
+									"key": "document",
+									"type": "file",
+									"fileNotInWorkingDirectoryWarning": "This file isn't in your working directory. Teammates you share this request with won't be able to use this file. To make collaboration easier you can setup your working directory in Settings.",
+									"src": [
+										"/home/boucheantoine/Téléchargements/random.jpg"
+									]
+								},
+								{
+									"key": "academic_years_start",
+									"value": "2021",
+									"type": "text"
+								},
+								{
+									"key": "academic_years_end",
+									"value": "2022",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "http://localhost:5000/auth/register",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "5000",
+							"path": [
+								"auth",
+								"register"
+							]
+						}
+					},
+					"response": []
+				}
+			],
+			"id": "d2896786-206b-47c3-adb9-68fc3a4bc89d"
+		},
+		{
+			"name": "Teacher",
+			"item": [
+				{
+					"name": "Clé manquante dans le JSON de la requête (Pas de Prénom)(400 Bad Request) (Teacher)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "f86d2222-ba23-4d89-95fa-64b894f26cb0",
+								"exec": [
+									"pm.test(\"Status code is 400\", function () {",
+									"    pm.response.to.have.status(400);",
+									"});",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"id": "73746aa0-9a9b-4dd6-9da4-c97db0bce7e7",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true,
+						"disabledSystemHeaders": {}
+					},
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "",
+								"value": "",
+								"type": "text",
+								"disabled": true
+							}
+						],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "last_name",
+									"value": "Bouche",
+									"type": "text"
+								},
+								{
+									"key": "email_address",
+									"value": "abouche0603@gmail.com",
+									"type": "text"
+								},
+								{
+									"key": "password",
+									"value": "babajeman",
+									"type": "text"
+								},
+								{
+									"key": "type",
+									"value": "Student",
+									"type": "text"
+								},
+								{
+									"key": "document",
+									"type": "file",
+									"fileNotInWorkingDirectoryWarning": "This file isn't in your working directory. Teammates you share this request with won't be able to use this file. To make collaboration easier you can setup your working directory in Settings.",
+									"src": [
+										"/home/boucheantoine/Téléchargements/moi.jpg"
+									]
+								},
+								{
+									"key": "academic_years",
+									"value": "2021-2022",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "http://localhost:5000/auth/register",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "5000",
+							"path": [
+								"auth",
+								"register"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Clé manquante dans le JSON de la requête (Pas de Nom)(400 Bad Request)(Teacher)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "7fcb345f-7b63-434f-908d-258d23b54f72",
+								"exec": [
+									"pm.test(\"Status code is 400\", function () {",
+									"    pm.response.to.have.status(400);",
+									"});",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"id": "1dbb7350-ee69-4943-b168-6df39af9a123",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "first_name",
+									"value": "Antoine",
+									"type": "text"
+								},
+								{
+									"key": "email_address",
+									"value": "abouche0603@gmail.com",
+									"type": "text"
+								},
+								{
+									"key": "password",
+									"value": "babajeman",
+									"type": "text"
+								},
+								{
+									"key": "type",
+									"value": "Student",
+									"type": "text"
+								},
+								{
+									"key": "document",
+									"type": "file",
+									"fileNotInWorkingDirectoryWarning": "This file isn't in your working directory. Teammates you share this request with won't be able to use this file. To make collaboration easier you can setup your working directory in Settings.",
+									"src": [
+										"/home/boucheantoine/Téléchargements/moi.jpg"
+									]
+								},
+								{
+									"key": "academic_years",
+									"value": "2021-2022",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "http://localhost:5000/auth/register",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "5000",
+							"path": [
+								"auth",
+								"register"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Clé manquante dans le JSON de la requête (Pas d'email)(400 Bad Request)(Teacher)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "fbb48c5d-2101-4aaf-b83d-ebd252de45ee",
+								"exec": [
+									"pm.test(\"Status code is 400\", function () {",
+									"    pm.response.to.have.status(400);",
+									"});",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"id": "2af090a5-1901-4752-ad69-4fc0b153d3d3",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "first_name",
+									"value": "Antoine",
+									"type": "text"
+								},
+								{
+									"key": "last_name",
+									"value": "Bouche",
+									"type": "text"
+								},
+								{
+									"key": "password",
+									"value": "babajeman",
+									"type": "text"
+								},
+								{
+									"key": "type",
+									"value": "Student",
+									"type": "text"
+								},
+								{
+									"key": "document",
+									"type": "file",
+									"fileNotInWorkingDirectoryWarning": "This file isn't in your working directory. Teammates you share this request with won't be able to use this file. To make collaboration easier you can setup your working directory in Settings.",
+									"src": [
+										"/home/boucheantoine/Téléchargements/moi.jpg"
+									]
+								},
+								{
+									"key": "academic_years",
+									"value": "2021-2022",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "http://localhost:5000/auth/register",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "5000",
+							"path": [
+								"auth",
+								"register"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Clé manquante dans le JSON de la requête (Pas de mdp)(400 Bad Request)(Teacher)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "cb780374-91d9-4298-9c73-b87b6ff74995",
+								"exec": [
+									"pm.test(\"Status code is 400\", function () {",
+									"    pm.response.to.have.status(400);",
+									"});",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"id": "9cca5da4-438d-4d0c-8112-b7a97baeff5d",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "first_name",
+									"value": "Antoine",
+									"type": "text"
+								},
+								{
+									"key": "last_name",
+									"value": "Bouche",
+									"type": "text"
+								},
+								{
+									"key": "email_address",
+									"value": "abouche0603@gmail.com",
+									"type": "text"
+								},
+								{
+									"key": "type",
+									"value": "Student",
+									"type": "text"
+								},
+								{
+									"key": "document",
+									"type": "file",
+									"fileNotInWorkingDirectoryWarning": "This file isn't in your working directory. Teammates you share this request with won't be able to use this file. To make collaboration easier you can setup your working directory in Settings.",
+									"src": [
+										"/home/boucheantoine/Téléchargements/moi.jpg"
+									]
+								},
+								{
+									"key": "academic_years",
+									"value": "2021-2022",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "http://localhost:5000/auth/register",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "5000",
+							"path": [
+								"auth",
+								"register"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Prénom trop long (400 Bad Request)(Teacher)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "742be251-44e7-4829-a04a-56e050b9515c",
+								"exec": [
+									"pm.test(\"Status code is 400\", function () {",
+									"    pm.response.to.have.status(400);",
+									"});",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"id": "424b1ea3-6acb-4948-ba0b-7ef88ec5ec98",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "first_name",
+									"value": "Jugemu jugemu goko no surikire kaijarisuigyo no suigyomatsu unraimatsu furaimatsu ku neru tokoro ni sumu tokoro yabura koji no bura koji paipo-paipo paipo no shuringan shuringan no gurindai gurindai no ponpokopi no ponpokona non chokyumei no chosuke",
+									"type": "text"
+								},
+								{
+									"key": "last_name",
+									"value": "Dujardin",
+									"type": "text"
+								},
+								{
+									"key": "email_address",
+									"value": "abouche0603@gmail.com",
+									"type": "text"
+								},
+								{
+									"key": "type",
+									"value": "Teacher",
+									"type": "text"
+								},
+								{
+									"key": "document",
+									"type": "file",
+									"fileNotInWorkingDirectoryWarning": "This file isn't in your working directory. Teammates you share this request with won't be able to use this file. To make collaboration easier you can setup your working directory in Settings.",
+									"src": [
+										"/home/boucheantoine/Téléchargements/moi.jpg"
+									]
+								}
+							]
+						},
+						"url": {
+							"raw": "http://localhost:5000/auth/register",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "5000",
+							"path": [
+								"auth",
+								"register"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Nom trop long (400 Bad Request)(Teacher)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "bd3bd32d-faa9-4017-bee7-689986e3973a",
+								"exec": [
+									"pm.test(\"Status code is 400\", function () {",
+									"    pm.response.to.have.status(400);",
+									"});",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"id": "3ddd79ee-963c-4399-9077-c6dfb2bbd5dd",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "first_name",
+									"value": "Jean",
+									"type": "text"
+								},
+								{
+									"key": "last_name",
+									"value": "Jugemu jugemu goko no surikire kaijarisuigyo no suigyomatsu unraimatsu furaimatsu ku neru tokoro ni sumu tokoro yabura koji no bura koji paipo-paipo paipo no shuringan shuringan no gurindai gurindai no ponpokopi no ponpokona non chokyumei no chosuke",
+									"type": "text"
+								},
+								{
+									"key": "email_address",
+									"value": "abouche0603@gmail.com",
+									"type": "text"
+								},
+								{
+									"key": "type",
+									"value": "Student",
+									"type": "text"
+								},
+								{
+									"key": "document",
+									"type": "file",
+									"fileNotInWorkingDirectoryWarning": "This file isn't in your working directory. Teammates you share this request with won't be able to use this file. To make collaboration easier you can setup your working directory in Settings.",
+									"src": [
+										"/home/boucheantoine/Téléchargements/moi.jpg"
+									]
+								},
+								{
+									"key": "academic_years",
+									"value": "2021-2022",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "http://localhost:5000/auth/register",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "5000",
+							"path": [
+								"auth",
+								"register"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Utilisateur déjà existant(409 Conflict)(teacher)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "0811d9a3-e91b-4490-b1f2-88c44f75e083",
+								"exec": [
+									"pm.test(\"Status code is 409\", function () {",
+									"    pm.response.to.have.status(409);",
+									"});",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"id": "bcae3143-8a27-4748-887b-215c74e9dc59",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "first_name",
+									"value": "Antoine",
+									"type": "text"
+								},
+								{
+									"key": "last_name",
+									"value": "Bouche",
+									"type": "text"
+								},
+								{
+									"key": "email_address",
+									"value": "abouche0603@gmail.com",
+									"type": "text"
+								},
+								{
+									"key": "password",
+									"value": "Babajeman",
+									"type": "text"
+								},
+								{
+									"key": "type",
+									"value": "Student",
+									"type": "text"
+								},
+								{
+									"key": "document",
+									"type": "file",
+									"fileNotInWorkingDirectoryWarning": "This file isn't in your working directory. Teammates you share this request with won't be able to use this file. To make collaboration easier you can setup your working directory in Settings.",
+									"src": [
+										"/home/boucheantoine/Téléchargements/moi.jpg"
+									]
+								},
+								{
+									"key": "academic_years",
+									"value": "2021-2022",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "http://localhost:5000/auth/register",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "5000",
+							"path": [
+								"auth",
+								"register"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "mauvais type de donnée reçus(415 Unsupported Media Type)(Teacher)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "b83d38ab-0e8c-4e8b-aaf0-c322c2923c19",
+								"exec": [
+									"pm.test(\"Status code is 415\", function () {",
+									"    pm.response.to.have.status(415);",
+									"});",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"id": "d6043c16-4b8d-432c-807a-18e02af0be8e",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "text/plain",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "Ceci est un texte arbitraire pour tester l'erreur 415 Unsypportted Media Type"
+						},
+						"url": {
+							"raw": "http://localhost:5000/auth/register",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "5000",
+							"path": [
+								"auth",
+								"register"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "regular_usage (expect 200)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "5a9e8446-458c-4686-8735-e128d6009b91",
+								"exec": [
+									"// Validate that the response code should be 200",
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"id": "b6277bd1-e6d0-4ec8-b160-d28fe3513d91",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "first_name",
+									"value": "Titi",
+									"type": "text"
+								},
+								{
+									"key": "last_name",
+									"value": "Toto",
+									"type": "text"
+								},
+								{
+									"key": "email_address",
+									"value": "vava@bruh.com",
+									"type": "text"
+								},
+								{
+									"key": "password",
+									"value": "tititoto974",
+									"type": "text"
+								},
+								{
+									"key": "type",
+									"value": "Student",
+									"type": "text"
+								},
+								{
+									"key": "document",
+									"type": "file",
+									"fileNotInWorkingDirectoryWarning": "This file isn't in your working directory. Teammates you share this request with won't be able to use this file. To make collaboration easier you can setup your working directory in Settings.",
+									"src": [
+										"/home/boucheantoine/Téléchargements/random.jpg"
+									]
+								},
+								{
+									"key": "academic_years",
+									"value": "2021-2022",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "http://localhost:5000/auth/register",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "5000",
+							"path": [
+								"auth",
+								"register"
+							]
+						}
+					},
+					"response": []
+				}
+			],
+			"id": "970aa2d1-ef45-4e69-9408-0682ae4f2753"
+		},
+		{
+			"name": "Pas de type de compte(400 bad request)",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "4578f6c0-cce8-4ab0-9de4-76c3cf67f8c6",
+						"exec": [
+							"pm.test(\"Status code is 400\", function () {",
+							"    pm.response.to.have.status(400);",
+							"});",
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"id": "bd81eafa-a3ff-42f4-b356-7abbd05e30ee",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "formdata",
+					"formdata": [
+						{
+							"key": "first_name",
+							"value": "Antoine",
+							"type": "text"
+						},
+						{
+							"key": "last_name",
+							"value": "Bouche",
+							"type": "text"
+						},
+						{
+							"key": "email_address",
+							"value": "abouche0603@gmail.com",
+							"type": "text"
+						},
+						{
+							"key": "password",
+							"value": "babajeman",
+							"type": "text"
+						},
+						{
+							"key": "file",
+							"type": "file",
+							"fileNotInWorkingDirectoryWarning": "This file isn't in your working directory. Teammates you share this request with won't be able to use this file. To make collaboration easier you can setup your working directory in Settings.",
+							"src": [
+								"/home/boucheantoine/Téléchargements/moi.jpg"
+							]
+						},
+						{
+							"key": "academic_years",
+							"value": "2021-2022\n",
+							"type": "text"
+						}
+					]
+				},
+				"url": {
+					"raw": "http://localhost:5000/auth/register",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "5000",
+					"path": [
+						"auth",
+						"register"
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}
