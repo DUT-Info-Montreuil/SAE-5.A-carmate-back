@@ -38,22 +38,22 @@
 							"formdata": [
 								{
 									"key": "first_name",
-									"value": "Titi",
+									"value": "Marie",
 									"type": "text"
 								},
 								{
 									"key": "last_name",
-									"value": "Toto",
+									"value": "CLEMENT",
 									"type": "text"
 								},
 								{
 									"key": "email_address",
-									"value": "vava@bruh.com",
+									"value": "student@example.com",
 									"type": "text"
 								},
 								{
 									"key": "password",
-									"value": "tititoto974",
+									"value": "password",
 									"type": "text"
 								},
 								{
@@ -65,16 +65,6 @@
 									"key": "document",
 									"type": "file",
 									"src": "test/res/student-card.png"
-								},
-								{
-									"key": "academic_years_start",
-									"value": "2021",
-									"type": "text"
-								},
-								{
-									"key": "academic_years_end",
-									"value": "2022",
-									"type": "text"
 								}
 							]
 						},
@@ -135,12 +125,12 @@
 								},
 								{
 									"key": "email_address",
-									"value": "abouche0603@gmail.com",
+									"value": "bouche@example.com",
 									"type": "text"
 								},
 								{
 									"key": "password",
-									"value": "babajeman",
+									"value": "password",
 									"type": "text"
 								},
 								{
@@ -152,16 +142,6 @@
 									"key": "document",
 									"type": "file",
 									"src": "test/res/student-card.png"
-								},
-								{
-									"key": "academic_year_start",
-									"value": "2021",
-									"type": "text"
-								},
-								{
-									"key": "academic_year_end",
-									"value": "2022",
-									"type": "text"
 								}
 							]
 						},
@@ -214,12 +194,12 @@
 								},
 								{
 									"key": "email_address",
-									"value": "abouche0603@gmail.com",
+									"value": "bouche@example.com",
 									"type": "text"
 								},
 								{
 									"key": "password",
-									"value": "babajeman",
+									"value": "password",
 									"type": "text"
 								},
 								{
@@ -231,16 +211,6 @@
 									"key": "document",
 									"type": "file",
 									"src": "test/res/student-card.png"
-								},
-								{
-									"key": "academic_year_start",
-									"value": "2021",
-									"type": "text"
-								},
-								{
-									"key": "academic_year_end",
-									"value": "2022",
-									"type": "text"
 								}
 							]
 						},
@@ -298,7 +268,7 @@
 								},
 								{
 									"key": "password",
-									"value": "babajeman",
+									"value": "password",
 									"type": "text"
 								},
 								{
@@ -310,16 +280,6 @@
 									"key": "document",
 									"type": "file",
 									"src": "test/res/student-card.png"
-								},
-								{
-									"key": "academic_years_start",
-									"value": "2021",
-									"type": "text"
-								},
-								{
-									"key": "academic_years_end",
-									"value": "2022",
-									"type": "text"
 								}
 							]
 						},
@@ -377,7 +337,7 @@
 								},
 								{
 									"key": "email_address",
-									"value": "abouche0603@gmail.com",
+									"value": "bouche@example.com",
 									"type": "text"
 								},
 								{
@@ -389,164 +349,6 @@
 									"key": "document",
 									"type": "file",
 									"src": "test/res/student-card.png"
-								},
-								{
-									"key": "academic_years_start",
-									"value": "2021",
-									"type": "text"
-								},
-								{
-									"key": "academic_years_end",
-									"value": "2022",
-									"type": "text"
-								}
-							]
-						},
-						"url": {
-							"raw": "http://localhost:5000/auth/register",
-							"protocol": "http",
-							"host": [
-								"localhost"
-							],
-							"port": "5000",
-							"path": [
-								"auth",
-								"register"
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "Clé manquante dans le JSON de la requête (Pas de AYStart)(400 Bad Request)",
-					"event": [
-						{
-							"listen": "test",
-							"script": {
-								"id": "3a83072c-05a9-4f15-bdef-61801a678a0b",
-								"exec": [
-									"pm.test(\"Status code is 400\", function () {",
-									"    pm.response.to.have.status(400);",
-									"});",
-									""
-								],
-								"type": "text/javascript"
-							}
-						}
-					],
-					"id": "df3d5d44-4fae-4c94-9795-ed508b029bab",
-					"protocolProfileBehavior": {
-						"disableBodyPruning": true
-					},
-					"request": {
-						"method": "POST",
-						"header": [],
-						"body": {
-							"mode": "formdata",
-							"formdata": [
-								{
-									"key": "first_name",
-									"value": "Antoine",
-									"type": "text"
-								},
-								{
-									"key": "last_name",
-									"value": "Bouche",
-									"type": "text"
-								},
-								{
-									"key": "email_address",
-									"value": "abouche0603@gmail.com",
-									"type": "text"
-								},
-								{
-									"key": "type",
-									"value": "Student",
-									"type": "text"
-								},
-								{
-									"key": "document",
-									"type": "file",
-									"src": "test/res/student-card.png"
-								},
-								{
-									"key": "academic_years",
-									"value": "2021-2022",
-									"type": "text"
-								}
-							]
-						},
-						"url": {
-							"raw": "http://localhost:5000/auth/register",
-							"protocol": "http",
-							"host": [
-								"localhost"
-							],
-							"port": "5000",
-							"path": [
-								"auth",
-								"register"
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "Clé manquante dans le JSON de la requête (Pas de AYEnd)(400 Bad Request)",
-					"event": [
-						{
-							"listen": "test",
-							"script": {
-								"id": "061ffcf9-14c5-421e-8746-e24d10731540",
-								"exec": [
-									"pm.test(\"Status code is 400\", function () {",
-									"    pm.response.to.have.status(400);",
-									"});",
-									""
-								],
-								"type": "text/javascript"
-							}
-						}
-					],
-					"id": "90ace03d-fa70-4c97-809b-3b98d10e5282",
-					"protocolProfileBehavior": {
-						"disableBodyPruning": true
-					},
-					"request": {
-						"method": "POST",
-						"header": [],
-						"body": {
-							"mode": "formdata",
-							"formdata": [
-								{
-									"key": "first_name",
-									"value": "Antoine",
-									"type": "text"
-								},
-								{
-									"key": "last_name",
-									"value": "Bouche",
-									"type": "text"
-								},
-								{
-									"key": "email_address",
-									"value": "abouche0603@gmail.com",
-									"type": "text"
-								},
-								{
-									"key": "type",
-									"value": "Student",
-									"type": "text"
-								},
-								{
-									"key": "document",
-									"type": "file",
-									"src": "test/res/student-card.png"
-								},
-								{
-									"key": "academic_years",
-									"value": "2021-2022",
-									"type": "text"
 								}
 							]
 						},
@@ -604,7 +406,7 @@
 								},
 								{
 									"key": "email_address",
-									"value": "abouche0603@gmail.com",
+									"value": "firstname-toolong@example.com",
 									"type": "text"
 								},
 								{
@@ -616,16 +418,6 @@
 									"key": "document",
 									"type": "file",
 									"src": "test/res/student-card.png"
-								},
-								{
-									"key": "academic years-start",
-									"value": "2021",
-									"type": "text"
-								},
-								{
-									"key": "academic_years_end",
-									"value": "2022",
-									"type": "text"
 								}
 							]
 						},
@@ -683,7 +475,7 @@
 								},
 								{
 									"key": "email_address",
-									"value": "abouche0603@gmail.com",
+									"value": "lastname-toolong@example.com",
 									"type": "text"
 								},
 								{
@@ -695,16 +487,6 @@
 									"key": "document",
 									"type": "file",
 									"src": "test/res/student-card.png"
-								},
-								{
-									"key": "academic_years-start",
-									"value": "2021",
-									"type": "text"
-								},
-								{
-									"key": "academic_years_end",
-									"value": "2022",
-									"type": "text"
 								}
 							]
 						},
@@ -762,12 +544,12 @@
 								},
 								{
 									"key": "email_address",
-									"value": "abouche0603@gmail.com",
+									"value": "bouche@example.com",
 									"type": "text"
 								},
 								{
 									"key": "password",
-									"value": "Babajeman",
+									"value": "password",
 									"type": "text"
 								},
 								{
@@ -779,16 +561,6 @@
 									"key": "document",
 									"type": "file",
 									"src": "test/res/student-card.png"
-								},
-								{
-									"key": "academic_years_start",
-									"value": "2021",
-									"type": "text"
-								},
-								{
-									"key": "academic_years_end",
-									"value": "2022",
-									"type": "text"
 								}
 							]
 						},
@@ -839,7 +611,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "Ceci est un texte arbitraire pour tester l'erreur 415 Unsypportted Media Type",
+							"raw": "wrong",
 							"options": {
 								"raw": {
 									"language": "text"
@@ -897,38 +669,33 @@
 							"formdata": [
 								{
 									"key": "first_name",
-									"value": "Titi",
+									"value": "Fabien",
 									"type": "text"
 								},
 								{
 									"key": "last_name",
-									"value": "Toto",
+									"value": "Antoine",
 									"type": "text"
 								},
 								{
 									"key": "email_address",
-									"value": "vava@bruh.com",
+									"value": "teacher@example.com",
 									"type": "text"
 								},
 								{
 									"key": "password",
-									"value": "tititoto974",
+									"value": "password",
 									"type": "text"
 								},
 								{
 									"key": "type",
-									"value": "Student",
+									"value": "Teacher",
 									"type": "text"
 								},
 								{
 									"key": "document",
 									"type": "file",
 									"src": "test/res/teacher-contract.png"
-								},
-								{
-									"key": "academic_years",
-									"value": "2021-2022",
-									"type": "text"
 								}
 							]
 						},
@@ -989,28 +756,23 @@
 								},
 								{
 									"key": "email_address",
-									"value": "abouche0603@gmail.com",
+									"value": "bouche@example.com",
 									"type": "text"
 								},
 								{
 									"key": "password",
-									"value": "babajeman",
+									"value": "password",
 									"type": "text"
 								},
 								{
 									"key": "type",
-									"value": "Student",
+									"value": "Teacher",
 									"type": "text"
 								},
 								{
 									"key": "document",
 									"type": "file",
 									"src": "test/res/teacher-contract.png"
-								},
-								{
-									"key": "academic_years",
-									"value": "2021-2022",
-									"type": "text"
 								}
 							]
 						},
@@ -1063,28 +825,23 @@
 								},
 								{
 									"key": "email_address",
-									"value": "abouche0603@gmail.com",
+									"value": "bouche@example.com",
 									"type": "text"
 								},
 								{
 									"key": "password",
-									"value": "babajeman",
+									"value": "password",
 									"type": "text"
 								},
 								{
 									"key": "type",
-									"value": "Student",
+									"value": "Teacher",
 									"type": "text"
 								},
 								{
 									"key": "document",
 									"type": "file",
 									"src": "test/res/teacher-contract.png"
-								},
-								{
-									"key": "academic_years",
-									"value": "2021-2022",
-									"type": "text"
 								}
 							]
 						},
@@ -1142,12 +899,12 @@
 								},
 								{
 									"key": "password",
-									"value": "babajeman",
+									"value": "password",
 									"type": "text"
 								},
 								{
 									"key": "type",
-									"value": "Student",
+									"value": "Teacher",
 									"type": "text"
 								},
 								{
@@ -1216,23 +973,18 @@
 								},
 								{
 									"key": "email_address",
-									"value": "abouche0603@gmail.com",
+									"value": "bouche@example.com",
 									"type": "text"
 								},
 								{
 									"key": "type",
-									"value": "Student",
+									"value": "Teacher",
 									"type": "text"
 								},
 								{
 									"key": "document",
 									"type": "file",
 									"src": "test/res/teacher-contract.png"
-								},
-								{
-									"key": "academic_years",
-									"value": "2021-2022",
-									"type": "text"
 								}
 							]
 						},
@@ -1290,7 +1042,7 @@
 								},
 								{
 									"key": "email_address",
-									"value": "abouche0603@gmail.com",
+									"value": "firstname-toolong@example.com",
 									"type": "text"
 								},
 								{
@@ -1359,12 +1111,12 @@
 								},
 								{
 									"key": "email_address",
-									"value": "abouche0603@gmail.com",
+									"value": "lastname-toolong@example.com",
 									"type": "text"
 								},
 								{
 									"key": "type",
-									"value": "Student",
+									"value": "Teacher",
 									"type": "text"
 								},
 								{
@@ -1423,38 +1175,33 @@
 							"formdata": [
 								{
 									"key": "first_name",
-									"value": "Antoine",
+									"value": "Fabien",
 									"type": "text"
 								},
 								{
 									"key": "last_name",
-									"value": "Bouche",
+									"value": "Antoine",
 									"type": "text"
 								},
 								{
 									"key": "email_address",
-									"value": "abouche0603@gmail.com",
+									"value": "teacher@example.com",
 									"type": "text"
 								},
 								{
 									"key": "password",
-									"value": "Babajeman",
+									"value": "password",
 									"type": "text"
 								},
 								{
 									"key": "type",
-									"value": "Student",
+									"value": "Teacher",
 									"type": "text"
 								},
 								{
 									"key": "document",
 									"type": "file",
 									"src": "test/res/teacher-contract.png"
-								},
-								{
-									"key": "academic_years",
-									"value": "2021-2022",
-									"type": "text"
 								}
 							]
 						},
@@ -1505,7 +1252,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "Ceci est un texte arbitraire pour tester l'erreur 415 Unsypportted Media Type"
+							"raw": "wrong"
 						},
 						"url": {
 							"raw": "http://localhost:5000/auth/register",
