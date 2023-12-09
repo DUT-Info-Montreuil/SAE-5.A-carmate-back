@@ -154,6 +154,8 @@ class AuthRoutes(Blueprint):
             abort(400)
         except Exception:
             abort(500)
+        if any([value is None for value in credential.values()]):
+            abort(400)
 
         if "document" not in request.files:
             abort(415)
