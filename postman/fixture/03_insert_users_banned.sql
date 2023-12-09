@@ -1,2 +1,2 @@
 INSERT INTO carmate.user_banned VALUES 
-    (2, 1, NOW());
+    (3, 2, NOW());
