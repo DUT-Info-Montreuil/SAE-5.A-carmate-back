@@ -106,6 +106,7 @@ class AuthRoutes(Blueprint):
         token: TokenDTO
         try:
             token = Login(self.user_repository,
+                          self.user_banned_repository,
                           self.token_repository).worker(CredentialDTO.json_to_self(credential))
         except CredentialInvalid:
             abort(401)
