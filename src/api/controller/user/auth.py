@@ -134,7 +134,7 @@ class AuthRoutes(Blueprint):
                 - When don't have credential key in multipart/form-data
             500: Internal Server Error
         """
-        if request.is_json:
+        if "multipart/form-data" not in request.content_type :
             abort(415)
 
         credential: dict
