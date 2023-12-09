@@ -4,12 +4,12 @@ from datetime import datetime, timedelta
 from hashlib import sha512
 
 from api import check_email
-from api.worker.auth.use_case import Token
 from api.exceptions import (
     BannedAccount, 
     CredentialInvalid, 
     InternalServerError
 )
+from api.worker.auth import Token
 from api.worker.auth.models import (
     CredentialDTO, 
     TokenDTO
