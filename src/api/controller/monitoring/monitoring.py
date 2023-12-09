@@ -34,6 +34,3 @@ class MonitoringRoutes(Blueprint):
         
         if rowcount != 1:
             abort(503)
-
-        if request.method == "GET":
-            return '', 204
