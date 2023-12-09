@@ -10,6 +10,90 @@
 			"name": "Student",
 			"item": [
 				{
+					"name": "regular_usage (expect 200)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "43c46600-9149-4bc1-86e5-2e9a83fc364b",
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"id": "a6869bcf-c565-4de8-93e6-b5e3468b0d8d",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "first_name",
+									"value": "Titi",
+									"type": "text"
+								},
+								{
+									"key": "last_name",
+									"value": "Toto",
+									"type": "text"
+								},
+								{
+									"key": "email_address",
+									"value": "vava@bruh.com",
+									"type": "text"
+								},
+								{
+									"key": "password",
+									"value": "tititoto974",
+									"type": "text"
+								},
+								{
+									"key": "type",
+									"value": "Student",
+									"type": "text"
+								},
+								{
+									"key": "document",
+									"type": "file",
+									"src": "test/res/student-card.png"
+								},
+								{
+									"key": "academic_years_start",
+									"value": "2021",
+									"type": "text"
+								},
+								{
+									"key": "academic_years_end",
+									"value": "2022",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "http://localhost:5000/auth/register",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "5000",
+							"path": [
+								"auth",
+								"register"
+							]
+						}
+					},
+					"response": []
+				},
+				{
 					"name": "Clé manquante dans le JSON de la requête (Pas de Prénom)(400 Bad Request)",
 					"event": [
 						{
@@ -67,10 +151,7 @@
 								{
 									"key": "document",
 									"type": "file",
-									"fileNotInWorkingDirectoryWarning": "This file isn't in your working directory. Teammates you share this request with won't be able to use this file. To make collaboration easier you can setup your working directory in Settings.",
-									"src": [
-										"/home/boucheantoine/Téléchargements/moi.jpg"
-									]
+									"src": "test/res/student-card.png"
 								},
 								{
 									"key": "academic_year_start",
@@ -149,10 +230,7 @@
 								{
 									"key": "document",
 									"type": "file",
-									"fileNotInWorkingDirectoryWarning": "This file isn't in your working directory. Teammates you share this request with won't be able to use this file. To make collaboration easier you can setup your working directory in Settings.",
-									"src": [
-										"/home/boucheantoine/Téléchargements/moi.jpg"
-									]
+									"src": "test/res/student-card.png"
 								},
 								{
 									"key": "academic_year_start",
@@ -231,10 +309,7 @@
 								{
 									"key": "document",
 									"type": "file",
-									"fileNotInWorkingDirectoryWarning": "This file isn't in your working directory. Teammates you share this request with won't be able to use this file. To make collaboration easier you can setup your working directory in Settings.",
-									"src": [
-										"/home/boucheantoine/Téléchargements/moi.jpg"
-									]
+									"src": "test/res/student-card.png"
 								},
 								{
 									"key": "academic_years_start",
@@ -313,10 +388,7 @@
 								{
 									"key": "document",
 									"type": "file",
-									"fileNotInWorkingDirectoryWarning": "This file isn't in your working directory. Teammates you share this request with won't be able to use this file. To make collaboration easier you can setup your working directory in Settings.",
-									"src": [
-										"/home/boucheantoine/Téléchargements/moi.jpg"
-									]
+									"src": "test/res/student-card.png"
 								},
 								{
 									"key": "academic_years_start",
@@ -395,10 +467,7 @@
 								{
 									"key": "document",
 									"type": "file",
-									"fileNotInWorkingDirectoryWarning": "This file isn't in your working directory. Teammates you share this request with won't be able to use this file. To make collaboration easier you can setup your working directory in Settings.",
-									"src": [
-										"/home/boucheantoine/Téléchargements/moi.jpg"
-									]
+									"src": "test/res/student-card.png"
 								},
 								{
 									"key": "academic_years",
@@ -472,10 +541,7 @@
 								{
 									"key": "document",
 									"type": "file",
-									"fileNotInWorkingDirectoryWarning": "This file isn't in your working directory. Teammates you share this request with won't be able to use this file. To make collaboration easier you can setup your working directory in Settings.",
-									"src": [
-										"/home/boucheantoine/Téléchargements/moi.jpg"
-									]
+									"src": "test/res/student-card.png"
 								},
 								{
 									"key": "academic_years",
@@ -549,10 +615,7 @@
 								{
 									"key": "document",
 									"type": "file",
-									"fileNotInWorkingDirectoryWarning": "This file isn't in your working directory. Teammates you share this request with won't be able to use this file. To make collaboration easier you can setup your working directory in Settings.",
-									"src": [
-										"/home/boucheantoine/Téléchargements/moi.jpg"
-									]
+									"src": "test/res/student-card.png"
 								},
 								{
 									"key": "academic years-start",
@@ -631,10 +694,7 @@
 								{
 									"key": "document",
 									"type": "file",
-									"fileNotInWorkingDirectoryWarning": "This file isn't in your working directory. Teammates you share this request with won't be able to use this file. To make collaboration easier you can setup your working directory in Settings.",
-									"src": [
-										"/home/boucheantoine/Téléchargements/moi.jpg"
-									]
+									"src": "test/res/student-card.png"
 								},
 								{
 									"key": "academic_years-start",
@@ -718,10 +778,7 @@
 								{
 									"key": "document",
 									"type": "file",
-									"fileNotInWorkingDirectoryWarning": "This file isn't in your working directory. Teammates you share this request with won't be able to use this file. To make collaboration easier you can setup your working directory in Settings.",
-									"src": [
-										"/home/boucheantoine/Téléchargements/moi.jpg"
-									]
+									"src": "test/res/student-card.png"
 								},
 								{
 									"key": "academic_years_start",
@@ -803,15 +860,22 @@
 						}
 					},
 					"response": []
-				},
+				}
+			],
+			"id": "d2896786-206b-47c3-adb9-68fc3a4bc89d"
+		},
+		{
+			"name": "Teacher",
+			"item": [
 				{
 					"name": "regular_usage (expect 200)",
 					"event": [
 						{
 							"listen": "test",
 							"script": {
-								"id": "43c46600-9149-4bc1-86e5-2e9a83fc364b",
+								"id": "5a9e8446-458c-4686-8735-e128d6009b91",
 								"exec": [
+									"// Validate that the response code should be 200",
 									"pm.test(\"Status code is 200\", function () {",
 									"    pm.response.to.have.status(200);",
 									"});",
@@ -821,7 +885,7 @@
 							}
 						}
 					],
-					"id": "a6869bcf-c565-4de8-93e6-b5e3468b0d8d",
+					"id": "b6277bd1-e6d0-4ec8-b160-d28fe3513d91",
 					"protocolProfileBehavior": {
 						"disableBodyPruning": true
 					},
@@ -859,19 +923,11 @@
 								{
 									"key": "document",
 									"type": "file",
-									"fileNotInWorkingDirectoryWarning": "This file isn't in your working directory. Teammates you share this request with won't be able to use this file. To make collaboration easier you can setup your working directory in Settings.",
-									"src": [
-										"/home/boucheantoine/Téléchargements/random.jpg"
-									]
+									"src": "test/res/teacher-contract.png"
 								},
 								{
-									"key": "academic_years_start",
-									"value": "2021",
-									"type": "text"
-								},
-								{
-									"key": "academic_years_end",
-									"value": "2022",
+									"key": "academic_years",
+									"value": "2021-2022",
 									"type": "text"
 								}
 							]
@@ -890,13 +946,7 @@
 						}
 					},
 					"response": []
-				}
-			],
-			"id": "d2896786-206b-47c3-adb9-68fc3a4bc89d"
-		},
-		{
-			"name": "Teacher",
-			"item": [
+				},
 				{
 					"name": "Clé manquante dans le JSON de la requête (Pas de Prénom)(400 Bad Request) (Teacher)",
 					"event": [
@@ -955,10 +1005,7 @@
 								{
 									"key": "document",
 									"type": "file",
-									"fileNotInWorkingDirectoryWarning": "This file isn't in your working directory. Teammates you share this request with won't be able to use this file. To make collaboration easier you can setup your working directory in Settings.",
-									"src": [
-										"/home/boucheantoine/Téléchargements/moi.jpg"
-									]
+									"src": "test/res/teacher-contract.png"
 								},
 								{
 									"key": "academic_years",
@@ -1032,10 +1079,7 @@
 								{
 									"key": "document",
 									"type": "file",
-									"fileNotInWorkingDirectoryWarning": "This file isn't in your working directory. Teammates you share this request with won't be able to use this file. To make collaboration easier you can setup your working directory in Settings.",
-									"src": [
-										"/home/boucheantoine/Téléchargements/moi.jpg"
-									]
+									"src": "test/res/teacher-contract.png"
 								},
 								{
 									"key": "academic_years",
@@ -1109,10 +1153,7 @@
 								{
 									"key": "document",
 									"type": "file",
-									"fileNotInWorkingDirectoryWarning": "This file isn't in your working directory. Teammates you share this request with won't be able to use this file. To make collaboration easier you can setup your working directory in Settings.",
-									"src": [
-										"/home/boucheantoine/Téléchargements/moi.jpg"
-									]
+									"src": "test/res/teacher-contract.png"
 								},
 								{
 									"key": "academic_years",
@@ -1186,10 +1227,7 @@
 								{
 									"key": "document",
 									"type": "file",
-									"fileNotInWorkingDirectoryWarning": "This file isn't in your working directory. Teammates you share this request with won't be able to use this file. To make collaboration easier you can setup your working directory in Settings.",
-									"src": [
-										"/home/boucheantoine/Téléchargements/moi.jpg"
-									]
+									"src": "test/res/teacher-contract.png"
 								},
 								{
 									"key": "academic_years",
@@ -1263,10 +1301,7 @@
 								{
 									"key": "document",
 									"type": "file",
-									"fileNotInWorkingDirectoryWarning": "This file isn't in your working directory. Teammates you share this request with won't be able to use this file. To make collaboration easier you can setup your working directory in Settings.",
-									"src": [
-										"/home/boucheantoine/Téléchargements/moi.jpg"
-									]
+									"src": "test/res/teacher-contract.png"
 								}
 							]
 						},
@@ -1335,10 +1370,7 @@
 								{
 									"key": "document",
 									"type": "file",
-									"fileNotInWorkingDirectoryWarning": "This file isn't in your working directory. Teammates you share this request with won't be able to use this file. To make collaboration easier you can setup your working directory in Settings.",
-									"src": [
-										"/home/boucheantoine/Téléchargements/moi.jpg"
-									]
+									"src": "test/res/teacher-contract.png"
 								},
 								{
 									"key": "academic_years",
@@ -1417,10 +1449,7 @@
 								{
 									"key": "document",
 									"type": "file",
-									"fileNotInWorkingDirectoryWarning": "This file isn't in your working directory. Teammates you share this request with won't be able to use this file. To make collaboration easier you can setup your working directory in Settings.",
-									"src": [
-										"/home/boucheantoine/Téléchargements/moi.jpg"
-									]
+									"src": "test/res/teacher-contract.png"
 								},
 								{
 									"key": "academic_years",
@@ -1492,89 +1521,6 @@
 						}
 					},
 					"response": []
-				},
-				{
-					"name": "regular_usage (expect 200)",
-					"event": [
-						{
-							"listen": "test",
-							"script": {
-								"id": "5a9e8446-458c-4686-8735-e128d6009b91",
-								"exec": [
-									"// Validate that the response code should be 200",
-									"pm.test(\"Status code is 200\", function () {",
-									"    pm.response.to.have.status(200);",
-									"});",
-									""
-								],
-								"type": "text/javascript"
-							}
-						}
-					],
-					"id": "b6277bd1-e6d0-4ec8-b160-d28fe3513d91",
-					"protocolProfileBehavior": {
-						"disableBodyPruning": true
-					},
-					"request": {
-						"method": "POST",
-						"header": [],
-						"body": {
-							"mode": "formdata",
-							"formdata": [
-								{
-									"key": "first_name",
-									"value": "Titi",
-									"type": "text"
-								},
-								{
-									"key": "last_name",
-									"value": "Toto",
-									"type": "text"
-								},
-								{
-									"key": "email_address",
-									"value": "vava@bruh.com",
-									"type": "text"
-								},
-								{
-									"key": "password",
-									"value": "tititoto974",
-									"type": "text"
-								},
-								{
-									"key": "type",
-									"value": "Student",
-									"type": "text"
-								},
-								{
-									"key": "document",
-									"type": "file",
-									"fileNotInWorkingDirectoryWarning": "This file isn't in your working directory. Teammates you share this request with won't be able to use this file. To make collaboration easier you can setup your working directory in Settings.",
-									"src": [
-										"/home/boucheantoine/Téléchargements/random.jpg"
-									]
-								},
-								{
-									"key": "academic_years",
-									"value": "2021-2022",
-									"type": "text"
-								}
-							]
-						},
-						"url": {
-							"raw": "http://localhost:5000/auth/register",
-							"protocol": "http",
-							"host": [
-								"localhost"
-							],
-							"port": "5000",
-							"path": [
-								"auth",
-								"register"
-							]
-						}
-					},
-					"response": []
 				}
 			],
 			"id": "970aa2d1-ef45-4e69-9408-0682ae4f2753"
@@ -1629,10 +1575,7 @@
 						{
 							"key": "file",
 							"type": "file",
-							"fileNotInWorkingDirectoryWarning": "This file isn't in your working directory. Teammates you share this request with won't be able to use this file. To make collaboration easier you can setup your working directory in Settings.",
-							"src": [
-								"/home/boucheantoine/Téléchargements/moi.jpg"
-							]
+							"src": "test/res/teacher-contract.png"
 						},
 						{
 							"key": "academic_years",
