@@ -534,17 +534,17 @@
 							"formdata": [
 								{
 									"key": "first_name",
-									"value": "Antoine",
+									"value": "Marie",
 									"type": "text"
 								},
 								{
 									"key": "last_name",
-									"value": "Bouche",
+									"value": "CLEMENT",
 									"type": "text"
 								},
 								{
 									"key": "email_address",
-									"value": "bouche@example.com",
+									"value": "student@example.com",
 									"type": "text"
 								},
 								{
