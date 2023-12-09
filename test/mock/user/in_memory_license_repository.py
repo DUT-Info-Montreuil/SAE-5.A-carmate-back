@@ -18,7 +18,7 @@ class InMemoryLicenseRepository(LicenseRepositoryInterface):
         self.licenses_count = 0
         self.licenses: List[LicenseTable] = [
             LicenseTable(1, bytes(1), "Basic", "Pending", datetime.now(), 1),
-            LicenseTable(2, bytes(1), "Basic", "Pending", datetime.now(), 1)
+            LicenseTable(2, bytes(1), "Basic", "Pending", datetime.now(), 2)
         ]
 
     def insert(self, document: bytes,
