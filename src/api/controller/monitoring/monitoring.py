@@ -1,3 +1,5 @@
+from typing import Any
+
 from flask import Blueprint, abort, request
 
 from database import establishing_connection
@@ -17,7 +19,7 @@ class MonitoringRoutes(Blueprint):
         return '', 204
 
     def readiness_api(self) -> None:
-        if request.endpoint in "liveness" or request.endpoint in "readiness":
+        if request.endpoint == "monitoring.liveness_api":
             return None
 
         try:
