@@ -13,11 +13,11 @@ from database.schemas import DriverProfileTable, UserTable
 class DriverProfileRepositoryInterface(ABC):
     def insert(self,
                user: UserTable) -> DriverProfileTable: ...
-    
+
     def get_driver_by_user_id(self,
                               user_id: int) -> DriverProfileTable: ...
-    
-    def get_driver(self, 
+
+    def get_driver(self,
                    driver_id: int) -> DriverProfileTable: ...
 
 class DriverProfileRepository(DriverProfileRepositoryInterface):
@@ -30,7 +30,7 @@ class DriverProfileRepository(DriverProfileRepositoryInterface):
             VALUES (%s)
             RETURNING id, "description", created_at, user_id
         """
-        
+
         conducteur_profile: tuple
         conn: Any
         try:
@@ -51,7 +51,7 @@ class DriverProfileRepository(DriverProfileRepositoryInterface):
             conn.close()
         return DriverProfileTable.to_self(conducteur_profile)
 
-    def get_driver(self, 
+    def get_driver(self,
                    driver_id: int) -> DriverProfileTable:
         query = f"""SELECT * 
                     FROM carmate.{DriverProfileRepository.POSTGRES_TABLE_NAME} 
@@ -74,8 +74,9 @@ class DriverProfileRepository(DriverProfileRepositoryInterface):
                     raise InternalServer(str(e))
             conn.close()
 
+        if driver_data is None:
+            raise NotFound("driver not found")
         return DriverProfileTable.to_self(driver_data)
-
 
     def get_driver_by_user_id(self,
                               user_id: int) -> DriverProfileTable:
@@ -100,4 +101,6 @@ class DriverProfileRepository(DriverProfileRepositoryInterface):
                     raise InternalServer(str(e))
             conn.close()
 
+        if driver_data is None:
+            raise NotFound("driver not found")
         return DriverProfileTable.to_self(driver_data)

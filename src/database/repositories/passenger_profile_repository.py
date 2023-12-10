@@ -72,6 +72,8 @@ class PassengerProfileRepository(PassengerProfileRepositoryInterface):
                     raise InternalServer(str(e))
             conn.close()
 
+        if passenger_data is None:
+            raise NotFound("passenger not found")
         return PassengerProfileTable.to_self(passenger_data)
 
 
@@ -98,4 +100,6 @@ class PassengerProfileRepository(PassengerProfileRepositoryInterface):
                     raise InternalServer(str(e))
             conn.close()
 
+        if passenger_data is None:
+            raise NotFound("passenger not found")
         return PassengerProfileTable.to_self(passenger_data)

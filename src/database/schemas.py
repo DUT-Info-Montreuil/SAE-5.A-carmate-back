@@ -71,7 +71,7 @@ class DriverProfileTable:
 
     @staticmethod
     def to_self(_tuple: tuple):
-        return LicenseTable(
+        return DriverProfileTable(
             _tuple[0],
             _tuple[1],
             _tuple[2],

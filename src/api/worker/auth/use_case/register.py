@@ -53,7 +53,7 @@ class Register(object):
             raise InternalServerError(str(e))
 
         try:
-            self.license_repository.insert(document, user, DocumentType.Basic.name)
+            self.license_repository.insert(document.read(), user, DocumentType.Basic.name)
         except Exception as e:
             raise InternalServerError(str(e))
 

@@ -51,7 +51,7 @@ class LicenseRepository(LicenseRepositoryInterface):
         else:
             with conn.cursor() as curs:
                 try:
-                    curs.execute(query, (document.read(), document_type, user.id))
+                    curs.execute(query, (document, document_type, user.id))
                 except lookup(errorcodes.UNIQUE_VIOLATION) as e:
                     raise UniqueViolation(str(e))
                 except Exception as e:
@@ -60,7 +60,7 @@ class LicenseRepository(LicenseRepositoryInterface):
                     id, validation_status, published_at = curs.fetchone()
             conn.commit()
             conn.close()
-        return LicenseTable(id, document.read(), document_type, validation_status, published_at, user.id)
+        return LicenseTable(id, document, document_type, validation_status, published_at, user.id)
 
     def get_licenses_not_validated(self, page: int | None) -> Dict[str, Union[int, List[LicenseToValidateDTO]]]:
         offset = (page - 1) * 30 if page is not None else 0
@@ -115,10 +115,8 @@ class LicenseRepository(LicenseRepositoryInterface):
                 try:
                     curs.execute(query, (document_id, ))
                 except ProgrammingError:
-                    print("lll")
                     raise NotFound("document not found")
                 except IndexError:
-                    print("lllll")
                     raise NotFound("document not found")
                 except Exception as e:
                     raise InternalServer(str(e))
