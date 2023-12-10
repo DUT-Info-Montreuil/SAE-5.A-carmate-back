@@ -12,8 +12,9 @@ from database.exceptions import *
 class InMemoryTokenRepository(TokenRepositoryInterface):
     def __init__(self, user_repo=None):
         self.tokens: List[TokenTable] = [
-            TokenTable(sha512("token-valid".encode()).digest(), datetime.now() + timedelta(days=1), 1),
-            TokenTable(sha512("token-invalid".encode()).digest(), datetime.now() - timedelta(days=15), 1)
+            TokenTable(sha512("token-user-valid".encode()).digest(), datetime.now() + timedelta(days=1), 0),
+            TokenTable(sha512("token-admin-valid".encode()).digest(), datetime.now() + timedelta(days=1), 1),
+            TokenTable(sha512("token-user-invalid".encode()).digest(), datetime.now() - timedelta(days=15), 2)
         ]
         self.user_repo = user_repo
 

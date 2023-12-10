@@ -16,7 +16,7 @@ class UserAdminRepository(UserAdminRepositoryInterface):
         query = f"""SELECT EXISTS (
                         SELECT 1 
                         FROM carmate.{UserAdminRepository.POSTGRES_TABLE_NAME}
-                        WHERE "user" = %s
+                        WHERE user_id=%s
                     ) as is_admin"""
 
         conn: Any

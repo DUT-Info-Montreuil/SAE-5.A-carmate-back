@@ -5,7 +5,7 @@ from api import check_email
 from api.worker.admin import DocumentType
 from api.exceptions import *
 from api.worker.auth.models import CredentialDTO, TokenDTO
-from api.worker.auth.use_case.token import Token
+from api.worker.auth import Token
 from api.worker.user import AccountStatus
 from database.exceptions import UniqueViolation
 from database.repositories import UserRepositoryInterface, TokenRepositoryInterface
@@ -53,7 +53,7 @@ class Register(object):
             raise InternalServerError(str(e))
 
         try:
-            self.license_repository.insert(document.read(), user, DocumentType.Basic.name)
+            self.license_repository.insert(document, user, DocumentType.Basic.name)
         except Exception as e:
             raise InternalServerError(str(e))
 

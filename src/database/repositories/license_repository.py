@@ -1,4 +1,5 @@
 from abc import ABC
+from datetime import datetime
 from typing import Any, List, Union, Dict
 
 from psycopg2 import errorcodes
@@ -34,12 +35,14 @@ class LicenseRepository(LicenseRepositoryInterface):
     def insert(self,
                document: bytes,
                user: UserTable,
-               document_type) -> LicenseTable:
+               document_type: str) -> LicenseTable:
         query = f"""INSERT INTO carmate.{LicenseRepository.POSTGRES_TABLE_NAME}
                     VALUES (DEFAULT, %s, %s, DEFAULT, DEFAULT, %s)
-                    RETURNING id"""
+                    RETURNING id, validation_status, published_at"""
 
         id: int
+        published_at: datetime
+        validation_status: str
         conn: Any
         try:
             conn = establishing_connection()
@@ -54,10 +57,10 @@ class LicenseRepository(LicenseRepositoryInterface):
                 except Exception as e:
                     raise InternalServer(str(e))
                 else:
-                    id = curs.fetchone()[0]
+                    id, validation_status, published_at = curs.fetchone()
             conn.commit()
             conn.close()
-        return LicenseTable(id, document.read(), False, user.id)
+        return LicenseTable(id, document.read(), document_type, validation_status, published_at, user.id)
 
     def get_licenses_not_validated(self, page: int | None) -> Dict[str, Union[int, List[LicenseToValidateDTO]]]:
         offset = (page - 1) * 30 if page is not None else 0

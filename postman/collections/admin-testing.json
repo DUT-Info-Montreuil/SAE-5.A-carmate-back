@@ -1,0 +1,954 @@
+{
+	"info": {
+		"_postman_id": "532e22d9-5b82-46e2-a7b0-a37c33476c6e",
+		"name": "Admin Testing",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_uid": "31539900-532e22d9-5b82-46e2-a7b0-a37c33476c6e"
+	},
+	"item": [
+		{
+			"name": "licenses-to-validate",
+			"item": [
+				{
+					"name": "regular_usage",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "04adacbb-e12a-45a7-a362-0e82bdb5be7b",
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"id": "3e5b33e6-fddf-4c7b-b5a8-b39eb6dfcaae",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "bearer token-admin-valid",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "http://localhost:5000/admin/license/to-validate?page=1",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "5000",
+							"path": [
+								"admin",
+								"license",
+								"to-validate"
+							],
+							"query": [
+								{
+									"key": "page",
+									"value": "1"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Not admin (expect 403)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "743307be-f101-4e44-af68-e0c827dd4d70",
+								"exec": [
+									"pm.test(\"Status code is 403\", function () {",
+									"    pm.response.to.have.status(403);",
+									"});",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"id": "7f8bbea6-e3f4-4157-86a3-ff84f4a17268",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "bearer token-user-valid",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "http://localhost:5000/admin/license/to-validate?page=1",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "5000",
+							"path": [
+								"admin",
+								"license",
+								"to-validate"
+							],
+							"query": [
+								{
+									"key": "page",
+									"value": "1"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Invalid token (expect 401)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "ad6a8cf6-3a1c-4e24-84e9-457f2950938f",
+								"exec": [
+									"pm.test(\"Status code is 401\", function () {",
+									"    pm.response.to.have.status(401);",
+									"});",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"id": "d09023a8-cb0b-4087-84ce-d4f4834bc78f",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "bearer token-user-invalid",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "http://localhost:5000/admin/license/to-validate?page=1",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "5000",
+							"path": [
+								"admin",
+								"license",
+								"to-validate"
+							],
+							"query": [
+								{
+									"key": "page",
+									"value": "1"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Page invalide negatif (expect 400)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "483464ea-5b65-4634-8183-9560cd6870cb",
+								"exec": [
+									"pm.test(\"Status code is 400\", function () {",
+									"    pm.response.to.have.status(400);",
+									"});",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"id": "ec17deb1-8dfb-4806-88af-1b16dc1f14e4",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "bearer token-admin-valid",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "http://localhost:5000/admin/license/to-validate?page=-1",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "5000",
+							"path": [
+								"admin",
+								"license",
+								"to-validate"
+							],
+							"query": [
+								{
+									"key": "page",
+									"value": "-1"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Page invalide (expect 200)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "493f7fe2-ec36-412e-8bb8-3eced7d9dd66",
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"id": "9d017c54-2142-401a-8680-9f2968274140",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "bearer token-admin-valid",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "http://localhost:5000/admin/license/to-validate?page=333",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "5000",
+							"path": [
+								"admin",
+								"license",
+								"to-validate"
+							],
+							"query": [
+								{
+									"key": "page",
+									"value": "333"
+								}
+							]
+						}
+					},
+					"response": []
+				}
+			],
+			"id": "52571c2e-20c7-4639-9855-59b4a0edaa17"
+		},
+		{
+			"name": "license-to-validate",
+			"item": [
+				{
+					"name": "regular_usage",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "3ad21860-f371-4fe9-bb79-e017e46b25c5",
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"id": "5d4cd590-047a-4989-a48d-104614b07227",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "bearer token-admin-valid",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "http://localhost:5000/admin/license?document_id=1",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "5000",
+							"path": [
+								"admin",
+								"license"
+							],
+							"query": [
+								{
+									"key": "document_id",
+									"value": "1"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Not admin (expect 403)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "8c43bec1-bb14-4c14-98f6-b3824bbe4678",
+								"exec": [
+									"pm.test(\"Status code is 403\", function () {",
+									"    pm.response.to.have.status(403);",
+									"});",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"id": "4625c8fa-a663-4e84-883a-78533869872c",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "bearer token-user-valid",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "http://localhost:5000/admin/license?document_id=6",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "5000",
+							"path": [
+								"admin",
+								"license"
+							],
+							"query": [
+								{
+									"key": "document_id",
+									"value": "6"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Invalid token (expect 401)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "6a87ca7a-0dc4-4942-8d60-100b8824d4b5",
+								"exec": [
+									"pm.test(\"Status code is 401\", function () {",
+									"    pm.response.to.have.status(401);",
+									"});",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"id": "79d3e4c5-0d99-4d78-995a-df81612343a0",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "bearer token-user-invalid",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "http://localhost:5000/admin/license?document_id=6",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "5000",
+							"path": [
+								"admin",
+								"license"
+							],
+							"query": [
+								{
+									"key": "document_id",
+									"value": "6"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Document_id invalide (expect 404)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "9efa7cf2-5f5e-4f0d-aa0e-8a807818d771",
+								"exec": [
+									"pm.test(\"Status code is 404\", function () {",
+									"    pm.response.to.have.status(404);",
+									"});",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"id": "ad5be8e3-6932-49f2-8428-9394ad4ff393",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "bearer token-admin-valid",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "http://localhost:5000/admin/license?document_id=100",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "5000",
+							"path": [
+								"admin",
+								"license"
+							],
+							"query": [
+								{
+									"key": "document_id",
+									"value": "100"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Document_id invalide negatif (expect 404)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "cdeb2fa4-6570-4a48-b5ef-a85af8bd1f81",
+								"exec": [
+									"pm.test(\"Status code is 404\", function () {",
+									"    pm.response.to.have.status(404);",
+									"});",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"id": "40a74460-9064-4038-bd46-ad16e88ca17e",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "bearer token-admin-valid",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "http://localhost:5000/admin/license?document_id=-100",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "5000",
+							"path": [
+								"admin",
+								"license"
+							],
+							"query": [
+								{
+									"key": "document_id",
+									"value": "-100"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Document_id  manquant (expect 400)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "ff3e446a-92ea-4579-beb8-02dd4613c5ba",
+								"exec": [
+									"pm.test(\"Status code is 400\", function () {",
+									"    pm.response.to.have.status(400);",
+									"});",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"id": "76a02809-c6fd-490a-9d42-f5c08aae84d0",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "bearer token-admin-valid",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "http://localhost:5000/admin/license",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "5000",
+							"path": [
+								"admin",
+								"license"
+							]
+						}
+					},
+					"response": []
+				}
+			],
+			"id": "175dd2fc-18d5-454c-8557-db0abd880192"
+		},
+		{
+			"name": "validate-license",
+			"item": [
+				{
+					"name": "regular_usage (expect 200)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "be912d65-3595-4249-92ea-a9eed3cb9ab4",
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"id": "10d5936a-1fff-4de4-9e70-392f2d623364",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "bearer token-admin-valid",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"statut\": \"Approved\", \n    \"document_type\": \"Basic\", \n    \"email\": \"test@email.fr\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:5000/admin/license/validate?license_id=1",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "5000",
+							"path": [
+								"admin",
+								"license",
+								"validate"
+							],
+							"query": [
+								{
+									"key": "license_id",
+									"value": "1"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "regular_usage (expect 200) Copy",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "be912d65-3595-4249-92ea-a9eed3cb9ab4",
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"id": "3fbb8cc1-41fb-4cd6-b444-fdb53db0f290",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "bearer token-admin-valid",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"statut\": \"Approved\", \n    \"document_type\": \"Basic\", \n    \"email\": \"test@email.fr\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:5000/admin/license/validate?license_id=2",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "5000",
+							"path": [
+								"admin",
+								"license",
+								"validate"
+							],
+							"query": [
+								{
+									"key": "license_id",
+									"value": "2"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "regular_usage no next (expect 204)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "91b61653-a827-460b-9a7d-9c4528bcc474",
+								"exec": [
+									"pm.test(\"Status code is 204\", function () {",
+									"    pm.response.to.have.status(204);",
+									"});",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"id": "19fc40d6-2b62-4cbd-9942-26c7a3c4503b",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "bearer token-admin-valid",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"statut\": \"Approved\", \n    \"document_type\": \"Basic\", \n    \"email\": \"test@email.fr\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:5000/admin/license/validate?license_id=3",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "5000",
+							"path": [
+								"admin",
+								"license",
+								"validate"
+							],
+							"query": [
+								{
+									"key": "license_id",
+									"value": "3"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Not admin (expect 403)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "c5613263-f4a7-4bfe-b443-9cbb92ba57f4",
+								"exec": [
+									"pm.test(\"Status code is 403\", function () {",
+									"    pm.response.to.have.status(403);",
+									"});",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"id": "1ac039de-0e2e-4635-8d4f-d3c0a2b5f5cb",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "bearer token-user-valid",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"statut\": \"Approved\", \n    \"document_type\": \"Basic\", \n    \"email\": \"test@email.fr\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:5000/admin/license/validate?license_id=3",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "5000",
+							"path": [
+								"admin",
+								"license",
+								"validate"
+							],
+							"query": [
+								{
+									"key": "license_id",
+									"value": "3"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Key Json invalid (expect 403)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "270886e7-1ea8-43be-bed6-e205963e136f",
+								"exec": [
+									"pm.test(\"Status code is 400\", function () {",
+									"    pm.response.to.have.status(400);",
+									"});",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"id": "cd6b78cc-791e-44c5-b4a8-86de71c152da",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "bearer token-admin-valid",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"invalid\": null, \n    \"document_type\": \"Basic\", \n    \"email\": \"test@email.fr\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:5000/admin/license/validate?license_id=3",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "5000",
+							"path": [
+								"admin",
+								"license",
+								"validate"
+							],
+							"query": [
+								{
+									"key": "license_id",
+									"value": "3"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Content type invalid (expect 415)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "29d8f914-01c9-4af9-9b1d-9e6d01f17d13",
+								"exec": [
+									"pm.test(\"Status code is 415\", function () {",
+									"    pm.response.to.have.status(415);",
+									"});",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"id": "f91a0def-1385-4a72-87b7-19ea99b03c9f",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "bearer token-admin-valid",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "invalid",
+							"options": {
+								"raw": {
+									"language": "text"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:5000/admin/license/validate?license_id=3",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "5000",
+							"path": [
+								"admin",
+								"license",
+								"validate"
+							],
+							"query": [
+								{
+									"key": "license_id",
+									"value": "3"
+								}
+							]
+						}
+					},
+					"response": []
+				}
+			],
+			"id": "d7f862cd-78a7-49e2-8054-8a5e8a5d30ac"
+		}
+	]
+}

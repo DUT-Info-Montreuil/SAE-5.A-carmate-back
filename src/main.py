@@ -13,16 +13,19 @@ from api.controller import (
 from database.repositories import (
     TokenRepositoryInterface,
     UserAdminRepositoryInterface,
+    UserBannedRepositoryInterface,
     LicenseRepositoryInterface,
     UserRepositoryInterface,
     LicenseRepository,
     UserRepository,
     TokenRepository,
     UserAdminRepository,
+    UserBannedRepository
 )
 from test.mock import (
     InMemoryLicenseRepository,
     InMemoryUserAdminRepository,
+    InMemoryUserBannedRepository,
     InMemoryTokenRepository,
     InMemoryUserRepository
 )
@@ -40,6 +43,7 @@ class Api(object):
     token_repository: TokenRepositoryInterface
     user_repository: UserRepositoryInterface
     user_admin_repository: UserAdminRepositoryInterface
+    user_banned_repository: UserBannedRepositoryInterface
     license_repository = LicenseRepositoryInterface
 
     def __init__(self) -> None:
@@ -62,25 +66,24 @@ class Api(object):
                     f"Value error in API_MODE ({os.getenv('API_MODE')} invalid)")
 
         monitoring = MonitoringRoutes()
-        auth = AuthRoutes(self.user_repository, self.token_repository, self.license_repository)
-        admin = AdminRoutes(self.user_repository, self.user_admin_repository, self.token_repository, self.license_repository)
-        if os.getenv("API_MODE") == "PROD":
-            auth.before_request(monitoring.readiness_api)
-            admin.before_request(monitoring.readiness_api)
-
         self.api.register_blueprint(monitoring)
-        self.api.register_blueprint(auth)
-        self.api.register_blueprint(admin)
+        self.api.register_blueprint(AuthRoutes(self.user_repository, self.user_banned_repository, self.user_admin_repository, self.token_repository, self.license_repository))
+        self.api.register_blueprint(AdminRoutes(self.user_repository, self.user_admin_repository, self.user_banned_repository, self.token_repository, self.license_repository))
+
+        if os.getenv("API_MODE") == "PROD":
+            self.api.before_request(monitoring.readiness_api)
 
     def mock(self) -> None:
         self.user_repository = InMemoryUserRepository()
         self.user_admin_repository = InMemoryUserAdminRepository()
+        self.user_banned_repository = InMemoryUserBannedRepository()
         self.token_repository = InMemoryTokenRepository(self.user_repository)
-        self.license_repository = InMemoryLicenseRepository(self.user_admin_repository)
+        self.license_repository = InMemoryLicenseRepository(self.user_repository)
 
     def postgres(self) -> None:
         self.user_repository = UserRepository()
         self.user_admin_repository = UserAdminRepository()
+        self.user_banned_repository = UserBannedRepository()
         self.token_repository = TokenRepository()
         self.license_repository = LicenseRepository()
 

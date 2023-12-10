@@ -12,9 +12,11 @@ class InMemoryUserRepository(UserRepositoryInterface):
 
     def __init__(self):
         self.users: List[UserTable] = [
-            UserTable.to_self(
-                (1, "John", "Doe", "user@example.com", sha512("password".encode('utf-8')).digest(), AccountStatus.Student.name, None))]
-        self.users_counter: int = 0
+            UserTable(0, "John", "Doe", "user@example.com", sha512("password".encode()).digest(), AccountStatus.Student.name, None),
+            UserTable(1, "Hugo", "McCain", "admin@example.com", sha512("password".encode()).digest(), AccountStatus.Student.name, None),
+            UserTable(2, "Ayman", "Mohamed", "bannie@example.com", sha512("password".encode()).digest(), AccountStatus.Student.name, None)
+        ]
+        self.users_counter: int = len(self.users)-1
 
     def insert(self, credential: CredentialDTO, account_status: AccountStatus) -> UserTable:
         for user in self.users:

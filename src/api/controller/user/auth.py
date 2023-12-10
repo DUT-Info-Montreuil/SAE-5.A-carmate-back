@@ -2,23 +2,29 @@ from flask import Blueprint, abort, jsonify, request, Response
 
 from api import IMAGE_FORMAT_ALLOWED_EXTENSIONS
 from api.worker.user import AccountStatus
-from api.worker.auth.models import TokenDTO, CredentialDTO
+from api.worker.auth.models import TokenDTO, CredentialDTO, UserInformationDTO
 from api.exceptions import AccountAlreadyExist, BannedAccount, CredentialInvalid, LengthNameTooLong
 from api.worker.auth.use_case import Register, Login, CheckToken
 from database.repositories import (
     TokenRepositoryInterface,
     UserRepositoryInterface,
+    UserBannedRepositoryInterface,
+    UserAdminRepositoryInterface,
     LicenseRepositoryInterface
 )
 
 
 class AuthRoutes(Blueprint):
     user_repository: UserRepositoryInterface
+    user_banned_repository: UserBannedRepositoryInterface
+    user_admin_repository: UserAdminRepositoryInterface
     token_repository: TokenRepositoryInterface
     license_repository: LicenseRepositoryInterface
 
     def __init__(self,
                  user_repository: UserRepositoryInterface,
+                 user_banned_repository: UserBannedRepositoryInterface,
+                 user_admin_repository: UserAdminRepositoryInterface,
                  token_repository: TokenRepositoryInterface,
                  license_repository: LicenseRepositoryInterface):
         super().__init__("auth", __name__,
@@ -26,6 +32,8 @@ class AuthRoutes(Blueprint):
 
         self.token_repository = token_repository
         self.user_repository = user_repository
+        self.user_banned_repository = user_banned_repository
+        self.user_admin_repository = user_admin_repository
         self.license_repository = license_repository
 
         self.route("/check-token",
@@ -47,15 +55,17 @@ class AuthRoutes(Blueprint):
         except Exception:
             abort(500)
 
-        token_is_valid: bool
+        user_info: None | UserInformationDTO
         try:
-            token_is_valid = CheckToken(self.token_repository).worker(token)
+            user_info = CheckToken(self.token_repository, 
+                                   self.user_banned_repository, 
+                                   self.user_admin_repository).worker(token)
         except Exception:
             abort(500)
 
-        if token_is_valid:
-            return '', 204
-        return '', 401
+        if not user_info:
+            return '', 401
+        return jsonify(user_info.to_json())
 
     def login_api(self) -> Response:
         """Manages the authentication process.
@@ -96,6 +106,7 @@ class AuthRoutes(Blueprint):
         token: TokenDTO
         try:
             token = Login(self.user_repository,
+                          self.user_banned_repository,
                           self.token_repository).worker(CredentialDTO.json_to_self(credential))
         except CredentialInvalid:
             abort(401)
@@ -123,7 +134,7 @@ class AuthRoutes(Blueprint):
                 - When don't have credential key in multipart/form-data
             500: Internal Server Error
         """
-        if request.is_json:
+        if "multipart/form-data" not in request.content_type :
             abort(415)
 
         credential: dict
@@ -143,6 +154,8 @@ class AuthRoutes(Blueprint):
             abort(400)
         except Exception:
             abort(500)
+        if any([value is None for value in credential.values()]):
+            abort(400)
 
         if "document" not in request.files:
             abort(415)

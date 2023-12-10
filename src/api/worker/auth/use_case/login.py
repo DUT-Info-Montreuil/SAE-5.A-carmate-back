@@ -4,24 +4,36 @@ from datetime import datetime, timedelta
 from hashlib import sha512
 
 from api import check_email
-from api.exceptions import CredentialInvalid, InternalServerError
-from api.worker.auth.models.credential_dto import CredentialDTO
-from api.worker.auth.models.token_dto import TokenDTO
-from api.worker.auth.use_case.token import Token
-from database.repositories import UserRepositoryInterface
-from database.repositories.token_repository import TokenRepositoryInterface
+from api.exceptions import (
+    BannedAccount, 
+    CredentialInvalid, 
+    InternalServerError
+)
+from api.worker.auth import Token
+from api.worker.auth.models import (
+    CredentialDTO, 
+    TokenDTO
+)
 from database.exceptions import NotFound
 from database.schemas import UserTable
+from database.repositories import (
+    UserRepositoryInterface,
+    TokenRepositoryInterface,
+    UserBannedRepositoryInterface
+)
 
 
 class Login:
     user_repository: UserRepositoryInterface
+    user_banned_repository: UserBannedRepositoryInterface
     token_repository: TokenRepositoryInterface
 
     def __init__(self,
                  user_repository: UserRepositoryInterface,
+                 user_banned_repository: UserBannedRepositoryInterface,
                  token_repository: TokenRepositoryInterface):
         self.user_repository = user_repository
+        self.user_banned_repository = user_banned_repository
         self.token_repository = token_repository
 
     def worker(self, credential: CredentialDTO) -> TokenDTO:
@@ -53,6 +65,14 @@ class Login:
             raise CredentialInvalid()
         except Exception as e:
             raise InternalServerError(str(e))
+        
+        is_banned: bool
+        try:
+            is_banned = self.user_banned_repository.is_banned(user.id)
+        except Exception as e:
+            raise InternalServerError(str(e))
+        if is_banned:
+            raise BannedAccount(f"{user.id} is banned")
 
         if not secrets.compare_digest(sha512(credential.password.encode('utf-8')).digest(), user.password):
             raise CredentialInvalid()

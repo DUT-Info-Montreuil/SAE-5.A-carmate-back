@@ -1,3 +1,5 @@
+from typing import Any
+
 from flask import Blueprint, abort, request
 
 from database import establishing_connection
@@ -17,6 +19,9 @@ class MonitoringRoutes(Blueprint):
         return '', 204
 
     def readiness_api(self) -> None:
+        if request.endpoint == "monitoring.liveness_api":
+            return None
+
         try:
             conn = establishing_connection()
         except Exception:
@@ -29,6 +34,3 @@ class MonitoringRoutes(Blueprint):
         
         if rowcount != 1:
             abort(503)
-
-        if request.method == "GET":
-            return '', 204

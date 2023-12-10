@@ -22,29 +22,33 @@ class GetLicensesToValidateTestCase(unittest.TestCase):
         self.license_repo_base_size = len(self.license_repo.licenses)
         self.user_repo.users.append(
             UserTable.to_self(
-                (2, "Fred", "Mercury", "ssa@example.com", sha512("password".encode('utf-8')).digest(),
+                (999, "Fred", "Mercury", "ssa@example.com", sha512("password".encode('utf-8')).digest(),
                  AccountStatus.Teacher.name, None))
         )
         self.get_licenses_to_validate = GetLicensesToValidate(self.license_repo)
 
     def test_successful_fetch_student_license(self):
-        license_table = LicenseTable(1, self.license_img, DocumentType.Basic.name, ValidationStatus.Pending.name, datetime.datetime.now(), 1)
+        license_table = LicenseTable(1, self.license_img, DocumentType.Basic.name, ValidationStatus.Pending.name, datetime.datetime.now(), 0)
+        user_0 = self.user_repo.get_user_by_id(0)
         self.license_repo.licenses.append(license_table)
         try:
             licenses = self.get_licenses_to_validate.worker()["items"]
-
-            self.assertEqual(1 + self.license_repo_base_size , len(licenses))
-            self.assertEqual(self.user_repo.users[0].first_name, licenses[0].first_name)
-            self.assertEqual(self.user_repo.users[0].last_name, licenses[0].last_name)
-            self.assertEqual(license_table.id, licenses[0].document_id)
-            self.assertEqual(AccountStatus.Student.name, licenses[0].account_type)
-            self.assertEqual(DocumentType.Basic.name, licenses[0].license_type)
+            last_inserted_license = licenses[len(licenses) - 1]
+            self.assertEqual(1 + self.license_repo_base_size, len(licenses))
+            self.assertEqual(user_0.first_name, last_inserted_license.first_name)
+            self.assertEqual(user_0.last_name, last_inserted_license.last_name)
+            self.assertEqual(license_table.id, last_inserted_license.document_id)
+            self.assertEqual(user_0.account_status, last_inserted_license.account_type)
+            self.assertEqual(DocumentType.Basic.name, last_inserted_license.license_type)
         except Exception as e:
             self.fail(e)
 
     def test_successful_fetch_multiple_licenses(self):
-        license_table1 = LicenseTable(1, self.license_img, DocumentType.Basic.name, ValidationStatus.Pending.name, datetime.datetime.now(), 1)
-        license_table2 = LicenseTable(2, self.license_img, DocumentType.Basic.name, ValidationStatus.Pending.name, datetime.datetime.now(), 2)
+        license_table1 = LicenseTable(1, self.license_img, DocumentType.Basic.name, ValidationStatus.Pending.name, datetime.datetime.now(), 0)
+        license_table2 = LicenseTable(2, self.license_img, DocumentType.Basic.name, ValidationStatus.Pending.name, datetime.datetime.now(), 999)
+
+        user_0 = self.user_repo.get_user_by_id(0)
+        user_999 = self.user_repo.get_user_by_id(999)
 
         self.license_repo.licenses.append(license_table1)
         self.license_repo.licenses.append(license_table2)
@@ -52,37 +56,40 @@ class GetLicensesToValidateTestCase(unittest.TestCase):
         try:
             licenses = self.get_licenses_to_validate.worker()["items"]
 
+            last_inserted_license = licenses[len(licenses) - 1]
+            before_last_inserted_license = licenses[len(licenses) - 2]
+
             self.assertEqual(len(licenses), 2 + self.license_repo_base_size)
 
-            self.assertEqual(self.user_repo.users[0].first_name, licenses[0].first_name)
-            self.assertEqual(self.user_repo.users[0].last_name, licenses[0].last_name)
-            self.assertEqual(license_table1.id, licenses[0].document_id)
-            self.assertEqual(AccountStatus.Student.name, licenses[0].account_type)
-            self.assertEqual(DocumentType.Basic.name, licenses[0].license_type)
+            self.assertEqual(user_999.first_name, last_inserted_license.first_name)
+            self.assertEqual(user_999.last_name, last_inserted_license.last_name)
+            self.assertEqual(license_table2.id, last_inserted_license.document_id)
+            self.assertEqual(user_999.account_status, last_inserted_license.account_type)
+            self.assertEqual(DocumentType.Basic.name, last_inserted_license.license_type)
 
-            self.assertEqual(self.user_repo.users[1].first_name, licenses[(self.license_repo_base_size-1) + 2].first_name)
-            self.assertEqual(self.user_repo.users[1].last_name, licenses[(self.license_repo_base_size-1) + 2].last_name)
-            self.assertEqual(license_table2.id, licenses[(self.license_repo_base_size-1) + 2].document_id)
-            self.assertEqual(AccountStatus.Teacher.name, licenses[(self.license_repo_base_size-1) + 2].account_type)
-            self.assertEqual(DocumentType.Basic.name, licenses[(self.license_repo_base_size-1) + 2].license_type)
+            self.assertEqual(user_0.first_name, before_last_inserted_license.first_name)
+            self.assertEqual(user_0.last_name, before_last_inserted_license.last_name)
+            self.assertEqual(license_table1.id, before_last_inserted_license.document_id)
+            self.assertEqual(user_0.account_status, before_last_inserted_license.account_type)
+            self.assertEqual(DocumentType.Basic.name, before_last_inserted_license.license_type)
 
         except Exception as e:
             self.fail(e)
 
     def test_does_not_fetch_validated_licenses(self):
-        license_table = LicenseTable(1, self.license_img, DocumentType.Basic.name, ValidationStatus.Rejected.name, datetime.datetime.now(), 1)
+        license_table = LicenseTable(1, self.license_img, DocumentType.Basic.name, ValidationStatus.Rejected.name, datetime.datetime.now(), 0)
 
         self.license_repo.licenses.append(license_table)
 
         try:
             licenses = self.get_licenses_to_validate.worker()["items"]
-            self.assertEqual(len(licenses), self.license_repo_base_size )
+            self.assertEqual(len(licenses), self.license_repo_base_size)
 
         except Exception as e:
             self.fail(e)
 
     def test_raise_400_when_page_is_smaller_than_1(self):
-        license_table = LicenseTable(1, self.license_img, DocumentType.Basic.name, ValidationStatus.Pending.name, datetime.datetime.now(), 1)
+        license_table = LicenseTable(1, self.license_img, DocumentType.Basic.name, ValidationStatus.Pending.name, datetime.datetime.now(), 0)
 
         self.license_repo.licenses.append(license_table)
 
@@ -94,7 +101,7 @@ class GetLicensesToValidateTestCase(unittest.TestCase):
             self.fail(e)
 
     def test_page_only_contains_30_elements(self):
-        license_table = LicenseTable(1, self.license_img, DocumentType.Basic.name, ValidationStatus.Pending.name, datetime.datetime.now(), 1)
+        license_table = LicenseTable(1, self.license_img, DocumentType.Basic.name, ValidationStatus.Pending.name, datetime.datetime.now(), 0)
 
         for i in range(100):
             self.license_repo.licenses.append(license_table)
@@ -107,8 +114,8 @@ class GetLicensesToValidateTestCase(unittest.TestCase):
             self.fail(e)
 
     def test_page2_sends_next_30_elements(self):
-        license_table1 = LicenseTable(1, self.license_img, DocumentType.Basic.name, ValidationStatus.Pending.name, datetime.datetime.now(), 1)
-        license_table2 = LicenseTable(2, self.license_img, DocumentType.Basic.name, ValidationStatus.Pending.name, datetime.datetime.now(), 2)
+        license_table1 = LicenseTable(1, self.license_img, DocumentType.Basic.name, ValidationStatus.Pending.name, datetime.datetime.now(), 0)
+        license_table2 = LicenseTable(2, self.license_img, DocumentType.Basic.name, ValidationStatus.Pending.name, datetime.datetime.now(), 999)
 
         for i in range(30):
             self.license_repo.licenses.append(license_table1)
@@ -118,7 +125,7 @@ class GetLicensesToValidateTestCase(unittest.TestCase):
         try:
             licenses = self.get_licenses_to_validate.worker(1)["items"]
             self.assertEqual(len(licenses), 30)
-            self.assertEqual(1, licenses[self.license_repo_base_size ].document_id)
+            self.assertEqual(1, licenses[self.license_repo_base_size].document_id)
 
             licenses = self.get_licenses_to_validate.worker(2)["items"]
             self.assertEqual(len(licenses), 30)
@@ -128,8 +135,8 @@ class GetLicensesToValidateTestCase(unittest.TestCase):
             self.fail(e)
 
     def test_gets_the_right_count(self):
-        license_table1 = LicenseTable(1, self.license_img, DocumentType.Basic.name, ValidationStatus.Pending.name, datetime.datetime.now(), 1)
-        license_table2 = LicenseTable(2, self.license_img, DocumentType.Basic.name, ValidationStatus.Pending.name, datetime.datetime.now(), 2)
+        license_table1 = LicenseTable(1, self.license_img, DocumentType.Basic.name, ValidationStatus.Pending.name, datetime.datetime.now(), 0)
+        license_table2 = LicenseTable(2, self.license_img, DocumentType.Basic.name, ValidationStatus.Pending.name, datetime.datetime.now(), 999)
 
         for i in range(30):
             self.license_repo.licenses.append(license_table1)
