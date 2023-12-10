@@ -1,4 +1,5 @@
 from flask import Blueprint, abort, jsonify, request, Response
+#from flasgger import swag_from
 
 from api import IMAGE_FORMAT_ALLOWED_EXTENSIONS
 from api.worker.user import AccountStatus
@@ -66,6 +67,28 @@ class AuthRoutes(Blueprint):
         return response
 
     def check_token_api(self) -> Response:
+        """
+        Endpoint to check the validity of a user token.
+
+        This endpoint validates a user token and returns user information if valid.
+
+        ---
+        parameters:
+          - name: token
+            in: body
+            required: true
+            type: string
+            description: The user authentication token.
+        responses:
+          200:
+            description: User information in JSON format.
+          401:
+            description: Unauthorized. Invalid token.
+          415:
+            description: Unsupported Media Type. Request must be in JSON format.
+          500:
+            description: Internal Server Error.
+        """
         if not request.is_json:
             abort(415)
 
@@ -90,23 +113,34 @@ class AuthRoutes(Blueprint):
         return jsonify(user_info.to_json())
 
     def login_api(self) -> Response:
-        """Manages the authentication process.
-            This method handles the authentication process by verifying the credentials
-            provided in the CredentialDTO object. It performs the following steps:
-                - Checks the request is json type
-                - Get json's data
-                - Create CredentialDTO object based on json's data
-                - Checks that the attributes of the json request match
-                - Try login the user
-                - Return the token provided by the login worker
-            :param: json: email_adress and password provided by the front form
-            :raises:
-                - 415: if the request is not json type
-                - 400: if credential's attributes are missing
-                - 401: CredentialInvalid exception
-                - 403: BannedAccount exception
-                - 500: InternalServerError (other)
-            :return: Response: A JSON response containing the authentication token or an error message.
+        """
+        Endpoint for user login.
+
+        This endpoint handles user authentication by verifying the provided credentials.
+
+        ---
+        parameters:
+          - name: email_address
+            in: body
+            required: true
+            type: string
+            description: The email address of the user.
+          - name: password
+            in: body
+            required: true
+            type: string
+            description: The password of the user.
+        responses:
+          200:
+            description: Authentication successful. Returns user token.
+          401:
+            description: Unauthorized. Invalid credentials.
+          403:
+            description: Forbidden. Banned account.
+          415:
+            description: Unsupported Media Type. Request must be in JSON format.
+          500:
+            description: Internal Server Error.
         """
         if not request.is_json:
             abort(415)
@@ -139,22 +173,54 @@ class AuthRoutes(Blueprint):
         return jsonify(token.to_json())
 
     def register_api(self) -> Response:
-        """Register an user and return the session token
+        """
+        Endpoint for user registration.
 
-        :return Response: session token
-        :raise:
-            400: Bad Request
-                - When the type of account is not specified
-                - When have missing key in json credential
-                - When the first_name or last_name is too long
-            409: Conflict
-                - When the user already exist
-            415: Unsupported Media Type
-                - When the content-type is not a multipart/form-data
-                - When the filename of the document is invalid or missing
-                - When the document is not an image
-                - When don't have credential key in multipart/form-data
-            500: Internal Server Error
+        This endpoint registers a new user and returns a session token.
+
+        ---
+        parameters:
+          - name: first_name
+            in: formData
+            required: true
+            type: string
+            description: The first name of the user.
+          - name: last_name
+            in: formData
+            required: true
+            type: string
+            description: The last name of the user.
+          - name: email_address
+            in: formData
+            required: true
+            type: string
+            description: The email address of the user.
+          - name: password
+            in: formData
+            required: true
+            type: string
+            description: The password of the user.
+          - name: type
+            in: formData
+            required: true
+            type: string
+            description: The type of account (e.g., "passenger").
+          - name: document
+            in: formData
+            required: true
+            type: file
+            description: The user document (image file).
+        responses:
+          200:
+            description: Registration successful. Returns user token.
+          400:
+            description: Bad Request. Invalid input or missing values.
+          409:
+            description: Conflict. User already exists.
+          415:
+            description: Unsupported Media Type. Invalid document format.
+          500:
+            description: Internal Server Error.
         """
         if "multipart/form-data" not in request.content_type :
             abort(415)

@@ -4,6 +4,7 @@ import os
 from waitress import serve
 from flask import Flask
 from flask_cors import CORS
+from flasgger import Swagger
 
 from api.controller import (
     AdminRoutes,
@@ -57,6 +58,7 @@ class Api(object):
 
     def __init__(self) -> None:
         self.api = Flask("carmate-api" if not os.getenv("API_NAME") else os.getenv("API_NAME"))
+        self.swagger = Swagger(self.api)
         self.cors = CORS(self.api, resources={r"*": {"origins": "*"}})
 
         logging.basicConfig(format=self.logging_format,

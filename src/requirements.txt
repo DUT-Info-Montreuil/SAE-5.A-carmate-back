@@ -3,3 +3,4 @@ waitress
 psycopg2-binary
 psycopg2
 Flask-Cors
+flasgger
