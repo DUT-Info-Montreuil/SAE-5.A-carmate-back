@@ -56,7 +56,7 @@ class InMemoryLicenseRepository(LicenseRepositoryInterface):
                 )
 
         return {
-            "nb_documents": len(self.licenses),
+            "nb_documents": len(list(filter(lambda lic: lic.validation_status is ValidationStatus.Pending.name, self.licenses))),
             "items": list_license_to_validate
         }
 
@@ -105,8 +105,8 @@ class InMemoryLicenseRepository(LicenseRepositoryInterface):
                 return
         raise NotFound("license not found")
 
-    def get(self, license_id: int) -> LicenseTable:
-        for license in self.licenses:
-            if license.id == license_id:
-                return license
-        raise NotFound("license not found")
+    def get_next_license_id_to_validate(self) -> int:
+        for lic in self.licenses:
+            if lic.validation_status == ValidationStatus.Pending.name:
+                return lic.id
+        raise NotFound("No more licenses to validate")

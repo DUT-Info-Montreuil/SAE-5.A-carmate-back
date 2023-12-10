@@ -132,10 +132,10 @@ class AdminRoutes(Blueprint):
         except Exception:
             abort(400)
 
-        next_document: tuple | None
+        next_document_id: int | None
         try:
-            next_document = ValidateLicense(self.license_repository, self.user_repository).worker(license_id,
-                                                                                                  validation_information["statut"])
+            next_document_id = ValidateLicense(self.license_repository, self.user_repository).worker(license_id,
+                                                                                                     validation_information["statut"])
         except LicenseNotFound:
             abort(404)
         except InvalidValidationStatus:
@@ -143,9 +143,8 @@ class AdminRoutes(Blueprint):
         except Exception:
             abort(500)
 
-        if not next_document:
+        if not next_document_id:
             return '', 204
         return jsonify({
-            "next_email": next_document[1].email_address,
-            "next_document_type": next_document[0].document_type
+            "next_document_id": next_document_id,
         })
