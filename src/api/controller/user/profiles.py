@@ -1,4 +1,5 @@
 from datetime import datetime
+from hashlib import sha512
 
 from flask import Blueprint, abort, jsonify, request
 
@@ -156,7 +157,7 @@ class ProfilesRoutes(Blueprint):
         passenger_id: int
         try:
             passenger_id = CreatePassengerProfile(self.token_repository,
-                                                  self.passenger_profile_repository).worker(self.extract_token(request.headers.get("Authorization")))
+                                                  self.passenger_profile_repository).worker(self.extract_token(request.headers.get("Authorization")).digest())
         except ProfileAlreadyExist:
             abort(409)
         except UserNotFound:

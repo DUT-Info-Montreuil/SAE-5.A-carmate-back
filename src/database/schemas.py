@@ -88,7 +88,7 @@ class PassengerProfileTable:
 
     @staticmethod
     def to_self(_tuple: tuple):
-        return LicenseTable(
+        return PassengerProfileTable(
             _tuple[0],
             _tuple[1],
             _tuple[2],

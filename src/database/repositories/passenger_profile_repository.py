@@ -38,7 +38,7 @@ class PassengerProfileRepository(PassengerProfileRepositoryInterface):
         else:
             with conn.cursor() as curs:
                 try:
-                    curs.execute(query, (user.id))
+                    curs.execute(query, (user.id,))
                 except lookup(errorcodes.UNIQUE_VIOLATION) as e:
                     raise UniqueViolation(str(e))
                 except Exception as e:

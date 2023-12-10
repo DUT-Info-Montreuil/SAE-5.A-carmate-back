@@ -75,12 +75,11 @@ class Api(object):
                     f"Value error in API_MODE ({os.getenv('API_MODE')} invalid)")
 
         monitoring = MonitoringRoutes()
-        auth = AuthRoutes(self.user_repository, self.user_banned_repository, self.user_admin_repository, self.token_repository, self.license_repository)
+        auth = AuthRoutes(self.user_repository, self.passenger_profile_repository, self.user_banned_repository, self.user_admin_repository, self.token_repository, self.license_repository)
         profiles = ProfilesRoutes(self.user_repository, self.driver_profile_repository, self.passenger_profile_repository, self.license_repository, self.token_repository)
         self.api.register_blueprint(monitoring)
         self.api.register_blueprint(AdminRoutes(self.user_repository, self.user_admin_repository, self.user_banned_repository, self.token_repository, self.license_repository))
         self.api.register_blueprint(profiles)
-        auth.after_request(profiles.create_passenger_profile_api)
         self.api.register_blueprint(auth)
 
         if os.getenv("API_MODE") == "PROD":

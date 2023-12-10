@@ -33,14 +33,14 @@ class CreatePassengerProfile:
             user = self.token_repository.get_user(sha512(token.encode()).digest())
         except NotFound:
             raise UserNotFound()
-        except Exception:
-            raise InternalServerError()
+        except Exception as e:
+            raise InternalServerError(str(e))
         
         passenger_id: int
         try:
             passenger_id = self.passenger_profile_repository.insert(user).id
         except UniqueViolation:
             raise ProfileAlreadyExist()
-        except Exception:
-            raise InternalServerError()
+        except Exception as e:
+            raise InternalServerError(str(e))
         return passenger_id

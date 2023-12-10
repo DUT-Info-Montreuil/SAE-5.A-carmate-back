@@ -102,5 +102,8 @@ class TokenRepository(TokenRepositoryInterface):
                     raise NotFound("token not found")
                 except Exception as e:
                     raise InternalServer(str(e))
+                
+                if not user:
+                    raise NotFound("token not found")
             conn.close()
         return UserTable.to_self(user)

@@ -6,6 +6,7 @@ from api.exceptions import (
     InternalServerError,
     ProfileAlreadyExist
 )
+from api.worker.admin import DocumentType
 from database.schemas import UserTable
 from database.exceptions import (
     NotFound,
@@ -51,7 +52,7 @@ class CreateDriverProfile:
             raise InternalServerError()
     
         try:
-            self.license_repository.insert(document.read(), user, 'Driver')
+            self.license_repository.insert(document.read(), user, DocumentType.Driver.name)
         except Exception:
             raise InternalServerError()
         return driver_id
