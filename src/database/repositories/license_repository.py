@@ -27,7 +27,7 @@ class LicenseRepositoryInterface(ABC):
                       license_id: int,
                       validation_status: str) -> None: ...
 
-    def get(self, license_id: int) -> LicenseTable: ...
+    def get_next_license_id_to_validate(self) -> int: ...
 
 class LicenseRepository(LicenseRepositoryInterface):
     POSTGRES_TABLE_NAME: str = "license"
@@ -158,13 +158,15 @@ class LicenseRepository(LicenseRepositoryInterface):
             conn.commit()
             conn.close()
 
-    def get(self, license_id: int) -> LicenseTable:
-        query = f"""SELECT * 
-                    FROM carmate.{LicenseRepository.POSTGRES_TABLE_NAME}
-                    WHERE id=%s"""
-        
+    def get_next_license_id_to_validate(self) -> int:
+        query = f"""SELECT lr.id
+                    FROM carmate.{LicenseRepository.POSTGRES_TABLE_NAME} lr
+                    INNER JOIN carmate."{UserRepository.POSTGRES_TABLE_NAME}" ur ON lr.user_id = ur.id
+                    WHERE validation_status = 'Pending'
+                    LIMIT 1
+                    """
+
         conn: Any
-        found_license: LicenseTable
         try:
             conn = establishing_connection()
         except InternalServer as e:
@@ -172,14 +174,16 @@ class LicenseRepository(LicenseRepositoryInterface):
         else:
             with conn.cursor() as curs:
                 try:
-                    curs.execute(query, (license_id,))
-                    found_license = LicenseTable.to_self(curs.fetchone())
+                    curs.execute(query)
+                    next_id = curs.fetchone()
                 except TypeError:
-                    raise NotFound("license not found")
+                    raise NotFound("No more licenses to validate")
                 except ProgrammingError:
-                    raise NotFound("license not found")
+                    raise NotFound("No more licenses to validate")
                 except Exception as e:
                     raise InternalServer(str(e))
-            conn.close()
-        
-        return found_license
+        conn.close()
+
+        if next_id is not None and len(next_id) > 0:
+            return next_id[0]
+        raise NotFound("No more licenses to validate")

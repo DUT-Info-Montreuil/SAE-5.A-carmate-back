@@ -23,20 +23,12 @@ class ValidateLicense:
         except Exception as e:
             raise InternalServerError(str(e))
         
-        license_table: LicenseTable
+        next_id: int
         try:
-            license_table = self.license_repository.get(license_id + 1)
+            next_id = self.license_repository.get_next_license_id_to_validate()
         except NotFound:
             return None
         except Exception as e:
             raise InternalServerError(str(e))
 
-        user_table: UserTable
-        try:
-            user_table = self.user_repository.get_user_by_id(license_table.user_id)
-        except NotFound:
-            return None
-        except Exception as e:
-            raise InternalServerError(str(e))
-        
-        return (license_table, user_table)
+        return next_id
