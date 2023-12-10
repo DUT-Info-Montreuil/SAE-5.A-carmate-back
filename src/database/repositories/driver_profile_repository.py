@@ -1,4 +1,5 @@
 from abc import ABC
+import datetime
 from typing import Any
 
 from psycopg2 import ProgrammingError, errorcodes
@@ -6,30 +7,31 @@ from psycopg2.errors import lookup
 
 from database import establishing_connection
 from database.exceptions import InternalServer, NotFound, UniqueViolation
-from database.schemas import PassengerProfileTable, UserTable
+from database.schemas import DriverProfileTable, UserTable
 
 
-class PassengerProfileRepositoryInterface(ABC):
+class DriverProfileRepositoryInterface(ABC):
     def insert(self,
-               user: UserTable) -> PassengerProfileTable: ...
+               user: UserTable) -> DriverProfileTable: ...
     
-    def get_passenger_by_user_id(self,
-                                 user_id: int) -> PassengerProfileTable: ...
+    def get_driver_by_user_id(self,
+                              user_id: int) -> DriverProfileTable: ...
     
-    def get_passenger(self, 
-                      passenger_id: int) -> PassengerProfileTable: ...
+    def get_driver(self, 
+                   driver_id: int) -> DriverProfileTable: ...
 
-
-class PassengerProfileRepository(PassengerProfileRepositoryInterface):
-    POSTGRES_TABLE_NAME: str = "passengers_profile"
+class DriverProfileRepository(DriverProfileRepositoryInterface):
+    POSTGRES_TABLE_NAME: str = "driver_profile"
 
     def insert(self,
-               user: UserTable) -> PassengerProfileTable:
-        query = f"""INSERT INTO carmate.{PassengerProfileRepository.POSTGRES_TABLE_NAME}(user_id)
-                    VALUES (%s)
-                    RETURNING id, "description", created_at, user_id"""
+               user: UserTable) -> DriverProfileTable:
+        query = f"""
+            INSERT INTO carmate.{DriverProfileRepository.POSTGRES_TABLE_NAME}(user_id)
+            VALUES (%s)
+            RETURNING id, "description", created_at, user_id
+        """
         
-        passenger_profile: tuple
+        conducteur_profile: tuple
         conn: Any
         try:
             conn = establishing_connection()
@@ -44,19 +46,19 @@ class PassengerProfileRepository(PassengerProfileRepositoryInterface):
                 except Exception as e:
                     raise InternalServer(str(e))
                 else:
-                    passenger_profile = curs.fetchone()
+                    conducteur_profile = curs.fetchone()
             conn.commit()
             conn.close()
-        return PassengerProfileTable.to_self(passenger_profile)
-    
-    def get_passenger(self, 
-                      passenger_id: int) -> PassengerProfileTable:
+        return DriverProfileTable.to_self(conducteur_profile)
+
+    def get_driver(self, 
+                   driver_id: int) -> DriverProfileTable:
         query = f"""SELECT * 
-                    FROM carmate.{PassengerProfileRepository.POSTGRES_TABLE_NAME} 
+                    FROM carmate.{DriverProfileRepository.POSTGRES_TABLE_NAME} 
                     WHERE id=%s"""
 
         conn: Any
-        passenger_data: tuple
+        driver_data: tuple
         try:
             conn = establishing_connection()
         except Exception as e:
@@ -64,25 +66,25 @@ class PassengerProfileRepository(PassengerProfileRepositoryInterface):
         else:
             with conn.cursor() as curs:
                 try:
-                    curs.execute(query, (passenger_id,))
-                    passenger_data = curs.fetchone()
+                    curs.execute(query, (driver_id,))
+                    driver_data = curs.fetchone()
                 except ProgrammingError:
-                    raise NotFound("passenger not found")
+                    raise NotFound("driver not found")
                 except Exception as e:
                     raise InternalServer(str(e))
             conn.close()
 
-        return PassengerProfileTable.to_self(passenger_data)
+        return DriverProfileTable.to_self(driver_data)
 
 
-    def get_passenger_by_user_id(self,
-                                 user_id: int) -> PassengerProfileTable:
+    def get_driver_by_user_id(self,
+                              user_id: int) -> DriverProfileTable:
         query = f"""SELECT * 
-                    FROM carmate.{PassengerProfileRepository.POSTGRES_TABLE_NAME} 
+                    FROM carmate.{DriverProfileRepository.POSTGRES_TABLE_NAME} 
                     WHERE user_id=%s"""
 
         conn: Any
-        passenger_data: tuple
+        driver_data: tuple
         try:
             conn = establishing_connection()
         except Exception as e:
@@ -91,11 +93,11 @@ class PassengerProfileRepository(PassengerProfileRepositoryInterface):
             with conn.cursor() as curs:
                 try:
                     curs.execute(query, (user_id,))
-                    passenger_data = curs.fetchone()
+                    driver_data = curs.fetchone()
                 except ProgrammingError:
-                    raise NotFound("passenger not found")
+                    raise NotFound("driver not found")
                 except Exception as e:
                     raise InternalServer(str(e))
             conn.close()
 
-        return PassengerProfileTable.to_self(passenger_data)
+        return DriverProfileTable.to_self(driver_data)

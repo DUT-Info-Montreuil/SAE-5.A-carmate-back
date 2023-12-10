@@ -3,11 +3,13 @@ from flask import Blueprint, abort, jsonify, request, Response
 from api import IMAGE_FORMAT_ALLOWED_EXTENSIONS
 from api.worker.user import AccountStatus
 from api.worker.auth.models import TokenDTO, CredentialDTO, UserInformationDTO
-from api.exceptions import AccountAlreadyExist, BannedAccount, CredentialInvalid, LengthNameTooLong
+from api.exceptions import AccountAlreadyExist, BannedAccount, CredentialInvalid, LengthNameTooLong, ProfileAlreadyExist, UserNotFound
 from api.worker.auth.use_case import Register, Login, CheckToken
+from api.worker.user.use_case.create_passenger_profile import CreatePassengerProfile
 from database.repositories import (
     TokenRepositoryInterface,
     UserRepositoryInterface,
+    PassengerProfileRepositoryInterface,
     UserBannedRepositoryInterface,
     UserAdminRepositoryInterface,
     LicenseRepositoryInterface
@@ -16,6 +18,7 @@ from database.repositories import (
 
 class AuthRoutes(Blueprint):
     user_repository: UserRepositoryInterface
+    passenger_profile_repository: PassengerProfileRepositoryInterface
     user_banned_repository: UserBannedRepositoryInterface
     user_admin_repository: UserAdminRepositoryInterface
     token_repository: TokenRepositoryInterface
@@ -23,6 +26,7 @@ class AuthRoutes(Blueprint):
 
     def __init__(self,
                  user_repository: UserRepositoryInterface,
+                 passenger_profile_repository: PassengerProfileRepositoryInterface,
                  user_banned_repository: UserBannedRepositoryInterface,
                  user_admin_repository: UserAdminRepositoryInterface,
                  token_repository: TokenRepositoryInterface,
@@ -32,6 +36,7 @@ class AuthRoutes(Blueprint):
 
         self.token_repository = token_repository
         self.user_repository = user_repository
+        self.passenger_profile_repository = passenger_profile_repository
         self.user_banned_repository = user_banned_repository
         self.user_admin_repository = user_admin_repository
         self.license_repository = license_repository
@@ -42,6 +47,23 @@ class AuthRoutes(Blueprint):
                    methods=["POST"])(self.login_api)
         self.route("/register",
                    methods=["POST"])(self.register_api)
+        self.after_request(self.create_passenger_profile_api)
+
+    def create_passenger_profile_api(self, response: Response):
+        if "register" in request.endpoint and response.status_code == 200:
+            data = response.json
+            try:
+                CreatePassengerProfile(self.token_repository,
+                                        self.passenger_profile_repository).worker(data["token"])
+            except ProfileAlreadyExist:
+                abort(409)
+            except UserNotFound:
+                abort(404)
+            except CredentialInvalid:
+                abort(401)
+            except Exception:
+                abort(500)
+        return response
 
     def check_token_api(self) -> Response:
         if not request.is_json:

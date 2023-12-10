@@ -20,6 +20,11 @@ class CredentialInvalid(AuthenticationException):
 class AccountAlreadyExist(AuthenticationException):
     def __init__(self, message: str):
         super().__init__(message)
+        
+
+class ProfileAlreadyExist(LoggedException):
+    def __init__(self, message="Profile already exist"):
+        super().__init__(message)
 
 
 class BannedAccount(AuthenticationException):
@@ -40,6 +45,22 @@ class EmailFormatInvalid(AuthenticationException):
 class LicenseNotFound(LoggedException):
     def __init__(self, message="license not found"):
         super().__init__(message)
+
+
+class UserNotFound(LoggedException):
+    def __init__(self, message="user not found"):
+        super().__init__(message)
+
+
+class DriverNotFound(LoggedException):
+    def __init__(self, message="driver not found"):
+        super().__init__(message)
+
+
+class PassengerNotFound(LoggedException):
+    def __init__(self, message="passenger not found"):
+        super().__init__(message)
+
 
 class InvalidValidationStatus(LoggedException):
     def __init__(self, message):
