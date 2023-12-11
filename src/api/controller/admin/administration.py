@@ -119,11 +119,6 @@ class AdminRoutes(Blueprint):
         if "statut" not in validation_information_args:
             abort(400)
 
-        try:
-            DocumentType[validation_information["document_type"]]
-        except ValueError:
-            abort(400)
-
         query_data = request.args.to_dict()
 
         license_id: int
