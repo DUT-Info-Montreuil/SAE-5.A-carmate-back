@@ -11,6 +11,7 @@ from api.controller import (
     MonitoringRoutes,
     ProfilesRoutes
 )
+from api.controller.user.user import UserRoutes
 from database.repositories import (
     TokenRepositoryInterface,
     UserAdminRepositoryInterface,
@@ -81,6 +82,7 @@ class Api(object):
         self.api.register_blueprint(AdminRoutes(self.user_repository, self.user_admin_repository, self.user_banned_repository, self.token_repository, self.license_repository))
         self.api.register_blueprint(profiles)
         self.api.register_blueprint(auth)
+        self.api.register_blueprint(UserRoutes(self.user_repository, self.token_repository, self.user_banned_repository, self.user_admin_repository))
 
         if os.getenv("API_MODE") == "PROD":
             self.api.before_request(monitoring.readiness_api)

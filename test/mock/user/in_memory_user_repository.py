@@ -1,5 +1,6 @@
 from hashlib import sha512
 from typing import List
+from datetime import datetime
 
 from api.worker.auth.models import CredentialDTO
 from api.worker.user import AccountStatus
@@ -24,13 +25,14 @@ class InMemoryUserRepository(UserRepositoryInterface):
                 raise UniqueViolation("user already exist")
 
         first_name, last_name, email_address, password = credential.to_json().values()
-        in_memory_user = UserTable.to_self((self.users_counter,
-                                            first_name,
-                                            last_name,
-                                            email_address,
-                                            password,
-                                            account_status.name,
-                                            None))
+        in_memory_user = UserTable(self.users_counter,
+                                   first_name,
+                                   last_name,
+                                   email_address,
+                                   password,
+                                   account_status.name,
+                                   datetime.now(),
+                                   None)
         self.users.append(in_memory_user)
         self.users_counter = self.users_counter + 1
         return in_memory_user

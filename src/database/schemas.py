@@ -11,6 +11,7 @@ class UserTable:
     email_address: str
     password: bytes
     account_status: str
+    created_at: datetime
     profile_picture: Optional[bytes] = None
 
     @staticmethod
@@ -23,6 +24,7 @@ class UserTable:
             _tuple[4],
             _tuple[5],
             _tuple[6],
+            _tuple[7]
         )
 
 

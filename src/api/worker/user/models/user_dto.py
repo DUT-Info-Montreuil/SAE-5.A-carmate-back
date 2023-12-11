@@ -1,22 +1,23 @@
+import base64
+
 from dataclasses import dataclass
+from datetime import datetime
 from typing import Optional
 
 
 @dataclass(frozen=True)
 class UserDTO:
-    id: int
     first_name: str
     last_name: str
     email_address: str
-    password: bytes
-    profile_picture: Optional[bytes] = None
+    created_at: datetime
+    profile_picture: Optional[str] = None
 
     def to_json(self):
         return {
-            "id": self.id,
             "first_name": self.first_name,
             "last_name": self.last_name,
             "email_address": self.email_address,
-            "password": self.password,
-            "profile_picture": self.profile_picture
+            "created_at": self.created_at,
+            "profile_picture": self.profile_picture if self.profile_picture is None else base64.b64encode(self.profile_picture).decode()
         }
