@@ -1,6 +1,6 @@
 from hashlib import sha512
 
-from api.worker.user.models import PassengerProfileDTO
+from api.worker.user.models import PassengerProfileDTO, DriverProfileDTO
 from api.exceptions import (
     DriverNotFound,
     InternalServerError
@@ -25,7 +25,7 @@ class GetDriverProfile:
 
     def worker(self,
                driver_id: int=None,
-               token: str=None) -> PassengerProfileDTO:
+               token: str=None) -> DriverProfileDTO:
         driver_profile: DriverProfileTable = None
         if token is not None:
             try:
@@ -44,4 +44,4 @@ class GetDriverProfile:
                 raise InternalServerError(str(e))
         else:
             raise DriverNotFound()
-        return PassengerProfileDTO(driver_profile.description, driver_profile.created_at)
+        return DriverProfileDTO(driver_profile.description, driver_profile.created_at)

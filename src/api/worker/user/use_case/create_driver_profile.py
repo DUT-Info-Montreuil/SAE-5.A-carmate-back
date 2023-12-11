@@ -40,19 +40,19 @@ class CreateDriverProfile:
             user = self.token_repository.get_user(sha512(token.encode()).digest())
         except NotFound:
             raise UserNotFound()
-        except Exception:
-            raise InternalServerError()
+        except Exception as e:
+            raise InternalServerError(str(e))
 
         driver_id: int
         try:
             driver_id = self.driver_profile_repository.insert(user).id
         except UniqueViolation:
             raise ProfileAlreadyExist()
-        except Exception:
-            raise InternalServerError()
+        except Exception as e:
+            raise InternalServerError(str(e))
     
         try:
             self.license_repository.insert(document.read(), user, DocumentType.Driver.name)
-        except Exception:
-            raise InternalServerError()
+        except Exception as e:
+            raise InternalServerError(str(e))
         return driver_id

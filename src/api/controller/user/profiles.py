@@ -1,6 +1,3 @@
-from datetime import datetime
-from hashlib import sha512
-
 from flask import Blueprint, abort, jsonify, request
 
 from api import IMAGE_FORMAT_ALLOWED_EXTENSIONS
@@ -11,6 +8,7 @@ from api.exceptions import (
     ProfileAlreadyExist, 
     UserNotFound
 )
+from api.worker.auth.models import UserInformationDTO
 from api.worker.auth.use_case import CheckToken
 from api.worker.user.models import (
     PassengerProfileDTO, 
@@ -27,7 +25,9 @@ from database.repositories import (
     DriverProfileRepositoryInterface,
     PassengerProfileRepositoryInterface,
     LicenseRepositoryInterface,
-    TokenRepositoryInterface
+    TokenRepositoryInterface,
+    UserBannedRepositoryInterface,
+    UserAdminRepositoryInterface
 )
 
 
@@ -43,15 +43,19 @@ class ProfilesRoutes(Blueprint):
                  driver_profile_repository: DriverProfileRepositoryInterface,
                  passenger_profile_repository: PassengerProfileRepositoryInterface,
                  license_repository: LicenseRepositoryInterface,
-                 token_repository: TokenRepositoryInterface):
+                 token_repository: TokenRepositoryInterface,
+                 user_banned_repository: UserBannedRepositoryInterface,
+                 user_admin_repository: UserAdminRepositoryInterface):
         super().__init__("profiles", __name__,
                          url_prefix="/profile")
-        
+
         self.user_repository = user_repository
         self.driver_profile_repository = driver_profile_repository
         self.passenger_profile_repository = passenger_profile_repository
         self.license_repository = license_repository
         self.token_repository = token_repository
+        self.user_banned_repository = user_banned_repository
+        self.user_admin_repository = user_admin_repository
 
         self.before_request(self.token_is_valid)
         self.route("/passenger",
@@ -79,14 +83,18 @@ class ProfilesRoutes(Blueprint):
         except CredentialInvalid:
             abort(401)
         
-        is_token_valid: bool
+        user_infos: None | UserInformationDTO
         try:
-            is_token_valid = CheckToken(self.token_repository).worker(token)
+            user_infos = CheckToken(self.token_repository,
+                                    self.user_banned_repository,
+                                    self.user_admin_repository).worker(token)
         except Exception:
             abort(500)
 
-        if not is_token_valid:
+        if not user_infos:
             abort(401)
+        if user_infos.banned:
+            abort(403)
 
     def get_passenger_profile_api(self):
         passenger_profile: PassengerProfileDTO = None
@@ -117,7 +125,7 @@ class ProfilesRoutes(Blueprint):
         
         if not passenger_profile:
             abort(400)
-        return passenger_profile
+        return jsonify(passenger_profile.to_json())
 
     def get_driver_profile_api(self):
         driver_profile: DriverProfileDTO = None
@@ -148,7 +156,7 @@ class ProfilesRoutes(Blueprint):
         
         if not driver_profile:
             abort(400)
-        return driver_profile
+        return jsonify(driver_profile.to_json())
 
     def create_passenger_profile_api(self):
         if request.is_json:
@@ -157,7 +165,7 @@ class ProfilesRoutes(Blueprint):
         passenger_id: int
         try:
             passenger_id = CreatePassengerProfile(self.token_repository,
-                                                  self.passenger_profile_repository).worker(self.extract_token(request.headers.get("Authorization")).digest())
+                                                  self.passenger_profile_repository).worker(self.extract_token(request.headers.get("Authorization")))
         except ProfileAlreadyExist:
             abort(409)
         except UserNotFound:
