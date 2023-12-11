@@ -1,6 +1,5 @@
 from abc import ABC
 from datetime import datetime
-from typing import Any
 
 from psycopg2 import ProgrammingError, errorcodes
 from psycopg2.errors import lookup
@@ -34,12 +33,7 @@ class TokenRepository(TokenRepositoryInterface):
         query = f"""INSERT INTO carmate.{TokenRepository.POSTGRES_TABLE_NAME}
                     VALUES (%s, %s, %s)"""
 
-        conn: Any
-        try:
-            conn = establishing_connection()
-        except InternalServer as e:
-            raise InternalServer(str(e))
-        else:
+        with establishing_connection() as conn:
             with conn.cursor() as curs:
                 try:
                     curs.execute(query, (hash(token), expiration, user.id,))
@@ -47,8 +41,6 @@ class TokenRepository(TokenRepositoryInterface):
                     raise UniqueViolation(str(e))
                 except Exception as e:
                     raise InternalServer(str(e))
-            conn.commit()
-            conn.close()
         return TokenTable(token, expiration, user.id)
     
     @staticmethod
@@ -58,13 +50,8 @@ class TokenRepository(TokenRepositoryInterface):
                     WHERE token=%s
                     LIMIT 1"""
 
-        conn: Any
         expire_at: datetime
-        try:
-            conn = establishing_connection()
-        except InternalServer as e:
-            raise InternalServer(str(e))
-        else:
+        with establishing_connection() as conn:
             with conn.cursor() as curs:
                 try:
                     curs.execute(query, (token_hashed,))
@@ -77,9 +64,6 @@ class TokenRepository(TokenRepositoryInterface):
                     raise NotFound("token not found")
                 except Exception as e:
                     raise InternalServer(str(e))
-            conn.commit()
-            conn.close()
-
         return expire_at
 
     @staticmethod
@@ -90,12 +74,7 @@ class TokenRepository(TokenRepositoryInterface):
                       ON usr.id = tkn.user_id 
                     WHERE tkn.token=%s"""
 
-        conn: Any
-        try:
-            conn = establishing_connection()
-        except InternalServer as e:
-            raise InternalServer(str(e))
-        else:
+        with establishing_connection() as conn:
             with conn.cursor() as curs:
                 try:
                     curs.execute(query, (token,))
@@ -106,10 +85,8 @@ class TokenRepository(TokenRepositoryInterface):
                     raise NotFound("token not found")
                 except Exception as e:
                     raise InternalServer(str(e))
-                
-                if user is None:
-                    raise NotFound("token not found")
-            conn.close()
+        if not user:
+            raise NotFound("token not found")
         return UserTable.to_self(user)
 
     @staticmethod

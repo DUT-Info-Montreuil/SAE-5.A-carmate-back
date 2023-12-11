@@ -1,6 +1,6 @@
 from abc import ABC
 from datetime import datetime
-from typing import Any, List, Union, Dict
+from typing import List, Union, Dict
 
 from psycopg2 import errorcodes
 from psycopg2.errors import lookup, ProgrammingError, InvalidTextRepresentation
@@ -19,9 +19,11 @@ class LicenseRepositoryInterface(ABC):
                user: UserTable,
                document_type: str) -> LicenseTable: ...
 
-    def get_licenses_not_validated(self, page: int | None) -> Dict[str, Union[int, List[LicenseToValidateDTO]]]: ...
+    def get_licenses_not_validated(self, 
+                                   page: int | None) -> Dict[str, Union[int, List[LicenseToValidateDTO]]]: ...
 
-    def get_license_not_validated(self, document_id: int) -> LicenseToValidate: ...
+    def get_license_not_validated(self, 
+                                  document_id: int) -> LicenseToValidate: ...
 
     def get_license_by_user_id(self, user_id: int, document_type: str) -> LicenseTable: ...
 
@@ -30,6 +32,7 @@ class LicenseRepositoryInterface(ABC):
                       validation_status: str) -> None: ...
 
     def get_next_license_id_to_validate(self) -> int: ...
+
 
 class LicenseRepository(LicenseRepositoryInterface):
     POSTGRES_TABLE_NAME: str = "license"
@@ -45,12 +48,7 @@ class LicenseRepository(LicenseRepositoryInterface):
         id: int
         published_at: datetime
         validation_status: str
-        conn: Any
-        try:
-            conn = establishing_connection()
-        except InternalServer as e:
-            raise InternalServer(str(e))
-        else:
+        with establishing_connection() as conn:
             with conn.cursor() as curs:
                 try:
                     curs.execute(query, (document, document_type, user.id))
@@ -58,11 +56,8 @@ class LicenseRepository(LicenseRepositoryInterface):
                     raise UniqueViolation(str(e))
                 except Exception as e:
                     raise InternalServer(str(e))
-                else:
-                    id, validation_status, published_at = curs.fetchone()
-            conn.commit()
-            conn.close()
-        return LicenseTable(id, document, document_type, validation_status, published_at, user.id)
+                id, validation_status, published_at = curs.fetchone()
+        return LicenseTable(id, document.read(), document_type, validation_status, published_at, user.id)
 
     def get_licenses_not_validated(self, page: int | None) -> Dict[str, Union[int, List[LicenseToValidateDTO]]]:
         offset = (page - 1) * 30 if page is not None else 0
@@ -76,26 +71,18 @@ class LicenseRepository(LicenseRepositoryInterface):
                     FROM carmate.{LicenseRepository.POSTGRES_TABLE_NAME}
                     WHERE validation_status = 'Pending'"""
 
-        conn: Any
-        try:
-            conn = establishing_connection()
-        except InternalServer as e:
-            raise InternalServer(str(e))
-        else:
+        with establishing_connection() as conn:
             with conn.cursor() as curs:
                 try:
                     curs.execute(query)
                 except Exception as e:
                     raise InternalServer(str(e))
-                else:
-                    license_rows = curs.fetchall()
+                license_rows = curs.fetchall()
                 try:
                     curs.execute(count_query)
                 except Exception as e:
                     raise InternalServer(str(e))
-                else:
-                    count = curs.fetchone()
-            conn.close()
+                count = curs.fetchone()
         return {
             "nb_documents": count,
             "items": [LicenseToValidateDTO(*tpl) for tpl in license_rows]
@@ -107,12 +94,7 @@ class LicenseRepository(LicenseRepositoryInterface):
                     INNER JOIN carmate."{UserRepository.POSTGRES_TABLE_NAME}" ur ON lr.user_id = ur.id
                     WHERE lr.id = %s"""
 
-        conn: Any
-        try:
-            conn = establishing_connection()
-        except InternalServer as e:
-            raise InternalServer(str(e))
-        else:
+        with establishing_connection() as conn:
             with conn.cursor() as curs:
                 try:
                     curs.execute(query, (document_id, ))
@@ -122,29 +104,21 @@ class LicenseRepository(LicenseRepositoryInterface):
                     raise NotFound("document not found")
                 except Exception as e:
                     raise InternalServer(str(e))
-                else:
-                    found_license = curs.fetchone()
 
-                    if not found_license:
-                        raise NotFound("document not found")
-            conn.close()
+                found_license = curs.fetchone()
+                if not found_license:
+                    raise NotFound("document not found")
 
         if found_license[6] != ValidationStatus.Pending.name:
             raise DocumentAlreadyChecked("document is already checked")
-
         return LicenseToValidate.tuple_to_self(found_license)
 
     def update_status(self, license_id: int, validation_status: str) -> None:
         query = f"""UPDATE carmate.{LicenseRepository.POSTGRES_TABLE_NAME}
                     SET validation_status=%s
                     WHERE id=%s"""
-        
-        conn: Any
-        try:
-            conn = establishing_connection()
-        except InternalServer as e:
-            raise InternalServer(str(e))
-        else:
+
+        with establishing_connection() as conn:
             with conn.cursor() as curs:
                 try:
                     curs.execute(query, (validation_status, license_id,))
@@ -152,11 +126,9 @@ class LicenseRepository(LicenseRepositoryInterface):
                     raise InvalidInputEnumValue(str(e))
                 except Exception as e:
                     raise InternalServer(str(e))
-                
+
                 if curs.rowcount == 0:
                     raise NotFound("license not found, can't update")
-            conn.commit()
-            conn.close()
 
     def get_next_license_id_to_validate(self) -> int:
         query = f"""SELECT lr.id
@@ -166,12 +138,7 @@ class LicenseRepository(LicenseRepositoryInterface):
                     LIMIT 1
                     """
 
-        conn: Any
-        try:
-            conn = establishing_connection()
-        except InternalServer as e:
-            raise InternalServer(str(e))
-        else:
+        with establishing_connection() as conn:
             with conn.cursor() as curs:
                 try:
                     curs.execute(query)
@@ -182,7 +149,6 @@ class LicenseRepository(LicenseRepositoryInterface):
                     raise NotFound("No more licenses to validate")
                 except Exception as e:
                     raise InternalServer(str(e))
-        conn.close()
 
         if next_id is not None and len(next_id) > 0:
             return next_id[0]

@@ -1,8 +1,7 @@
 from abc import ABC
-from typing import Any, List
+from typing import List
 
 from database import establishing_connection
-from database.exceptions import InternalServer
 
 
 class UserBannedRepositoryInterface(ABC):
@@ -24,18 +23,12 @@ class UserBannedRepository(UserBannedRepositoryInterface):
                 WHERE user_id = %s
             ) as is_banned"""
 
-        conn: Any
         user_data: tuple
-        try:
-            conn = establishing_connection()
-        except Exception as e:
-            raise InternalServer(str(e))
-        else:
+        with establishing_connection() as conn:
             with conn.cursor() as curs:
                 curs.execute(query, (user_id, ))
                 user_data = curs.fetchone()[0]
 
-            conn.close()
-            if not user_data:
-                return False
+        if not user_data:
+            return False
         return True

@@ -1,5 +1,4 @@
 from abc import ABC
-from typing import Any
 
 from psycopg2 import ProgrammingError, errorcodes
 from psycopg2.errors import lookup
@@ -8,7 +7,7 @@ from api import hash
 from api.worker.auth.models import CredentialDTO
 from api.worker.user import AccountStatus
 from database import establishing_connection
-from database.exceptions import *
+from database.exceptions import InternalServer, UniqueViolation, NotFound
 from database.schemas import UserTable
 
 
@@ -34,11 +33,7 @@ class UserRepository(UserRepositoryInterface):
                          RETURNING id, first_name, last_name, email_address, password, account_status, created_at, profile_picture"""
 
         user: tuple
-        try:
-            conn = establishing_connection()
-        except InternalServer as e:
-            raise InternalServer(str(e))
-        else:
+        with establishing_connection() as conn:
             with conn.cursor() as curs:
                 try:
                     curs.execute(query, (first_name, last_name,
@@ -47,10 +42,7 @@ class UserRepository(UserRepositoryInterface):
                     raise UniqueViolation(str(e))
                 except Exception as e:
                     raise InternalServer(str(e))
-                else:
-                    user = curs.fetchone()
-            conn.commit()
-            conn.close()
+                user = curs.fetchone()
         return UserTable.to_self(user)
 
     @staticmethod
@@ -58,20 +50,14 @@ class UserRepository(UserRepositoryInterface):
         query = f"""SELECT * FROM carmate.{UserRepository.POSTGRES_TABLE_NAME} 
                     WHERE email_address=%s"""
 
-        conn: Any
         user_data: tuple
-        try:
-            conn = establishing_connection()
-        except Exception as e:
-            raise InternalServer(str(e))
-        else:
+        with establishing_connection() as conn:
             with conn.cursor() as curs:
                 curs.execute(query, (email,))
                 user_data = curs.fetchone()
 
-            conn.close()
-            if not user_data:
-                raise NotFound("user not found")
+        if not user_data:
+            raise NotFound("user not found")
         return UserTable.to_self(user_data)
 
     @staticmethod
@@ -79,13 +65,8 @@ class UserRepository(UserRepositoryInterface):
         query = f"""SELECT * FROM carmate.{UserRepository.POSTGRES_TABLE_NAME} 
                     WHERE id=%s"""
 
-        conn: Any
         user_data: tuple
-        try:
-            conn = establishing_connection()
-        except Exception as e:
-            raise InternalServer(str(e))
-        else:
+        with establishing_connection() as conn:
             with conn.cursor() as curs:
                 try:
                     curs.execute(query, (id,))
@@ -94,7 +75,6 @@ class UserRepository(UserRepositoryInterface):
                     raise NotFound("user not found")
                 except Exception as e:
                     raise InternalServer(str(e))
-            conn.close()
 
         if user_data is None:
             raise NotFound("user not found")

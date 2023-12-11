@@ -1,7 +1,6 @@
 from abc import ABC
-from typing import Any
 
-from database import establishing_connection, InternalServer
+from database import establishing_connection
 
 
 class UserAdminRepositoryInterface(ABC):
@@ -19,18 +18,12 @@ class UserAdminRepository(UserAdminRepositoryInterface):
                         WHERE user_id=%s
                     ) as is_admin"""
 
-        conn: Any
         user_data: tuple
-        try:
-            conn = establishing_connection()
-        except Exception as e:
-            raise InternalServer(str(e))
-        else:
+        with establishing_connection() as conn:
             with conn.cursor() as curs:
                 curs.execute(query, (user_id, ))
                 user_data = curs.fetchone()[0]
 
-            conn.close()
-            if not user_data:
-                return False
+        if not user_data:
+            return False
         return True
