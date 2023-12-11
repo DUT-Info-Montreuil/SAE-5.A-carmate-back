@@ -1,6 +1,5 @@
 import base64
 from datetime import datetime
-from typing import Self
 from dataclasses import dataclass
 
 

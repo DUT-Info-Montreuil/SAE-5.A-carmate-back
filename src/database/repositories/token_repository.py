@@ -80,7 +80,7 @@ class TokenRepository(TokenRepositoryInterface):
 
     @staticmethod
     def get_user(token: bytes) -> UserTable:
-        query = f"""SELECT usr.id, usr.first_name, usr.last_name, usr.email_address, NULL, usr.account_status, usr.profile_picture
+        query = f"""SELECT usr.id, usr.first_name, usr.last_name, usr.email_address, NULL, usr.account_status, usr.created_at, usr.profile_picture
                     FROM carmate."{UserRepository.POSTGRES_TABLE_NAME}" usr
                     INNER JOIN carmate.{TokenRepository.POSTGRES_TABLE_NAME} tkn 
                       ON usr.id = tkn.user_id 

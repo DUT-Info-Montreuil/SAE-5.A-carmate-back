@@ -19,9 +19,7 @@ class GetLicensesToValidateTestCase(unittest.TestCase):
 
         self.user_repo = InMemoryUserRepository()
         self.license_repo = InMemoryLicenseRepository(self.user_repo)
-        self.inserted_user = UserTable.to_self(
-                (2, "Fred", "Mercury", "ssa@example.com", sha512("password".encode('utf-8')).digest(),
-                 AccountStatus.Teacher.name, None))
+        self.inserted_user = UserTable(2, "Fred", "Mercury", "ssa@example.com", sha512("password".encode('utf-8')).digest(), AccountStatus.Teacher.name, datetime.now(), None)
         self.user_repo.users.append(self.inserted_user)
         self.get_licenses_to_validate = GetLicenseToValidate(self.license_repo)
 

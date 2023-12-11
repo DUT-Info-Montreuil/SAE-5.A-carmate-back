@@ -32,7 +32,7 @@ class UserRepository(UserRepositoryInterface):
         first_name, last_name, email_address, password = credential.to_json().values()
         query: str = f"""INSERT INTO carmate.{UserRepository.POSTGRES_TABLE_NAME}(first_name, last_name, email_address, password, account_status)
                          VALUES (%s, %s, %s, %s, %s) 
-                         RETURNING id, first_name, last_name, email_address, password, account_status, profile_picture"""
+                         RETURNING id, first_name, last_name, email_address, password, account_status, created_at, profile_picture"""
 
         user: tuple
         try:
@@ -96,5 +96,7 @@ class UserRepository(UserRepositoryInterface):
                 except Exception as e:
                     raise InternalServer(str(e))
             conn.close()
-
+        
+        if user_data is None:
+            raise NotFound("user not found")
         return UserTable.to_self(user_data)
