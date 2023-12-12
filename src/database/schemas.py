@@ -1,6 +1,6 @@
 from dataclasses import dataclass
 from datetime import datetime
-from typing import Optional
+from typing import List, Optional
 
 
 @dataclass(frozen=True)
@@ -95,4 +95,29 @@ class PassengerProfileTable:
             _tuple[1],
             _tuple[2],
             _tuple[3]
+        )
+
+
+@dataclass
+class CarpoolingTable:
+    id: int
+    starting_point: List[float]
+    destination: List[float]
+    max_passagers: int
+    price: float
+    is_canceled: bool
+    departure_date_time: datetime
+    driver_id: int
+
+    @staticmethod
+    def to_self(_tuple: tuple):
+        return CarpoolingTable(
+            _tuple[0],
+            _tuple[1],
+            _tuple[2],
+            _tuple[3],
+            _tuple[4],
+            _tuple[5],
+            _tuple[6],
+            _tuple[7]
         )

@@ -11,6 +11,7 @@ from api.controller import (
     MonitoringRoutes,
     ProfilesRoutes
 )
+from api.controller.carpooling.search import SearchRoutes
 from api.controller.user.user import UserRoutes
 from database.repositories import (
     TokenRepositoryInterface,
@@ -26,7 +27,9 @@ from database.repositories import (
     UserAdminRepository,
     UserBannedRepository,
     DriverProfileRepository,
-    PassengerProfileRepository
+    PassengerProfileRepository,
+    CarpoolingRepositoryInterface,
+    CarpoolingRepository
 )
 from test.mock import (
     InMemoryLicenseRepository,
@@ -35,7 +38,8 @@ from test.mock import (
     InMemoryTokenRepository,
     InMemoryUserRepository,
     InMemoryDriverProfileRepository,
-    InMemoryPassengerProfileRepository
+    InMemoryPassengerProfileRepository,
+    InMemoryCarpoolingRepository
 )
 
 
@@ -54,7 +58,8 @@ class Api(object):
     passenger_profile_repository: PassengerProfileRepositoryInterface
     user_admin_repository: UserAdminRepositoryInterface
     user_banned_repository: UserBannedRepositoryInterface
-    license_repository = LicenseRepositoryInterface
+    license_repository: LicenseRepositoryInterface
+    carpooling_repository: CarpoolingRepositoryInterface
 
     def __init__(self) -> None:
         self.api = Flask("carmate-api" if not os.getenv("API_NAME") else os.getenv("API_NAME"))
@@ -83,6 +88,7 @@ class Api(object):
         self.api.register_blueprint(profiles)
         self.api.register_blueprint(auth)
         self.api.register_blueprint(UserRoutes(self.user_repository, self.token_repository, self.user_banned_repository, self.user_admin_repository))
+        self.api.register_blueprint(SearchRoutes(self.carpooling_repository))
 
         if os.getenv("API_MODE") == "PROD":
             self.api.before_request(monitoring.readiness_api)
@@ -95,6 +101,7 @@ class Api(object):
         self.user_banned_repository = InMemoryUserBannedRepository()
         self.token_repository = InMemoryTokenRepository(self.user_repository)
         self.license_repository = InMemoryLicenseRepository(self.user_repository)
+        self.carpooling_repository = InMemoryCarpoolingRepository()
 
     def postgres(self) -> None:
         self.user_repository = UserRepository()
@@ -104,6 +111,7 @@ class Api(object):
         self.user_banned_repository = UserBannedRepository()
         self.token_repository = TokenRepository()
         self.license_repository = LicenseRepository()
+        self.carpooling_repository = CarpoolingRepository()
 
     def run(self) -> None:
         if not os.getenv("API_PORT"):
