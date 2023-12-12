@@ -2,8 +2,7 @@ import logging
 import os
 
 from waitress import serve
-from flask import Flask
-from flask_cors import CORS
+from flask import Flask, Response, jsonify, request
 
 from api.controller import (
     AdminRoutes,
@@ -63,7 +62,6 @@ class Api(object):
 
     def __init__(self) -> None:
         self.api = Flask("carmate-api" if not os.getenv("API_NAME") else os.getenv("API_NAME"))
-        self.cors = CORS(self.api, resources={r"*": {"origins": "*"}})
 
         logging.basicConfig(format=self.logging_format,
                             datefmt='%d/%m/%Y %I:%M:%S %p',
@@ -91,6 +89,7 @@ class Api(object):
         self.api.register_blueprint(SearchRoutes(self.carpooling_repository))
 
         if os.getenv("API_MODE") == "PROD":
+            self.api.after_request(self.handle_preflight_requests)
             self.api.before_request(monitoring.readiness_api)
 
     def mock(self) -> None:
@@ -112,6 +111,16 @@ class Api(object):
         self.token_repository = TokenRepository()
         self.license_repository = LicenseRepository()
         self.carpooling_repository = CarpoolingRepository()
+
+    def handle_preflight_requests(self, response: Response):
+        if request.method == 'OPTIONS':
+            response.status_code = 200
+        response.headers.add('Access-Control-Allow-Origin', '*')
+        response.headers.add('Access-Control-Allow-Headers', 'content-type,authorization')
+        response.headers.add('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS, HEAD')
+        response.headers.add('Access-Control-Allow-Credentials', 'true')
+        response.headers.add('Content-Type', 'application/json')
+        return response
 
     def run(self) -> None:
         if not os.getenv("API_PORT"):
