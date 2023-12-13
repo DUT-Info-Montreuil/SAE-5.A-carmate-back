@@ -1,5 +1,4 @@
 from abc import ABC
-import datetime
 from typing import Any
 
 from psycopg2 import ProgrammingError, errorcodes

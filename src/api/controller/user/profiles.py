@@ -145,7 +145,7 @@ class ProfilesRoutes(Blueprint):
                 abort(404)
             except Exception:
                 abort(500)
-        elif "Authorization" in request.headers.keys():
+        elif request.authorization is not None:
             try:
                 driver_profile = GetDriverProfile(self.token_repository,
                                                   self.driver_profile_repository).worker(token=self.extract_token(request.headers.get("Authorization")))
@@ -154,7 +154,7 @@ class ProfilesRoutes(Blueprint):
             except Exception:
                 abort(500)
         
-        if not driver_profile:
+        if driver_profile is None:
             abort(400)
         return jsonify(driver_profile.to_json())
 
