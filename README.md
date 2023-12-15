@@ -24,14 +24,25 @@ Mais cette base ne permet pas de faire fonctionner l'API, vous devez set des var
 - `POSTGRES_PWD` (obligatoire pour un environnement de `PROD`)
 - `POSTGRES_HOST` (obligatoire pour un environnement de `PROD`)
 - `POSTGRES_PORT` (obligatoire pour un environnement de `PROD`)
+
 ### Commande pour lancer l'API en mode `TEST`
+#### Linux:
 ```
 PYTHONPATH=`pwd` \
 API_MODE=TEST \
 API_PORT=5000 \
 python3 src/main.py
 ```
+#### Windows:
+```
+$env:API_MODE="TEST"
+$env:API_PORT=5000
+$env:PYTHONPATH="$(pwd)"
+python .\src\main.py
+```
+
 ### Commande pour lancer l'API en mode `PROD`
+#### Linux:
 ```
 PYTHONPATH=`pwd` \
 API_MODE=PROD \
@@ -43,6 +54,19 @@ POSTGRES_HOST=localhost \
 POSTGRES_PORT=5432 \
 python3 src/main.py
 ``` 
+
+#### Windows:
+```
+$env:API_PORT=5000
+$env:API_MODE="PROD"
+$env:POSTGRES_DB="postgres"
+$env:POSTGRES_USER="postgres"
+$env:POSTGRES_PWD="postgres"
+$env:PYTHONPATH="$(pwd)"
+$env:POSTGRES_HOST="localhost"
+$env:POSTGRES_PORT=5432
+python .\src\main.py
+```
 
 ## Image Docker
 ### Variable d'environment 
