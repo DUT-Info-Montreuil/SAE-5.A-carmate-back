@@ -49,7 +49,14 @@ class AdminRoutes(Blueprint):
         self.route("/license/validate", 
                    methods=["POST"])(self.validate_license_api)
 
-    def check_is_admin(self):
+    def check_is_admin(self) -> None:
+        """Check thanks to the session token in the headers, if the user is an admin
+        
+        :raises:
+            - 401: don't have Authorization header, schema invalid or token invalid
+            - 403: Is not admin
+            - 500: InternalServerError (other)
+        """
         authorization = request.headers.get("Authorization")
         if not authorization:
             abort(401)
@@ -73,6 +80,15 @@ class AdminRoutes(Blueprint):
             abort(403)
 
     def license_to_validate_api(self) -> Response:
+        """List licenses with state 'Pending'
+        
+        :raises:
+            - 400: if the value of page argument request is not valid
+            - 401: don't have Authorization header, schema invalid or token invalid
+            - 403: Is not admin
+            - 500: InternalServerError (other)
+        Return: A json with licenses to validate
+        """
         query_data = request.args.to_dict()
 
         page: int | None = None
@@ -90,11 +106,24 @@ class AdminRoutes(Blueprint):
         return jsonify(licenses_to_validate)
 
     def get_license_api(self):
+        """Get one document which must be validated
+        
+        :raises:
+            - 400: If document_id value is not an integer or document_id is not an attribute
+            - 401: don't have Authorization header, schema invalid or token invalid
+            - 403: Is not admin
+            - 404: License not found
+            - 410: Document already approved or rejected
+            - 500: InternalServerError (other)
+        Return: return_description
+        """
         query_data = request.args.to_dict()
 
         document_id: int | None = None
         try:
             document_id = int(query_data["document_id"])
+        except ValueError:
+            abort(400)
         except Exception:
             pass
 
@@ -111,6 +140,17 @@ class AdminRoutes(Blueprint):
         return jsonify(licenses_to_validate.to_json())
 
     def validate_license_api(self) -> Response:
+        """Rejected or approved a license
+        
+        :raises:
+            - 400: Status, license_id or validation status invalid is not present in the json data
+            - 401: don't have Authorization header, schema invalid or token invalid
+            - 403: Is not admin
+            - 415: Content type is not application/json
+            - 500: InternalServerError (other)
+        Return: nothing or the next document_id
+        """
+        
         if not request.is_json:
             abort(415)
 
