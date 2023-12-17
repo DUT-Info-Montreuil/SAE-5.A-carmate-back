@@ -27,6 +27,8 @@ class SearchRoutes(Blueprint):
         if request.args.get('page') is not None:
             try:
                 page = int(request.args.get('page'))
+                if page < 1:
+                    raise ValueError()
             except ValueError:
                 abort(400)
 

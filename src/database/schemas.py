@@ -99,11 +99,21 @@ class PassengerProfileTable:
 
 
 @dataclass
+class ReserveCarpoolingTable:
+    user_id: int
+    carpooling_id: int
+    payment_date: datetime
+    passenger_code: int
+    passenger_code_validated: bool
+    canceled: bool
+
+
+@dataclass
 class CarpoolingTable:
     id: int
     starting_point: List[float]
     destination: List[float]
-    max_passagers: int
+    max_passengers: int
     price: float
     is_canceled: bool
     departure_date_time: datetime
