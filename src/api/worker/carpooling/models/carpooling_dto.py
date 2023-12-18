@@ -29,3 +29,28 @@ class CarpoolingDTO:
 
     def to_json(self):
         return asdict(self)
+
+
+@dataclass
+class CarpoolingForRecap:
+    id: int
+    starting_point: List[float]
+    destination: List[float]
+    max_passengers: int
+    price: float
+    departure_date_time: datetime
+    driver_id: int
+    seats_taken: int
+
+    @staticmethod
+    def to_self(_tuple: tuple):
+        return CarpoolingForRecap(
+            _tuple[0],
+            _tuple[1],
+            _tuple[2],
+            _tuple[3],
+            _tuple[4],
+            _tuple[5],
+            _tuple[6],
+            _tuple[7] if len(_tuple) > 7 else 0,
+        )

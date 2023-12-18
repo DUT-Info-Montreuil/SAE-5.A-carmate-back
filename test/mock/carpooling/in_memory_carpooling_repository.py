@@ -1,3 +1,4 @@
+import copy
 import random
 
 from datetime import datetime, timedelta
@@ -10,7 +11,8 @@ from database.schemas import CarpoolingTable
 class InMemoryCarpoolingRepository(CarpoolingRepositoryInterface):
     RADIUS: float = .07
 
-    def __init__(self) -> None:
+    def __init__(self, reserve_carpooling_repository=None) -> None:
+        self.reserve_carpooling_repository = reserve_carpooling_repository
         self.carpoolings: List[CarpoolingTable] = [
             CarpoolingTable(1, [48.883078, 2.343902], [48.839678, 2.375806], 4, round(random.uniform(1, 50), 2), False, datetime.now() + timedelta(days=1), 1),
             CarpoolingTable(2, [48.857662, 2.294402], [48.844277, 2.280792], 4, round(random.uniform(1, 50), 2), False, datetime.now() + timedelta(days=5), 2),
@@ -50,7 +52,10 @@ class InMemoryCarpoolingRepository(CarpoolingRepositoryInterface):
         page: int = 1,
         per_page: int = 10
     ) -> Tuple[int, List[CarpoolingTable]]:
-        filtered_carpoolings = [
+        if self.reserve_carpooling_repository is None:
+            raise Exception("To use the fucntion get_carpoolings_route you need the reserve carpooling repository")
+
+        filtered_carpoolings = copy.deepcopy([
             carpooling for carpooling in self.carpoolings
             if (
                 abs(carpooling.starting_point[0] - start_lat) < self.RADIUS
@@ -59,7 +64,13 @@ class InMemoryCarpoolingRepository(CarpoolingRepositoryInterface):
                 and abs(carpooling.destination[1] - end_lon) < self.RADIUS
                 and carpooling.departure_date_time >= datetime.utcfromtimestamp(departure_date_time)
             )
-        ]
+        ])
+
+        for carpooling in filtered_carpoolings:
+            carpooling.seats_taken = 0
+            for reserved_carpoolings in self.reserve_carpooling_repository.reserved_carpoolings:
+                if reserved_carpoolings.carpooling_id == carpooling.id:
+                    carpooling.seats_taken += 1
 
         start_index = (page - 1) * per_page
         end_index = start_index + per_page
