@@ -24,9 +24,11 @@ class PassengerProfileRepository(PassengerProfileRepositoryInterface):
 
     def insert(self,
                user: UserTable) -> PassengerProfileTable:
-        query = f"""INSERT INTO carmate.{PassengerProfileRepository.POSTGRES_TABLE_NAME}(user_id)
-                    VALUES (%s)
-                    RETURNING id, "description", created_at, user_id"""
+        query = f"""
+            INSERT INTO carmate.{PassengerProfileRepository.POSTGRES_TABLE_NAME}(user_id)
+            VALUES (%s)
+            RETURNING id, "description", created_at, user_id
+        """
 
         passenger_profile: tuple
         with establishing_connection() as conn:
@@ -42,20 +44,22 @@ class PassengerProfileRepository(PassengerProfileRepositoryInterface):
 
     def get_passenger(self,
                       passenger_id: int) -> PassengerProfileTable:
-        query = f"""SELECT * 
-                    FROM carmate.{PassengerProfileRepository.POSTGRES_TABLE_NAME} 
-                    WHERE id=%s"""
+        query = f"""
+            SELECT * 
+            FROM carmate.{PassengerProfileRepository.POSTGRES_TABLE_NAME} 
+            WHERE id=%s
+        """
 
         passenger_data: tuple
         with establishing_connection() as conn:
             with conn.cursor() as curs:
                 try:
                     curs.execute(query, (passenger_id,))
-                    passenger_data = curs.fetchone()
                 except ProgrammingError:
                     raise NotFound("passenger not found")
                 except Exception as e:
                     raise InternalServer(str(e))
+                passenger_data = curs.fetchone()
 
         if passenger_data is None:
             raise NotFound("passenger not found")
@@ -72,11 +76,11 @@ class PassengerProfileRepository(PassengerProfileRepositoryInterface):
             with conn.cursor() as curs:
                 try:
                     curs.execute(query, (user_id,))
-                    passenger_data = curs.fetchone()
                 except ProgrammingError:
                     raise NotFound("passenger not found")
                 except Exception as e:
                     raise InternalServer(str(e))
+                passenger_data = curs.fetchone()
 
         if passenger_data is None:
             raise NotFound("passenger not found")

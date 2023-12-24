@@ -1,7 +1,10 @@
 from abc import ABC
 from typing import List
 
+from psycopg2 import ProgrammingError
+
 from database import establishing_connection
+from database.exceptions import InternalServer, NotFound
 
 
 class UserBannedRepositoryInterface(ABC):
@@ -17,18 +20,22 @@ class UserBannedRepository(UserBannedRepositoryInterface):
 
     def is_banned(self, 
                   user_id: int) -> bool:
-        query = f"""SELECT EXISTS (
+        query = f"""
+            SELECT EXISTS (
                 SELECT 1 
-                FROM carmate.{UserBannedRepository.POSTGRES_TABLE_NAME}
+                FROM carmate.{self.POSTGRES_TABLE_NAME}
                 WHERE user_id = %s
-            ) as is_banned"""
+            ) as is_banned
+        """
 
         user_data: tuple
         with establishing_connection() as conn:
             with conn.cursor() as curs:
-                curs.execute(query, (user_id, ))
+                try:
+                    curs.execute(query, (user_id,))
+                except ProgrammingError:
+                    raise NotFound("user not found")
+                except Exception as e:
+                    raise InternalServer(str(e))
                 user_data = curs.fetchone()[0]
-
-        if not user_data:
-            return False
-        return True
+        return user_data is not None and bool(user_data)

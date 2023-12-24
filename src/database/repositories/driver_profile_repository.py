@@ -25,7 +25,7 @@ class DriverProfileRepository(DriverProfileRepositoryInterface):
     def insert(self,
                user: UserTable) -> DriverProfileTable:
         query = f"""
-            INSERT INTO carmate.{DriverProfileRepository.POSTGRES_TABLE_NAME}(user_id)
+            INSERT INTO carmate.{self.POSTGRES_TABLE_NAME}(user_id)
             VALUES (%s)
             RETURNING id, "description", created_at, user_id
         """
@@ -44,20 +44,22 @@ class DriverProfileRepository(DriverProfileRepositoryInterface):
 
     def get_driver(self,
                    driver_id: int) -> DriverProfileTable:
-        query = f"""SELECT * 
-                    FROM carmate.{DriverProfileRepository.POSTGRES_TABLE_NAME} 
-                    WHERE id=%s"""
+        query = f"""
+            SELECT * 
+            FROM carmate.{self.POSTGRES_TABLE_NAME} 
+            WHERE id=%s
+        """
 
         driver_data: tuple
         with establishing_connection() as conn:
             with conn.cursor() as curs:
                 try:
                     curs.execute(query, (driver_id,))
-                    driver_data = curs.fetchone()
                 except ProgrammingError:
                     raise NotFound("driver not found")
                 except Exception as e:
                     raise InternalServer(str(e))
+                driver_data = curs.fetchone()
 
         if driver_data is None:
             raise NotFound("driver not found")
@@ -65,20 +67,22 @@ class DriverProfileRepository(DriverProfileRepositoryInterface):
 
     def get_driver_by_user_id(self,
                               user_id: int) -> DriverProfileTable:
-        query = f"""SELECT * 
-                    FROM carmate.{DriverProfileRepository.POSTGRES_TABLE_NAME} 
-                    WHERE user_id=%s"""
+        query = f"""
+            SELECT * 
+            FROM carmate.{self.POSTGRES_TABLE_NAME} 
+            WHERE user_id=%s
+        """
 
         driver_data: tuple
         with establishing_connection() as conn:
             with conn.cursor() as curs:
                 try:
                     curs.execute(query, (user_id,))
-                    driver_data = curs.fetchone()
                 except ProgrammingError:
                     raise NotFound("driver not found")
                 except Exception as e:
                     raise InternalServer(str(e))
+                driver_data = curs.fetchone()
 
         if driver_data is None:
             raise NotFound("driver not found")
