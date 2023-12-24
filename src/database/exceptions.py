@@ -26,3 +26,8 @@ class InvalidInputEnumValue(DatabaseError):
 class DocumentAlreadyChecked(Exception):
     def __init__(self, message: str):
         super().__init__(message)
+
+
+class CheckViolation(DatabaseError):
+    def __init__(self, message: str):
+        super().__init__(message)

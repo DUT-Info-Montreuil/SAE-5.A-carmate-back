@@ -8,8 +8,8 @@ from psycopg2.errors import lookup
 from api import hash
 from database import establishing_connection
 from database.exceptions import *
-from database.repositories import UserRepository
-from database.schemas import UserTable, TokenTable
+from database.repositories import UserRepository, DriverProfileRepository
+from database.schemas import UserTable, TokenTable, DriverProfileTable
 
 
 class TokenRepositoryInterface(ABC):
@@ -20,6 +20,9 @@ class TokenRepositoryInterface(ABC):
 
     @staticmethod
     def get_user(token: bytes) -> UserTable: ...
+    
+    @staticmethod
+    def get_driver_profile(token: bytes) -> DriverProfileTable: ...
 
 
 class TokenRepository(TokenRepositoryInterface):
@@ -107,3 +110,26 @@ class TokenRepository(TokenRepositoryInterface):
                     raise NotFound("token not found")
             conn.close()
         return UserTable.to_self(user)
+
+    @staticmethod
+    def get_driver_profile(token: bytes) -> DriverProfileTable:
+        query = f"""SELECT driver.*
+                    FROM carmate.{TokenRepository.POSTGRES_TABLE_NAME} as tkn
+                    INNER JOIN carmate.{UserRepository.POSTGRES_TABLE_NAME} as usr ON tkn.user_id = usr.id
+                    Inner JOIN carmate.{DriverProfileRepository.POSTGRES_TABLE_NAME} as driver ON usr.id = driver.user_id
+                    WHERE tkn.token=%s"""
+
+        with establishing_connection() as conn:
+            with conn.cursor() as curs:
+                try:
+                    curs.execute(query, (token,))
+                except ProgrammingError:
+                    raise NotFound("driver not found")
+                except IndexError:
+                    raise NotFound("driver not found")
+                except Exception as e:
+                    raise InternalServer(str(e))
+                driver_profile = curs.fetchone()
+
+        return DriverProfileTable.to_self(driver_profile)
+

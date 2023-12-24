@@ -11,6 +11,7 @@ from api.controller import (
     ProfilesRoutes
 )
 from api.controller.carpooling.search import SearchRoutes
+from api.controller.carpooling.with_driver_check import CarpoolingWithDriverCheckRoutes
 from api.controller.user.user import UserRoutes
 from database.repositories import (
     TokenRepositoryInterface,
@@ -85,8 +86,9 @@ class Api(object):
         self.api.register_blueprint(AdminRoutes(self.user_repository, self.user_admin_repository, self.user_banned_repository, self.token_repository, self.license_repository))
         self.api.register_blueprint(profiles)
         self.api.register_blueprint(auth)
-        self.api.register_blueprint(UserRoutes(self.user_repository, self.token_repository, self.user_banned_repository, self.user_admin_repository))
+        self.api.register_blueprint(UserRoutes(self.user_repository, self.token_repository, self.user_banned_repository, self.user_admin_repository, self.license_repository))
         self.api.register_blueprint(SearchRoutes(self.carpooling_repository))
+        self.api.register_blueprint(CarpoolingWithDriverCheckRoutes(self.carpooling_repository, self.token_repository, self.user_banned_repository, self.user_admin_repository, self.license_repository, self.user_repository))
 
         if os.getenv("API_MODE") == "PROD":
             self.api.after_request(self.handle_preflight_requests)

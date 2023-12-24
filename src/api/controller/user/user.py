@@ -5,7 +5,13 @@ from api.worker.auth.models import UserInformationDTO
 from api.worker.auth.use_case import CheckToken
 from api.worker.user.models import UserDTO
 from api.worker.user.use_case import GetUser
-from database.repositories import TokenRepositoryInterface, UserRepositoryInterface, UserBannedRepositoryInterface, UserAdminRepositoryInterface
+from database.repositories import (
+    TokenRepositoryInterface,
+    UserRepositoryInterface,
+    UserBannedRepositoryInterface,
+    UserAdminRepositoryInterface,
+    LicenseRepositoryInterface
+)
 
 
 class UserRoutes(Blueprint):
@@ -13,18 +19,21 @@ class UserRoutes(Blueprint):
     token_repository: TokenRepositoryInterface
     user_banned_repository: UserBannedRepositoryInterface
     user_admin_repository: UserAdminRepositoryInterface
+    license_repository: LicenseRepositoryInterface
 
     def __init__(self,
                  user_repository: UserRepositoryInterface,
                  token_repository: TokenRepositoryInterface,
                  user_banned_repository: UserBannedRepositoryInterface,
-                 user_admin_repository: UserAdminRepositoryInterface) -> None:
+                 user_admin_repository: UserAdminRepositoryInterface,
+                 license_repository: LicenseRepositoryInterface) -> None:
         super().__init__("user", __name__)
         
         self.user_repository = user_repository
         self.token_repository = token_repository
         self.user_banned_repository = user_banned_repository
         self.user_admin_repository = user_admin_repository
+        self.license_repository = license_repository
 
         self.before_request(self.check_token)
         self.route("/user",
@@ -43,7 +52,8 @@ class UserRoutes(Blueprint):
         try:
             user_information = CheckToken(self.token_repository,
                                           self.user_banned_repository,
-                                          self.user_admin_repository).worker(authorization_value[1])
+                                          self.user_admin_repository,
+                                          self.license_repository).worker(authorization_value[1])
         except Exception:
             abort(500)
 

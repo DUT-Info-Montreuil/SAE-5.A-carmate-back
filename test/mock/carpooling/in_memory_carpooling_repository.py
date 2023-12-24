@@ -4,6 +4,7 @@ import random
 from datetime import datetime, timedelta
 from typing import List, Tuple
 
+from database.exceptions import CheckViolation
 from database.repositories import CarpoolingRepositoryInterface
 from database.schemas import CarpoolingTable
 
@@ -41,7 +42,8 @@ class InMemoryCarpoolingRepository(CarpoolingRepositoryInterface):
             CarpoolingTable(25, [48.843492, 2.373834], [48.975508, 2.559423], 4, round(random.uniform(1, 50), 2), False, datetime.now() + timedelta(days=1), 2),
             CarpoolingTable(26, [48.877086, 2.361286], [48.966698, 2.562614], 4, round(random.uniform(1, 50), 2), False, datetime.now() + timedelta(days=1), 2),
         ]
-    
+        self.licenses_count = len(self.carpoolings)
+
     def get_carpoolings_route(
         self,
         start_lat: float,
@@ -75,3 +77,29 @@ class InMemoryCarpoolingRepository(CarpoolingRepositoryInterface):
         start_index = (page - 1) * per_page
         end_index = start_index + per_page
         return len(filtered_carpoolings), filtered_carpoolings[start_index:end_index]
+
+    def insert(self,
+               driver_id: int,
+               starting_point: List[float],
+               destination: List[float],
+               max_passengers: int,
+               price: float,
+               departure_date_time: int) -> int:
+
+        if not (41.3 <= starting_point[0] <= 51.1 and -5.142 <= starting_point[1] <= 9.561):
+            raise CheckViolation("Starting_point invalid")
+
+        if not (41.3 <= destination[0] <= 51.1 and -5.142 <= destination[1] <= 9.561):
+            raise CheckViolation("Destination invalid")
+
+        carpooling = CarpoolingTable.to_self((self.licenses_count,
+                                              starting_point,
+                                              destination,
+                                              max_passengers,
+                                              price,
+                                              False,
+                                              datetime.fromtimestamp(departure_date_time),
+                                              driver_id))
+        self.carpoolings.append(carpooling)
+        self.licenses_count += 1
+        return carpooling.id

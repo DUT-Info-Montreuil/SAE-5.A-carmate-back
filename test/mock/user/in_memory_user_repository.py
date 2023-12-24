@@ -6,16 +6,16 @@ from api.worker.auth.models import CredentialDTO
 from api.worker.user import AccountStatus
 from database.exceptions import NotFound, UniqueViolation
 from database.repositories import UserRepositoryInterface
-from database.schemas import UserTable
+from database.schemas import UserTable, TokenTable
 
 
 class InMemoryUserRepository(UserRepositoryInterface):
-
     def __init__(self):
         self.users: List[UserTable] = [
             UserTable(0, "John", "Doe", "user@example.com", sha512("password".encode()).digest(), AccountStatus.Student.name, None),
             UserTable(1, "Hugo", "McCain", "admin@example.com", sha512("password".encode()).digest(), AccountStatus.Student.name, None),
-            UserTable(2, "Ayman", "Mohamed", "bannie@example.com", sha512("password".encode()).digest(), AccountStatus.Student.name, None)
+            UserTable(2, "Ayman", "Mohamed", "bannie@example.com", sha512("password".encode()).digest(), AccountStatus.Student.name, None),
+            UserTable(2, "Jane", "Doe", "driver@example.com", sha512("driver_password".encode('utf-8')).digest(), AccountStatus.Teacher.name, None)
         ]
         self.users_counter: int = len(self.users)-1
 

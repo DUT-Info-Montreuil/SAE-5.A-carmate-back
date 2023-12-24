@@ -5,6 +5,7 @@ from dataclasses import asdict, dataclass
 class UserInformationDTO:
     admin: bool
     banned: bool
+    driver: bool
 
     def to_json(self) -> dict:
         return asdict(self)

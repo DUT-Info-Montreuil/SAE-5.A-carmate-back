@@ -23,6 +23,8 @@ class LicenseRepositoryInterface(ABC):
 
     def get_license_not_validated(self, document_id: int) -> LicenseToValidate: ...
 
+    def get_license_by_user_id(self, user_id: int, document_type: str) -> LicenseTable: ...
+
     def update_status(self, 
                       license_id: int,
                       validation_status: str) -> None: ...
@@ -185,3 +187,25 @@ class LicenseRepository(LicenseRepositoryInterface):
         if next_id is not None and len(next_id) > 0:
             return next_id[0]
         raise NotFound("No more licenses to validate")
+
+    def get_license_by_user_id(self, user_id: int, document_type: str) -> LicenseTable:
+        query = f"""SELECT *
+                FROM carmate.{LicenseRepository.POSTGRES_TABLE_NAME} as lr
+                INNER JOIN carmate."{UserRepository.POSTGRES_TABLE_NAME}" as ur ON lr.user_id = ur.id
+                WHERE document_type = %s AND user_id = %s"""
+
+        license_table: tuple | None
+        with establishing_connection() as conn:
+            with conn.cursor() as curs:
+                try:
+                    curs.execute(query, (document_type, user_id))
+                except TypeError:
+                    raise NotFound("License not found")
+                except ProgrammingError:
+                    raise NotFound("License not found")
+                license_table = curs.fetchone()
+
+        if license_table is None:
+            raise NotFound("License not found")
+
+        return LicenseTable.to_self(license_table)

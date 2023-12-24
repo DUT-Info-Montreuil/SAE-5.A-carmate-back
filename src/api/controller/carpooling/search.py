@@ -47,10 +47,10 @@ class SearchRoutes(Blueprint):
             end_lon = float(request.args.get('end_lon'))
         except ValueError:
             abort(400)
-        
+
         route_carpoolings: Tuple[int, List[CarpoolingDTO]]
         try:
-            route_carpoolings = GetRouteCarpoolings(self.carpooling_repository).worker(start_lat, 
+            route_carpoolings = GetRouteCarpoolings(self.carpooling_repository).worker(start_lat,
                                                                                        start_lon,
                                                                                        end_lat,
                                                                                        end_lon,
@@ -60,5 +60,5 @@ class SearchRoutes(Blueprint):
             abort(500)
         return jsonify({
             "nb_carpoolings_route": route_carpoolings[0],
-            "carpoolings_route": route_carpoolings[1] 
+            "carpoolings_route": route_carpoolings[1]
         })
