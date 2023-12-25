@@ -16,16 +16,6 @@ class CarpoolingWithDriverCheckRoutes(Blueprint):
         self.route("/",
                    methods=["POST"])(self.create_route_carpooling_api)
 
-    def extract_token(self) -> str:
-        if request.authorization is None:
-            abort(401)
-
-        token = request.authorization.token
-
-        if token is None:
-            abort(401)
-        return token
-
     def token_and_driver_is_valid(self, token: str):
         user_infos: None | UserInformationDTO
         try:
@@ -40,7 +30,7 @@ class CarpoolingWithDriverCheckRoutes(Blueprint):
             abort(403)
 
     def create_route_carpooling_api(self):
-        token = self.extract_token()
+        token = extract_token()
         self.token_and_driver_is_valid(token)
 
         if not request.is_json:

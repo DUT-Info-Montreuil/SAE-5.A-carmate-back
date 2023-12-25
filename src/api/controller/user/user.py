@@ -1,6 +1,7 @@
 from flask import Blueprint, abort, jsonify, request
 
-from api.exceptions import CredentialInvalid, UserNotFound
+from api.controller import extract_token
+from api.exceptions import UserNotFound
 from api.worker.auth.models import UserInformationDTO
 from api.worker.auth.use_case import CheckToken
 from api.worker.user.models import UserDTO
@@ -16,18 +17,10 @@ class UserRoutes(Blueprint):
                    methods=["GET"])(self.get_user_api)
         
     def check_token(self):
-        authorization = request.headers.get("Authorization")
-        if not authorization:
-            abort(401)
-
-        authorization_value = authorization.split(" ")
-        if len(authorization_value) != 2 \
-            or authorization_value[0].lower() != "bearer":
-            abort(401)
-
+        token = extract_token()
         user_information: UserInformationDTO | None
         try:
-            user_information = CheckToken().worker(authorization_value[1])
+            user_information = CheckToken().worker(token)
         except Exception:
             abort(500)
 
@@ -37,16 +30,6 @@ class UserRoutes(Blueprint):
         if "user_id" in request.args.keys():
             if not user_information.admin:
                 abort(401)
-
-    def extract_token(self, authorization: str):
-        if not authorization:
-            raise CredentialInvalid()
-
-        authorization_value = authorization.split(" ")
-        if len(authorization_value) != 2 \
-            or authorization_value[0].lower() != "bearer":
-            raise CredentialInvalid()
-        return authorization_value[1]
 
     def get_user_api(self):
         user: UserDTO | None = None
@@ -67,7 +50,7 @@ class UserRoutes(Blueprint):
                 abort(500)
         elif "Authorization" in request.headers.keys():
             try:
-                user = GetUser().worker(token=self.extract_token(request.headers.get("Authorization")))
+                user = GetUser().worker(token=extract_token())
             except UserNotFound:
                 abort(404)
             except Exception:
