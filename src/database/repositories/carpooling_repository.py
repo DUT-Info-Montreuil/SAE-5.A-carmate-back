@@ -1,17 +1,22 @@
 from abc import ABC
 from typing import List, Tuple
+from datetime import datetime
 
 from psycopg2 import ProgrammingError, errorcodes
 from psycopg2.errors import lookup
 
 from api.worker.carpooling.models import CarpoolingForRecap
 from database import establishing_connection
-from database.exceptions import InternalServer, CheckViolation
-from database.repositories.reserve_carpooling_repository import ReserveCarpoolingRepository
+from database.schemas import CarpoolingTable
+from database.repositories.booking_carpooling_repository import BookingCarpoolingRepository
+from database.exceptions import (
+    InternalServer,
+    CheckViolation,
+    NotFound
+)
 
 
 class CarpoolingRepositoryInterface(ABC):
-
     def insert(self,
                driver_id: int,
                starting_point: List[float],
@@ -28,6 +33,9 @@ class CarpoolingRepositoryInterface(ABC):
                               departure_date_time: int,
                               page: int = 1,
                               per_page: int = 10) -> Tuple[int, List[CarpoolingForRecap]] | Tuple[int, List]: ...
+    
+    def get_from_id(self,
+                    carpooling_id: int) -> CarpoolingTable: ...
 
 
 class CarpoolingRepository(CarpoolingRepositoryInterface):
@@ -81,7 +89,7 @@ class CarpoolingRepository(CarpoolingRepositoryInterface):
         """
         query = f"""SELECT c.id, c.starting_point, c.destination, c.max_passengers, c.price, c.departure_date_time, c.driver_id
                     FROM carmate.{self.POSTGRES_TABLE_NAME} as c 
-                    LEFT JOIN carmate.{ReserveCarpoolingRepository.POSTGRES_TABLE_NAME} as r on (c.id = r.carpooling_id)
+                    LEFT JOIN carmate.{BookingCarpoolingRepository.POSTGRES_TABLE_NAME} as r on (c.id = r.carpooling_id)
                     GROUP BY c.id
                     HAVING ABS(starting_point[1] - %s) < {self.RADIUS} 
                         AND ABS(starting_point[2] - %s) < {self.RADIUS} 
@@ -118,3 +126,26 @@ class CarpoolingRepository(CarpoolingRepositoryInterface):
 
         return (nb_carpoolings_route,
                 [CarpoolingForRecap.to_self(carpooling) for carpooling in carpoolings_data])
+
+    def get_from_id(self,
+                    carpooling_id: int) -> CarpoolingTable:
+        query = f"""
+            SELECT *
+            FROM carmate.{self.POSTGRES_TABLE_NAME}
+            WHERE id=%s
+        """
+
+        carpooling: tuple
+        with establishing_connection() as conn:
+            with conn.cursor() as curs:
+                try:
+                    curs.execute(query, (carpooling_id,))
+                except ProgrammingError:
+                    raise NotFound("carpooling not found")
+                except Exception as e:
+                    raise InternalServer(str(e))
+                carpooling = curs.fetchone()
+        
+        if carpooling is None:
+            raise NotFound("carpooling not found")
+        return CarpoolingTable.to_self(carpooling)

@@ -4,9 +4,9 @@ import random
 from datetime import datetime, timedelta
 from typing import List, Tuple
 
-from database.exceptions import CheckViolation
 from database.repositories import CarpoolingRepositoryInterface
 from database.schemas import CarpoolingTable
+from database.exceptions import CheckViolation, NotFound
 
 
 class InMemoryCarpoolingRepository(CarpoolingRepositoryInterface):
@@ -41,6 +41,8 @@ class InMemoryCarpoolingRepository(CarpoolingRepositoryInterface):
             CarpoolingTable(24, [48.853686, 2.369441], [48.976223, 2.561324], 4, round(random.uniform(1, 50), 2), False, datetime.now() + timedelta(days=8), 1),
             CarpoolingTable(25, [48.843492, 2.373834], [48.975508, 2.559423], 4, round(random.uniform(1, 50), 2), False, datetime.now() + timedelta(days=1), 2),
             CarpoolingTable(26, [48.877086, 2.361286], [48.966698, 2.562614], 4, round(random.uniform(1, 50), 2), False, datetime.now() + timedelta(days=1), 2),
+            CarpoolingTable(27, [48.877890, 2.361387], [48.968698, 2.552614], 4, round(random.uniform(1, 50), 2), True, datetime.now() + timedelta(days=30), 2),
+            CarpoolingTable(28, [48.727642, 2.349818], [48.841768, 2.350634], 4, round(random.uniform(1, 50), 2), False, datetime.now() - timedelta(days=30), 2)
         ]
         self.licenses_count = len(self.carpoolings)
 
@@ -92,14 +94,21 @@ class InMemoryCarpoolingRepository(CarpoolingRepositoryInterface):
         if not (41.3 <= destination[0] <= 51.1 and -5.142 <= destination[1] <= 9.561):
             raise CheckViolation("Destination invalid")
 
-        carpooling = CarpoolingTable.to_self((self.licenses_count,
-                                              starting_point,
-                                              destination,
-                                              max_passengers,
-                                              price,
-                                              False,
-                                              datetime.fromtimestamp(departure_date_time),
-                                              driver_id))
+        carpooling = CarpoolingTable(self.licenses_count,
+                                     starting_point,
+                                     destination,
+                                     max_passengers,
+                                     price,
+                                     False,
+                                     datetime.fromtimestamp(departure_date_time),
+                                     driver_id)
         self.carpoolings.append(carpooling)
         self.licenses_count += 1
         return carpooling.id
+
+    def get_from_id(self, 
+                    carpooling_id: int) -> CarpoolingTable:
+        for carpooling in self.carpoolings:
+            if carpooling.id == carpooling_id:
+                return carpooling
+        raise NotFound("carpooling not found")
