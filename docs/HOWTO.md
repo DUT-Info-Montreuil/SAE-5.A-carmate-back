@@ -186,20 +186,13 @@ Le nom du fichier `driver.py` sera probablement diffèrent, vous êtes libre a c
 
 Dans ce fichier que j'ai nommé `driver.py` vous allez ecrire une classe comme si dessous :
 ```python
-class Driver(object):
-    driver_repository: DriverRepositoryInterface
-
-    def __init__(self, driver_repository: DriverRepositoryInterface):
-        self.user_repository = user_repository
-
+class Driver(Worker):
     def worker(self):
         pass
 ```
 _Cette classe n'est qu'un exemple, copier coller de manière intelligente !_
 
-Vous vous dites "bordel pourquoi il y a Repository machin Interface !?", c'est comprehensible :)
-
-Nous devons avoir ca en paramètre de la classe car cela sera utilise dans le mock. Ces interfaces permet de changer la maniere de stocker des données selon les environments. Par exemple côté Mock on aura `InMemoryDriverRepository` qui hérite de l'interface `DriverRepositoryInterface` en argument et dans le contrôler on aura plutôt `DriverRepository` en argument.
+Grâce a l'héritage de Worker, vous avez accès a tous les repositories.
 
 ### Crée vos models
 Les models dans le worker represente les données qui vont transitionner entre votre route et le worker, on les nommes des DTO
