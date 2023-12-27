@@ -1,22 +1,13 @@
 from hashlib import sha512
 
-from api.exceptions import InternalServerError, UserNotFound
+from api.worker import Worker
 from api.worker.user.models import UserDTO
-from database.exceptions import NotFound
-from database.repositories import TokenRepositoryInterface, UserRepositoryInterface
+from api.exceptions import InternalServerError, UserNotFound
 from database.schemas import UserTable
+from database.exceptions import NotFound
 
 
-class GetUser:
-    user_repository: UserRepositoryInterface
-    token_repository: TokenRepositoryInterface
-    
-    def __init__(self,
-                 user_repository: UserRepositoryInterface,
-                 token_repository: TokenRepositoryInterface) -> None:
-        self.token_repository = token_repository
-        self.user_repository = user_repository
-
+class GetUser(Worker):
     def worker(self,
                user_id: int | None = None,
                token: str | None = None) -> UserDTO:

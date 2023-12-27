@@ -6,40 +6,13 @@ from api.worker.auth.models import TokenDTO, CredentialDTO, UserInformationDTO
 from api.exceptions import AccountAlreadyExist, BannedAccount, CredentialInvalid, LengthNameTooLong, ProfileAlreadyExist, UserNotFound
 from api.worker.auth.use_case import Register, Login, CheckToken
 from api.worker.user.use_case.create_passenger_profile import CreatePassengerProfile
-from database.repositories import (
-    TokenRepositoryInterface,
-    UserRepositoryInterface,
-    PassengerProfileRepositoryInterface,
-    UserBannedRepositoryInterface,
-    UserAdminRepositoryInterface,
-    LicenseRepositoryInterface
-)
+
 
 
 class AuthRoutes(Blueprint):
-    user_repository: UserRepositoryInterface
-    passenger_profile_repository: PassengerProfileRepositoryInterface
-    user_banned_repository: UserBannedRepositoryInterface
-    user_admin_repository: UserAdminRepositoryInterface
-    token_repository: TokenRepositoryInterface
-    license_repository: LicenseRepositoryInterface
-
-    def __init__(self,
-                 user_repository: UserRepositoryInterface,
-                 passenger_profile_repository: PassengerProfileRepositoryInterface,
-                 user_banned_repository: UserBannedRepositoryInterface,
-                 user_admin_repository: UserAdminRepositoryInterface,
-                 token_repository: TokenRepositoryInterface,
-                 license_repository: LicenseRepositoryInterface):
+    def __init__(self):
         super().__init__("auth", __name__,
                          url_prefix="/auth")
-
-        self.token_repository = token_repository
-        self.user_repository = user_repository
-        self.passenger_profile_repository = passenger_profile_repository
-        self.user_banned_repository = user_banned_repository
-        self.user_admin_repository = user_admin_repository
-        self.license_repository = license_repository
 
         self.route("/check-token",
                    methods=["POST"])(self.check_token_api)
@@ -50,11 +23,11 @@ class AuthRoutes(Blueprint):
         self.after_request(self.create_passenger_profile_api)
 
     def create_passenger_profile_api(self, response: Response):
-        if "register" in request.endpoint and response.status_code == 200:
+        if "register" in request.endpoint \
+            and response.status_code == 200:
             data = response.json
             try:
-                CreatePassengerProfile(self.token_repository,
-                                        self.passenger_profile_repository).worker(data["token"])
+                CreatePassengerProfile().worker(data["token"])
             except ProfileAlreadyExist:
                 abort(409)
             except UserNotFound:
@@ -79,10 +52,7 @@ class AuthRoutes(Blueprint):
 
         user_info: None | UserInformationDTO
         try:
-            user_info = CheckToken(self.token_repository, 
-                                   self.user_banned_repository, 
-                                   self.user_admin_repository,
-                                   self.license_repository).worker(token)
+            user_info = CheckToken().worker(token)
         except Exception:
             abort(500)
 
@@ -128,9 +98,7 @@ class AuthRoutes(Blueprint):
 
         token: TokenDTO
         try:
-            token = Login(self.user_repository,
-                          self.user_banned_repository,
-                          self.token_repository).worker(CredentialDTO.json_to_self(credential))
+            token = Login().worker(CredentialDTO.json_to_self(credential))
         except CredentialInvalid:
             abort(401)
         except BannedAccount:
@@ -189,11 +157,9 @@ class AuthRoutes(Blueprint):
 
         token: TokenDTO
         try:
-            token = Register(self.user_repository,
-                             self.token_repository,
-                             self.license_repository).worker(CredentialDTO.json_to_self(credential),
-                                                             account_status,
-                                                             document.stream)
+            token = Register().worker(CredentialDTO.json_to_self(credential),
+                                      account_status,
+                                      document.stream)
         except AccountAlreadyExist:
             abort(409)
         except LengthNameTooLong:

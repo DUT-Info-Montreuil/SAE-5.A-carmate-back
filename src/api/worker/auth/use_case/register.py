@@ -1,30 +1,22 @@
-from typing import IO, List
+from typing import IO
 from datetime import datetime, timedelta
 
 from api import check_email
-from api.worker.admin import DocumentType
-from api.exceptions import *
-from api.worker.auth.models import CredentialDTO, TokenDTO
+from api.worker import Worker
 from api.worker.auth import Token
+from api.worker.auth.models import CredentialDTO, TokenDTO
 from api.worker.user import AccountStatus
-from database.exceptions import UniqueViolation
-from database.repositories import UserRepositoryInterface, TokenRepositoryInterface
-from database.repositories.license_repository import LicenseRepositoryInterface
+from api.worker.admin import DocumentType
+from api.exceptions import (
+    LengthNameTooLong, 
+    AccountAlreadyExist, 
+    InternalServerError
+)
 from database.schemas import UserTable
+from database.exceptions import UniqueViolation
 
 
-class Register(object):
-    user_repository: UserRepositoryInterface
-    token_repository: TokenRepositoryInterface
-
-    def __init__(self,
-                 user_repository: UserRepositoryInterface,
-                 token_repository: TokenRepositoryInterface,
-                 license_repository: LicenseRepositoryInterface):
-        self.user_repository = user_repository
-        self.token_repository = token_repository
-        self.license_repository = license_repository
-
+class Register(Worker):
     def worker(self,
                credential: CredentialDTO,
                account_status: AccountStatus,

@@ -4,38 +4,22 @@ from datetime import datetime, timedelta
 from hashlib import sha512
 
 from api import check_email
-from api.exceptions import (
-    BannedAccount, 
-    CredentialInvalid, 
-    InternalServerError
-)
+from api.worker import Worker
 from api.worker.auth import Token
 from api.worker.auth.models import (
     CredentialDTO, 
     TokenDTO
 )
-from database.exceptions import NotFound
-from database.schemas import UserTable
-from database.repositories import (
-    UserRepositoryInterface,
-    TokenRepositoryInterface,
-    UserBannedRepositoryInterface
+from api.exceptions import (
+    BannedAccount, 
+    CredentialInvalid, 
+    InternalServerError
 )
+from database.schemas import UserTable
+from database.exceptions import NotFound
 
 
-class Login:
-    user_repository: UserRepositoryInterface
-    user_banned_repository: UserBannedRepositoryInterface
-    token_repository: TokenRepositoryInterface
-
-    def __init__(self,
-                 user_repository: UserRepositoryInterface,
-                 user_banned_repository: UserBannedRepositoryInterface,
-                 token_repository: TokenRepositoryInterface):
-        self.user_repository = user_repository
-        self.user_banned_repository = user_banned_repository
-        self.token_repository = token_repository
-
+class Login(Worker):
     def worker(self, credential: CredentialDTO) -> TokenDTO:
         """ Manages the authentication process.
 

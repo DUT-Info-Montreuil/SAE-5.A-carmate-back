@@ -1,17 +1,11 @@
 from hashlib import sha512
-from typing import List, Dict, Union
 
-from database.repositories import TokenRepositoryInterface
-from database.repositories.user_admin_repository import UserAdminRepositoryInterface
+from api.worker import Worker
 
 
-class IsUserAdmin:
-
-    def __init__(self, token_repository: TokenRepositoryInterface, user_admin_repository: UserAdminRepositoryInterface):
-        self.token_repository = token_repository
-        self.user_admin_repository = user_admin_repository
-
-    def worker(self, token: str) -> bool:
+class IsUserAdmin(Worker):
+    def worker(self, 
+               token: str) -> bool:
         if token is None:
             raise ValueError()
 

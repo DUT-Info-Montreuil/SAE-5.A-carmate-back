@@ -1,5 +1,6 @@
 from hashlib import sha512
 
+from api.worker import Worker
 from api.exceptions import (
     InternalServerError,
     ProfileAlreadyExist,
@@ -10,22 +11,9 @@ from database.exceptions import (
     NotFound,
     UniqueViolation
 )
-from database.repositories import (
-    TokenRepositoryInterface,
-    PassengerProfileRepositoryInterface
-)
 
 
-class CreatePassengerProfile:
-    token_repository: TokenRepositoryInterface
-    passenger_profile_repository: PassengerProfileRepositoryInterface
-
-    def __init__(self,
-                 token_repository: TokenRepositoryInterface,
-                 passenger_profile_repository: PassengerProfileRepositoryInterface) -> None:
-        self.token_repository = token_repository
-        self.passenger_profile_repository = passenger_profile_repository
-
+class CreatePassengerProfile(Worker):
     def worker(self,
                token: str) -> int:
         user: UserTable

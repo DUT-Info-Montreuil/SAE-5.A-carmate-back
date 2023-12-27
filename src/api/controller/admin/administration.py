@@ -1,46 +1,21 @@
 from flask import Blueprint, Response, jsonify, abort, request
 
-from api.exceptions import InvalidValidationStatus, LicenseNotFound
-from api.worker.auth.models import UserInformationDTO
 from api.worker.auth.use_case import CheckToken
-from api.worker.admin import DocumentType
+from api.worker.auth.models import UserInformationDTO
 from api.worker.admin.use_case import (
     GetLicenseToValidate,
     GetLicensesToValidate,
     IsUserAdmin,
     ValidateLicense
 )
+from api.exceptions import InvalidValidationStatus, LicenseNotFound
 from database.exceptions import NotFound, DocumentAlreadyChecked
-from database.repositories import (
-    UserAdminRepositoryInterface,
-    UserBannedRepositoryInterface,
-    UserRepositoryInterface,
-    LicenseRepositoryInterface,
-    TokenRepositoryInterface
-)
 
 
 class AdminRoutes(Blueprint):
-    user_repository: UserRepositoryInterface
-    user_admin_repository: UserAdminRepositoryInterface
-    user_banned_repository: UserBannedRepositoryInterface
-    license_repository: LicenseRepositoryInterface
-    token_repository: TokenRepositoryInterface
-
-    def __init__(self,
-                 user_repository: UserRepositoryInterface,
-                 user_admin_repository: UserAdminRepositoryInterface,
-                 user_banned_repository: UserBannedRepositoryInterface,
-                 token_repository: TokenRepositoryInterface,
-                 license_repository: LicenseRepositoryInterface):
+    def __init__(self):
         super(AdminRoutes, self).__init__("admin", __name__,
                                           url_prefix="/admin")
-
-        self.token_repository = token_repository
-        self.user_repository = user_repository
-        self.user_admin_repository = user_admin_repository
-        self.user_banned_repository = user_banned_repository
-        self.license_repository = license_repository
 
         self.before_request(self.check_is_admin)
         self.route("/license/to-validate",
@@ -68,17 +43,14 @@ class AdminRoutes(Blueprint):
 
         user_info_dto: UserInformationDTO
         try:
-            user_info_dto = CheckToken(self.token_repository,
-                                       self.user_banned_repository,
-                                       self.user_admin_repository,
-                                       self.license_repository).worker(authorization_value[1])
+            user_info_dto = CheckToken().worker(authorization_value[1])
         except Exception:
             abort(500)
 
         if not user_info_dto:
             abort(401)
 
-        if not IsUserAdmin(self.token_repository, self.user_admin_repository).worker(authorization_value[1]):
+        if not IsUserAdmin().worker(authorization_value[1]):
             abort(403)
 
     def license_to_validate_api(self) -> Response:
@@ -100,7 +72,7 @@ class AdminRoutes(Blueprint):
             pass
 
         try:
-            licenses_to_validate = GetLicensesToValidate(self.license_repository).worker(page)
+            licenses_to_validate = GetLicensesToValidate().worker(page)
         except ValueError:
             abort(400)
         except Exception as e:
@@ -130,7 +102,7 @@ class AdminRoutes(Blueprint):
             pass
 
         try:
-            licenses_to_validate = GetLicenseToValidate(self.license_repository).worker(document_id)
+            licenses_to_validate = GetLicenseToValidate().worker(document_id)
         except ValueError:
             abort(400)
         except NotFound:
@@ -171,9 +143,8 @@ class AdminRoutes(Blueprint):
 
         next_document_id: int | None
         try:
-            next_document_id = ValidateLicense(self.license_repository, self.user_repository).worker(license_id,
-                                                                                                     validation_information[
-                                                                                                         "statut"])
+            next_document_id = ValidateLicense().worker(license_id,
+                                                        validation_information["statut"])
         except LicenseNotFound:
             abort(404)
         except InvalidValidationStatus:

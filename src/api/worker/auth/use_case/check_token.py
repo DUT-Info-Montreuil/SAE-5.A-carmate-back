@@ -1,35 +1,15 @@
 from datetime import datetime
 from hashlib import sha512
 
-from api.exceptions import InternalServerError
+from api.worker import Worker
 from api.worker.admin import DocumentType, ValidationStatus
 from api.worker.auth.models import UserInformationDTO
-from database.exceptions import NotFound
+from api.exceptions import InternalServerError
 from database.schemas import UserTable, LicenseTable
-from database.repositories import (
-    TokenRepositoryInterface,
-    UserBannedRepositoryInterface,
-    UserAdminRepositoryInterface,
-    LicenseRepositoryInterface
-)
+from database.exceptions import NotFound
 
 
-class CheckToken:
-    token_repository: TokenRepositoryInterface
-    user_banned_repository: UserBannedRepositoryInterface
-    user_admin_repository: UserAdminRepositoryInterface
-    license_repository: LicenseRepositoryInterface
-
-    def __init__(self,
-                 token_repository: TokenRepositoryInterface,
-                 user_banned_repository: UserBannedRepositoryInterface,
-                 user_admin_repository: UserAdminRepositoryInterface,
-                 license_repository: LicenseRepositoryInterface) -> None:
-        self.token_repository = token_repository
-        self.user_banned_repository = user_banned_repository
-        self.user_admin_repository = user_admin_repository
-        self.license_repository = license_repository
-
+class CheckToken(Worker):
     def worker(self, token: str) -> None | UserInformationDTO:
         token_hashed = sha512(token.encode()).digest()
 

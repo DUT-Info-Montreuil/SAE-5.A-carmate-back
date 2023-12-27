@@ -10,7 +10,9 @@ from database.exceptions import *
 
 
 class InMemoryTokenRepository(TokenRepositoryInterface):
-    def __init__(self, user_repository=None, driver_repository=None):
+    def __init__(self, 
+                 user_repository, 
+                 driver_repository):
         self.tokens: List[TokenTable] = [
             TokenTable(sha512("token-user-valid".encode()).digest(), datetime.now() + timedelta(days=1), 0),
             TokenTable(sha512("token-admin-valid".encode()).digest(), datetime.now() + timedelta(days=1), 1),
@@ -35,9 +37,6 @@ class InMemoryTokenRepository(TokenRepositoryInterface):
         return token_found.expiration
 
     def get_user(self, token: str) -> UserTable:
-        if self.user_repository is None:
-            raise Exception("The function get user won't work without a user repository")
-
         found_token: TokenTable | None = None
         found_user: UserTable | None = None
 
@@ -58,9 +57,6 @@ class InMemoryTokenRepository(TokenRepositoryInterface):
         return found_user
 
     def get_driver_profile(self, token: bytes) -> DriverProfileTable:
-        if self.driver_repository is None or self.user_repository is None:
-            raise Exception("The function get user won't work without both user_repo and driver_repo")
-
         found_token: TokenTable | None = None
         found_user: UserTable | None = None
         found_driver: DriverProfileTable | None = None

@@ -1,19 +1,16 @@
-from api.exceptions import InternalServerError, InvalidValidationStatus, LicenseNotFound
+from api.worker import Worker
+from api.exceptions import (
+    InternalServerError,
+    InvalidValidationStatus,
+    LicenseNotFound
+)
 from database.exceptions import InvalidInputEnumValue, NotFound
-from database.repositories import LicenseRepositoryInterface, UserRepositoryInterface
-from database.schemas import LicenseTable, UserTable
 
 
-class ValidateLicense:
-    license_repository: LicenseRepositoryInterface
-
-    def __init__(self, 
-                 license_repository: LicenseRepositoryInterface,
-                 user_repository: UserRepositoryInterface):
-        self.license_repository = license_repository
-        self.user_repository = user_repository
-
-    def worker(self, license_id: int, validate_status: str):
+class ValidateLicense(Worker):
+    def worker(self, 
+               license_id: int, 
+               validate_status: str):
         try:
             self.license_repository.update_status(license_id, validate_status)
         except NotFound as e:

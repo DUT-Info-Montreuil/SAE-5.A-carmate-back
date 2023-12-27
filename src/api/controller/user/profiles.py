@@ -20,43 +20,13 @@ from api.worker.user.use_case import (
     GetPassengerProfile,
     GetDriverProfile
 )
-from database.repositories import (
-    UserRepositoryInterface,
-    DriverProfileRepositoryInterface,
-    PassengerProfileRepositoryInterface,
-    LicenseRepositoryInterface,
-    TokenRepositoryInterface,
-    UserBannedRepositoryInterface,
-    UserAdminRepositoryInterface
-)
 
 
 class ProfilesRoutes(Blueprint):
-    user_repository: UserRepositoryInterface
-    driver_profile_repository: DriverProfileRepositoryInterface
-    passenger_profile_repository: PassengerProfileRepositoryInterface
-    license_repository: LicenseRepositoryInterface
-    token_repository: TokenRepositoryInterface 
-    
-    def __init__(self,
-                 user_repository: UserRepositoryInterface,
-                 driver_profile_repository: DriverProfileRepositoryInterface,
-                 passenger_profile_repository: PassengerProfileRepositoryInterface,
-                 license_repository: LicenseRepositoryInterface,
-                 token_repository: TokenRepositoryInterface,
-                 user_banned_repository: UserBannedRepositoryInterface,
-                 user_admin_repository: UserAdminRepositoryInterface):
+    def __init__(self):
         super().__init__("profiles", __name__,
                          url_prefix="/profile")
-
-        self.user_repository = user_repository
-        self.driver_profile_repository = driver_profile_repository
-        self.passenger_profile_repository = passenger_profile_repository
-        self.license_repository = license_repository
-        self.token_repository = token_repository
-        self.user_banned_repository = user_banned_repository
-        self.user_admin_repository = user_admin_repository
-
+        
         self.before_request(self.token_is_valid)
         self.route("/passenger",
                    methods=["GET"])(self.get_passenger_profile_api)
@@ -72,7 +42,8 @@ class ProfilesRoutes(Blueprint):
             raise CredentialInvalid()
 
         authorization_value = authorization.split(" ")
-        if len(authorization_value) != 2 or authorization_value[0].lower() != "bearer":
+        if len(authorization_value) != 2 \
+            or authorization_value[0].lower() != "bearer":
             raise CredentialInvalid()
         return authorization_value[1]
     
@@ -85,10 +56,7 @@ class ProfilesRoutes(Blueprint):
         
         user_infos: None | UserInformationDTO
         try:
-            user_infos = CheckToken(self.token_repository,
-                                    self.user_banned_repository,
-                                    self.user_admin_repository,
-                                    self.license_repository).worker(token)
+            user_infos = CheckToken().worker(token)
         except Exception:
             abort(500)
 
@@ -109,16 +77,14 @@ class ProfilesRoutes(Blueprint):
                 abort(500)
 
             try:
-                passenger_profile = GetPassengerProfile(self.token_repository,
-                                                        self.passenger_profile_repository).worker(passenger_id=passenger_id)
+                passenger_profile = GetPassengerProfile().worker(passenger_id=passenger_id)
             except PassengerNotFound:
                 abort(404)
             except Exception:
                 abort(500)
         elif "Authorization" in request.headers.keys():
             try:
-                passenger_profile = GetPassengerProfile(self.token_repository,
-                                                        self.passenger_profile_repository).worker(token=self.extract_token(request.headers.get("Authorization")))
+                passenger_profile = GetPassengerProfile().worker(token=self.extract_token(request.headers.get("Authorization")))
             except PassengerNotFound:
                 abort(404)
             except Exception:
@@ -140,16 +106,14 @@ class ProfilesRoutes(Blueprint):
                 abort(500)
 
             try:
-                driver_profile = GetDriverProfile(self.token_repository,
-                                                  self.driver_profile_repository).worker(driver_id=driver_id)
+                driver_profile = GetDriverProfile().worker(driver_id=driver_id)
             except DriverNotFound:
                 abort(404)
             except Exception:
                 abort(500)
         elif request.authorization is not None:
             try:
-                driver_profile = GetDriverProfile(self.token_repository,
-                                                  self.driver_profile_repository).worker(token=self.extract_token(request.headers.get("Authorization")))
+                driver_profile = GetDriverProfile().worker(token=self.extract_token(request.headers.get("Authorization")))
             except DriverNotFound:
                 abort(404)
             except Exception:
@@ -165,8 +129,7 @@ class ProfilesRoutes(Blueprint):
 
         passenger_id: int
         try:
-            passenger_id = CreatePassengerProfile(self.token_repository,
-                                                  self.passenger_profile_repository).worker(self.extract_token(request.headers.get("Authorization")))
+            passenger_id = CreatePassengerProfile().worker(self.extract_token(request.headers.get("Authorization")))
         except ProfileAlreadyExist:
             abort(409)
         except UserNotFound:
@@ -188,12 +151,10 @@ class ProfilesRoutes(Blueprint):
         if not all(["." in document.filename, document.filename.rsplit(".", 1)[1].lower() in IMAGE_FORMAT_ALLOWED_EXTENSIONS]):
             abort(415)
 
-        driver_id: int
+        driver: DriverProfileDTO
         try:
-            driver_id = CreateDriverProfile(self.token_repository,
-                                            self.driver_profile_repository,
-                                            self.license_repository).worker(self.extract_token(request.headers.get("Authorization")),
-                                                                            document.stream)
+            driver = CreateDriverProfile().worker(self.extract_token(request.headers.get("Authorization")),
+                                                     document.stream)
         except ProfileAlreadyExist:
             abort(409)
         except UserNotFound:
@@ -202,4 +163,4 @@ class ProfilesRoutes(Blueprint):
             abort(401)
         except Exception:
             abort(500)
-        return jsonify({"driver_id": driver_id})
+        return jsonify({"driver_id": driver.id})
