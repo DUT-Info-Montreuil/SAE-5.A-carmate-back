@@ -1,18 +1,11 @@
 from typing import List, Tuple
 
-from api.exceptions import InternalServerError
+from api.worker import Worker
 from api.worker.carpooling.models import CarpoolingForRecap
-from database.repositories import CarpoolingRepositoryInterface
-from database.schemas import CarpoolingTable
+from api.exceptions import InternalServerError
 
 
-class GetRouteCarpoolings:
-    carpooling_repository: CarpoolingRepositoryInterface
-
-    def __init__(self,
-                 carpooling_repository: CarpoolingRepositoryInterface) -> None:
-        self.carpooling_repository = carpooling_repository
-
+class GetRouteCarpoolings(Worker):
     def worker(self,
                start_lat: float,
                start_lon: float,

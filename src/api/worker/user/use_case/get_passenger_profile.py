@@ -1,28 +1,16 @@
 from hashlib import sha512
 
+from api.worker import Worker
 from api.worker.user.models import PassengerProfileDTO
 from api.exceptions import (
     PassengerNotFound,
     InternalServerError
 )
-from database.exceptions import NotFound
 from database.schemas import DriverProfileTable
-from database.repositories import (
-    TokenRepositoryInterface, 
-    PassengerProfileRepositoryInterface
-)
+from database.exceptions import NotFound
 
 
-class GetPassengerProfile:
-    token_repository: TokenRepositoryInterface
-    passenger_profile_repository: PassengerProfileRepositoryInterface
-
-    def __init__(self,
-                 token_repository: TokenRepositoryInterface,
-                 passenger_profile_repository: PassengerProfileRepositoryInterface) -> None:
-        self.token_repository = token_repository
-        self.passenger_profile_repository = passenger_profile_repository
-
+class GetPassengerProfile(Worker):
     def worker(self,
                passenger_id: int=None,
                token: str=None) -> PassengerProfileDTO:

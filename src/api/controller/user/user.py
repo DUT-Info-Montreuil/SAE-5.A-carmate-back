@@ -5,35 +5,11 @@ from api.worker.auth.models import UserInformationDTO
 from api.worker.auth.use_case import CheckToken
 from api.worker.user.models import UserDTO
 from api.worker.user.use_case import GetUser
-from database.repositories import (
-    TokenRepositoryInterface,
-    UserRepositoryInterface,
-    UserBannedRepositoryInterface,
-    UserAdminRepositoryInterface,
-    LicenseRepositoryInterface
-)
 
 
 class UserRoutes(Blueprint):
-    user_repository: UserRepositoryInterface
-    token_repository: TokenRepositoryInterface
-    user_banned_repository: UserBannedRepositoryInterface
-    user_admin_repository: UserAdminRepositoryInterface
-    license_repository: LicenseRepositoryInterface
-
-    def __init__(self,
-                 user_repository: UserRepositoryInterface,
-                 token_repository: TokenRepositoryInterface,
-                 user_banned_repository: UserBannedRepositoryInterface,
-                 user_admin_repository: UserAdminRepositoryInterface,
-                 license_repository: LicenseRepositoryInterface) -> None:
+    def __init__(self) -> None:
         super().__init__("user", __name__)
-        
-        self.user_repository = user_repository
-        self.token_repository = token_repository
-        self.user_banned_repository = user_banned_repository
-        self.user_admin_repository = user_admin_repository
-        self.license_repository = license_repository
 
         self.before_request(self.check_token)
         self.route("/user",
@@ -45,15 +21,13 @@ class UserRoutes(Blueprint):
             abort(401)
 
         authorization_value = authorization.split(" ")
-        if len(authorization_value) != 2 or authorization_value[0].lower() != "bearer":
+        if len(authorization_value) != 2 \
+            or authorization_value[0].lower() != "bearer":
             abort(401)
 
         user_information: UserInformationDTO | None
         try:
-            user_information = CheckToken(self.token_repository,
-                                          self.user_banned_repository,
-                                          self.user_admin_repository,
-                                          self.license_repository).worker(authorization_value[1])
+            user_information = CheckToken().worker(authorization_value[1])
         except Exception:
             abort(500)
 
@@ -69,7 +43,8 @@ class UserRoutes(Blueprint):
             raise CredentialInvalid()
 
         authorization_value = authorization.split(" ")
-        if len(authorization_value) != 2 or authorization_value[0].lower() != "bearer":
+        if len(authorization_value) != 2 \
+            or authorization_value[0].lower() != "bearer":
             raise CredentialInvalid()
         return authorization_value[1]
 
@@ -85,16 +60,14 @@ class UserRoutes(Blueprint):
                 abort(500)
 
             try:
-                user = GetUser(self.user_repository,
-                               self.token_repository).worker(user_id=user_id)
+                user = GetUser().worker(user_id=user_id)
             except UserNotFound:
                 abort(404)
             except Exception:
                 abort(500)
         elif "Authorization" in request.headers.keys():
             try:
-                user = GetUser(self.user_repository,
-                               self.token_repository).worker(token=self.extract_token(request.headers.get("Authorization")))
+                user = GetUser().worker(token=self.extract_token(request.headers.get("Authorization")))
             except UserNotFound:
                 abort(404)
             except Exception:

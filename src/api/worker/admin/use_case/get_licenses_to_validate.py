@@ -1,15 +1,14 @@
 from typing import List, Dict, Union
 
-from api.worker.admin.models.license_to_validate import LicenseToValidateDTO
-from database.repositories import LicenseRepositoryInterface
+from api.worker import Worker
+from api.worker.admin.models import LicenseToValidateDTO
 
 
-class GetLicensesToValidate:
-    def __init__(self, license_repository: LicenseRepositoryInterface):
-        self.license_repository = license_repository
-
-    def worker(self, page: int | None = None) -> Dict[str, Union[int, List[LicenseToValidateDTO]]]:
-        if page is not None and page < 1:
+class GetLicensesToValidate(Worker):
+    def worker(self, 
+               page: int | None = None) -> Dict[str, Union[int, List[LicenseToValidateDTO]]]:
+        if page is not None \
+            and page < 1:
             raise ValueError()
 
         license_to_validate_list: Dict[str, Union[int, List[LicenseToValidateDTO]]]

@@ -9,7 +9,6 @@ from api.worker.admin import ValidationStatus, DocumentType
 from api.worker.admin.use_case.get_licenses_to_validate import GetLicensesToValidate
 from api.worker.user import AccountStatus
 from database.schemas import UserTable, LicenseTable
-from mock import InMemoryLicenseRepository, InMemoryUserRepository
 
 
 class GetLicensesToValidateTestCase(unittest.TestCase):
@@ -17,18 +16,16 @@ class GetLicensesToValidateTestCase(unittest.TestCase):
         with open(os.path.join(os.path.dirname(__file__), "../res/teacher-contract.png"), "rb") as f:
             self.license_img = io.BytesIO(f.read())
 
-        self.user_repo = InMemoryUserRepository()
-        self.license_repo = InMemoryLicenseRepository(self.user_repo)
-        self.license_repo_base_size = len(self.license_repo.licenses)
-        self.user_repo.users.append(
+        self.get_licenses_to_validate = GetLicensesToValidate()
+        self.license_repo_base_size = len(self.get_licenses_to_validate.license_repository.licenses)
+        self.get_licenses_to_validate.user_repository.users.append(
             UserTable(999, "Fred", "Mercury", "ssa@example.com", sha512("password".encode('utf-8')).digest(), AccountStatus.Teacher.name, datetime.now(), None)
         )
-        self.get_licenses_to_validate = GetLicensesToValidate(self.license_repo)
-
+        
     def test_successful_fetch_student_license(self):
         license_table = LicenseTable(1, self.license_img, DocumentType.Basic.name, ValidationStatus.Pending.name, datetime.now(), 0)
-        user_0 = self.user_repo.get_user_by_id(0)
-        self.license_repo.licenses.append(license_table)
+        user_0 = self.get_licenses_to_validate.user_repository.get_user_by_id(0)
+        self.get_licenses_to_validate.license_repository.licenses.append(license_table)
         try:
             licenses = self.get_licenses_to_validate.worker()["items"]
             last_inserted_license = licenses[len(licenses) - 1]
@@ -45,11 +42,11 @@ class GetLicensesToValidateTestCase(unittest.TestCase):
         license_table1 = LicenseTable(1, self.license_img, DocumentType.Basic.name, ValidationStatus.Pending.name, datetime.now(), 0)
         license_table2 = LicenseTable(2, self.license_img, DocumentType.Basic.name, ValidationStatus.Pending.name, datetime.now(), 999)
 
-        user_0 = self.user_repo.get_user_by_id(0)
-        user_999 = self.user_repo.get_user_by_id(999)
+        user_0 = self.get_licenses_to_validate.user_repository.get_user_by_id(0)
+        user_999 = self.get_licenses_to_validate.user_repository.get_user_by_id(999)
 
-        self.license_repo.licenses.append(license_table1)
-        self.license_repo.licenses.append(license_table2)
+        self.get_licenses_to_validate.license_repository.licenses.append(license_table1)
+        self.get_licenses_to_validate.license_repository.licenses.append(license_table2)
 
         try:
             licenses = self.get_licenses_to_validate.worker()["items"]
@@ -77,7 +74,7 @@ class GetLicensesToValidateTestCase(unittest.TestCase):
     def test_does_not_fetch_validated_licenses(self):
         license_table = LicenseTable(1, self.license_img, DocumentType.Basic.name, ValidationStatus.Rejected.name, datetime.now(), 0)
 
-        self.license_repo.licenses.append(license_table)
+        self.get_licenses_to_validate.license_repository.licenses.append(license_table)
 
         try:
             licenses = self.get_licenses_to_validate.worker()["items"]
@@ -89,7 +86,7 @@ class GetLicensesToValidateTestCase(unittest.TestCase):
     def test_raise_400_when_page_is_smaller_than_1(self):
         license_table = LicenseTable(1, self.license_img, DocumentType.Basic.name, ValidationStatus.Pending.name, datetime.now(), 0)
 
-        self.license_repo.licenses.append(license_table)
+        self.get_licenses_to_validate.license_repository.licenses.append(license_table)
 
         try:
             with self.assertRaises(ValueError):
@@ -102,7 +99,7 @@ class GetLicensesToValidateTestCase(unittest.TestCase):
         license_table = LicenseTable(1, self.license_img, DocumentType.Basic.name, ValidationStatus.Pending.name, datetime.now(), 0)
 
         for i in range(100):
-            self.license_repo.licenses.append(license_table)
+            self.get_licenses_to_validate.license_repository.licenses.append(license_table)
 
         try:
             licenses = self.get_licenses_to_validate.worker(1)["items"]
@@ -116,9 +113,9 @@ class GetLicensesToValidateTestCase(unittest.TestCase):
         license_table2 = LicenseTable(2, self.license_img, DocumentType.Basic.name, ValidationStatus.Pending.name, datetime.now(), 999)
 
         for i in range(30):
-            self.license_repo.licenses.append(license_table1)
+            self.get_licenses_to_validate.license_repository.licenses.append(license_table1)
         for i in range(30):
-            self.license_repo.licenses.append(license_table2)
+            self.get_licenses_to_validate.license_repository.licenses.append(license_table2)
 
         try:
             licenses = self.get_licenses_to_validate.worker(1)["items"]
@@ -137,9 +134,9 @@ class GetLicensesToValidateTestCase(unittest.TestCase):
         license_table2 = LicenseTable(2, self.license_img, DocumentType.Basic.name, ValidationStatus.Pending.name, datetime.now(), 999)
 
         for i in range(30):
-            self.license_repo.licenses.append(license_table1)
+            self.get_licenses_to_validate.license_repository.licenses.append(license_table1)
         for i in range(30):
-            self.license_repo.licenses.append(license_table2)
+            self.get_licenses_to_validate.license_repository.licenses.append(license_table2)
 
         try:
             nb_documents = self.get_licenses_to_validate.worker(1)["nb_documents"]

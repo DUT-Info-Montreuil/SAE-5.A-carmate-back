@@ -11,12 +11,6 @@ from api.worker.user.use_case import (
     CreateDriverProfile,
     GetDriverProfile
 )
-from mock import (
-    InMemoryTokenRepository,
-    InMemoryDriverProfileRepository,
-    InMemoryLicenseRepository,
-    InMemoryUserRepository
-)
 
 
 class DriverProfileTestCase(unittest.TestCase):
@@ -24,11 +18,9 @@ class DriverProfileTestCase(unittest.TestCase):
         with open(os.path.join(os.path.dirname(__file__), "../res/driver-license.jpg"), "rb") as f:
             self.license_img = io.BytesIO(f.read())
         
-        user_repository = InMemoryUserRepository()
-        token_repository = InMemoryTokenRepository(user_repository)
-        driver_profile_reppository = InMemoryDriverProfileRepository()
-        self.create_driver_profile = CreateDriverProfile(token_repository, driver_profile_reppository, InMemoryLicenseRepository(user_repository))
-        self.get_driver_profile = GetDriverProfile(token_repository, driver_profile_reppository)
+        self.create_driver_profile = CreateDriverProfile()
+        self.get_driver_profile = GetDriverProfile()
+        self.get_driver_profile.driver_profile_repository = self.create_driver_profile.driver_profile_repository
 
     def test_create_driver_profile(self):
         try:
@@ -50,7 +42,7 @@ class DriverProfileTestCase(unittest.TestCase):
         try:
             driver_profile_created = self.create_driver_profile.worker("token-user-valid", self.license_img)
             self.assertIsNotNone(driver_profile_created)
-            self.get_driver_profile.worker(driver_id=driver_profile_created)
+            self.get_driver_profile.worker(driver_id=driver_profile_created.id)
         except Exception as e:
             self.fail(e)
 

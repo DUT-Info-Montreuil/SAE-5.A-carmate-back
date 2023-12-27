@@ -4,22 +4,13 @@ from hashlib import sha512
 
 from api.worker.carpooling.use_case import CreateCarpooling
 from api.worker.user import AccountStatus
-from database.exceptions import CheckViolation, NotFound
+from database.exceptions import CheckViolation
 from database.schemas import UserTable, TokenTable, DriverProfileTable, CarpoolingTable
-from mock import (
-    InMemoryCarpoolingRepository,
-    InMemoryTokenRepository,
-    InMemoryUserRepository,
-    InMemoryDriverProfileRepository
-)
 
 
 class CreateCarpoolingTestCase(unittest.TestCase):
     def setUp(self):
-        self.carpooling_repository = InMemoryCarpoolingRepository()
-        self.user_repository = InMemoryUserRepository()
-        self.driver_repository = InMemoryDriverProfileRepository()
-        self.token_repository = InMemoryTokenRepository(self.user_repository, self.driver_repository)
+        self.create_carpooling = CreateCarpooling()
 
         user_without_driver_profile = UserTable(999, "Test", "Test", "test@test.fr",
                                                 sha512("pass".encode('utf-8')).digest(), AccountStatus.Teacher.name,
@@ -33,13 +24,12 @@ class CreateCarpoolingTestCase(unittest.TestCase):
                                                datetime.now() + timedelta(days=1), 1000)
         driver_profile = DriverProfileTable(1500, "no desc", datetime.now(), 1000)
 
-        self.user_repository.users.append(user_with_driver_profile)
-        self.user_repository.users.append(user_without_driver_profile)
-        self.token_repository.tokens.append(token_with_driver_profile)
-        self.token_repository.tokens.append(token_without_driver_profile)
-        self.driver_repository.driver_profiles.append(driver_profile)
+        self.create_carpooling.user_repository.users.append(user_with_driver_profile)
+        self.create_carpooling.user_repository.users.append(user_without_driver_profile)
+        self.create_carpooling.token_repository.tokens.append(token_with_driver_profile)
+        self.create_carpooling.token_repository.tokens.append(token_without_driver_profile)
+        self.create_carpooling.driver_profile_repository.driver_profiles.append(driver_profile)
 
-        self.create_carpooling = CreateCarpooling(self.carpooling_repository, self.token_repository)
 
     def test_fails_if_starting_point_bounds_invalid(self):
         with self.assertRaises(CheckViolation):
@@ -56,7 +46,7 @@ class CreateCarpoolingTestCase(unittest.TestCase):
                                       1732611600)
 
         carpooling_found: CarpoolingTable | None = None
-        for carpooling in self.carpooling_repository.carpoolings:
+        for carpooling in self.create_carpooling.carpooling_repository.carpoolings:
             if carpooling.driver_id == 1500:
                 carpooling_found = carpooling
 

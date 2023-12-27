@@ -1,20 +1,10 @@
 from hashlib import sha512
 from typing import List
 
-from database.repositories import CarpoolingRepositoryInterface, TokenRepositoryInterface
-from datetime import datetime
+from api.worker import Worker
 
 
-class CreateCarpooling:
-    carpooling_repository: CarpoolingRepositoryInterface
-    token_repository: TokenRepositoryInterface
-
-    def __init__(self,
-                 carpooling_repository: CarpoolingRepositoryInterface,
-                 token_repository: TokenRepositoryInterface) -> None:
-        self.carpooling_repository = carpooling_repository
-        self.token_repository = token_repository
-
+class CreateCarpooling(Worker):
     def worker(self,
                token: str,
                starting_point: List[float],

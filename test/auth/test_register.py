@@ -6,7 +6,6 @@ from api.exceptions import AccountAlreadyExist, LengthNameTooLong
 from api.worker.user import AccountStatus
 from api.worker.auth.models import CredentialDTO
 from api.worker.auth.use_case import Register
-from mock import InMemoryUserRepository, InMemoryTokenRepository, InMemoryLicenseRepository
 
 
 class RegisterTestCase(unittest.TestCase):
@@ -19,10 +18,7 @@ class RegisterTestCase(unittest.TestCase):
         self.student_account_type = AccountStatus.Student
         self.teacher_account_type = AccountStatus.Teacher
 
-        user_repository = InMemoryUserRepository()
-        self.register = Register(user_repository,
-                                 InMemoryTokenRepository(),
-                                 InMemoryLicenseRepository(user_repository))
+        self.register = Register()
 
     def test_regular_usage_for_student(self):
         credential = CredentialDTO("Davina", "Mcgovern", "davina.mcgovern@email.com", "pwd")

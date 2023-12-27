@@ -1,28 +1,16 @@
 from hashlib import sha512
 
-from api.worker.user.models import PassengerProfileDTO, DriverProfileDTO
+from api.worker import Worker
+from api.worker.user.models import DriverProfileDTO
 from api.exceptions import (
     DriverNotFound,
     InternalServerError
 )
-from database.exceptions import NotFound
 from database.schemas import DriverProfileTable
-from database.repositories import (
-    TokenRepositoryInterface, 
-    DriverProfileRepositoryInterface
-)
+from database.exceptions import NotFound
 
 
-class GetDriverProfile:
-    token_repository: TokenRepositoryInterface
-    driver_profile_repository: DriverProfileRepositoryInterface
-
-    def __init__(self,
-                 token_repository: TokenRepositoryInterface,
-                 driver_profile_repository: DriverProfileRepositoryInterface) -> None:
-        self.token_repository = token_repository
-        self.driver_profile_repository = driver_profile_repository
-
+class GetDriverProfile(Worker):
     def worker(self,
                driver_id: int=None,
                token: str=None) -> DriverProfileDTO:
@@ -44,4 +32,4 @@ class GetDriverProfile:
                 raise InternalServerError(str(e))
         else:
             raise DriverNotFound()
-        return DriverProfileDTO(driver_profile.description, driver_profile.created_at)
+        return DriverProfileDTO.from_table(driver_profile)

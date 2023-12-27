@@ -3,19 +3,13 @@ from flask import Blueprint, abort, jsonify, request
 
 from api.worker.carpooling.models import CarpoolingDTO
 from api.worker.carpooling.use_case import GetRouteCarpoolings
-from database.repositories import CarpoolingRepositoryInterface
 
 
 class SearchRoutes(Blueprint):
-    carpooling_repository: CarpoolingRepositoryInterface
-
-    def __init__(self,
-                 carpooling_repository: CarpoolingRepositoryInterface):
+    def __init__(self):
         super().__init__("carpooling", __name__,
                     url_prefix="/carpooling")
         
-        self.carpooling_repository = carpooling_repository
-
         self.route("/search",
                    methods=["GET"])(self.search_route_carpooling_api)
 
@@ -50,12 +44,12 @@ class SearchRoutes(Blueprint):
 
         route_carpoolings: Tuple[int, List[CarpoolingDTO]]
         try:
-            route_carpoolings = GetRouteCarpoolings(self.carpooling_repository).worker(start_lat,
-                                                                                       start_lon,
-                                                                                       end_lat,
-                                                                                       end_lon,
-                                                                                       departure_date_time,
-                                                                                       page=page)
+            route_carpoolings = GetRouteCarpoolings().worker(start_lat,
+                                                             start_lon,
+                                                             end_lat,
+                                                             end_lon,
+                                                             departure_date_time,
+                                                             page=page)
         except Exception:
             abort(500)
         return jsonify({

@@ -9,19 +9,14 @@ from api.worker.user.use_case import (
     CreatePassengerProfile,
     GetPassengerProfile
 )
-from mock import (
-    InMemoryTokenRepository,
-    InMemoryPassengerProfileRepository,
-    InMemoryUserRepository
-)
 
 
 class PassengerProfileTestCase(unittest.TestCase):
     def setUp(self):
-        token_repository = InMemoryTokenRepository(InMemoryUserRepository())
-        passenger_profile_reppository = InMemoryPassengerProfileRepository()
-        self.create_passenger_profile = CreatePassengerProfile(token_repository, passenger_profile_reppository)
-        self.get_passenger_profile = GetPassengerProfile(token_repository, passenger_profile_reppository)
+        self.create_passenger_profile = CreatePassengerProfile()
+        self.get_passenger_profile = GetPassengerProfile()
+
+        self.get_passenger_profile.passenger_profile_repository = self.create_passenger_profile.passenger_profile_repository
 
     def test_create_passenger_profile(self):
         try:

@@ -1,40 +1,25 @@
 from hashlib import sha512
 from typing import IO
 
+from api.worker import Worker
+from api.worker.admin import DocumentType
+from api.worker.user.models import DriverProfileDTO
 from api.exceptions import (
     UserNotFound,
     InternalServerError,
     ProfileAlreadyExist
 )
-from api.worker.admin import DocumentType
-from database.schemas import UserTable
+from database.schemas import DriverProfileTable, UserTable
 from database.exceptions import (
     NotFound,
     UniqueViolation
-) 
-from database.repositories import (
-    TokenRepositoryInterface, 
-    DriverProfileRepositoryInterface,
-    LicenseRepositoryInterface
 )
 
 
-class CreateDriverProfile:
-    token_repository: TokenRepositoryInterface
-    driver_profile_repository: DriverProfileRepositoryInterface
-    license_repository: LicenseRepositoryInterface
-
-    def __init__(self,
-                 token_repository: TokenRepositoryInterface,
-                 driver_profile_repository: DriverProfileRepositoryInterface,
-                 license_repository) -> None:
-        self.token_repository = token_repository
-        self.driver_profile_repository = driver_profile_repository
-        self.license_repository = license_repository
-
+class CreateDriverProfile(Worker):
     def worker(self,
                token: str,
-               document: IO[bytes]) -> int:
+               document: IO[bytes]) -> DriverProfileDTO:
         user: UserTable
         try:
             user = self.token_repository.get_user(sha512(token.encode()).digest())
@@ -43,9 +28,9 @@ class CreateDriverProfile:
         except Exception as e:
             raise InternalServerError(str(e))
 
-        driver_id: int
+        driver: DriverProfileTable
         try:
-            driver_id = self.driver_profile_repository.insert(user).id
+            driver = self.driver_profile_repository.insert(user)
         except UniqueViolation:
             raise ProfileAlreadyExist()
         except Exception as e:
@@ -55,4 +40,4 @@ class CreateDriverProfile:
             self.license_repository.insert(document.read(), user, DocumentType.Driver.name)
         except Exception as e:
             raise InternalServerError(str(e))
-        return driver_id
+        return DriverProfileDTO.from_table(driver)
