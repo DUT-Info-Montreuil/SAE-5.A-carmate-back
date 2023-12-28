@@ -67,6 +67,31 @@ class InvalidValidationStatus(LoggedException):
         super().__init__(message)
 
 
-class InternalServerError(AuthenticationException):
+class InternalServerError(LoggedException):
     def __init__(self, message: str):
+        super().__init__(message)
+
+
+class CarpoolingAlreadyBooked(Exception):
+    def __init__(self, message="carpooling already booked"):
+        super().__init__(message)
+
+
+class CarpoolingNotFound(Exception):
+    def __init__(self, message="carpooling not found"):
+        super().__init__(message)
+
+
+class CarpoolingCanceled(Exception):
+    def __init__(self, message="carpooling canceled"):
+        super().__init__(message)
+
+
+class CarpoolingAlreadyFull(Exception):
+    def __init__(self, message="carpooling already full"):
+        super().__init__(message)
+
+
+class CarpoolingBookedTooLate(Exception):
+    def __init__(self, message="departure time of carpooling is already passed"):
         super().__init__(message)

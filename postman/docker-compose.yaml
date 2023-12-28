@@ -37,7 +37,7 @@ services:
       - POSTGRES_HOST=db
       - POSTGRES_PORT=5432
     healthcheck:
-      test: curl -I http://api/monitoring/readiness
+      test: curl -I http://api/monitoring/liveness
       timeout: 1s
       retries: 100
       interval: 1s

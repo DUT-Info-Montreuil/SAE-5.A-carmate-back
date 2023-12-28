@@ -2,6 +2,8 @@ from datetime import datetime
 
 from flask import Blueprint, request, abort, jsonify
 
+from api.controller import extract_token
+from api.controller.carpooling import URL_ROUTE_PREFIX
 from api.worker.auth.models import UserInformationDTO
 from api.worker.auth.use_case import CheckToken
 from api.worker.carpooling.use_case import CreateCarpooling
@@ -11,20 +13,10 @@ from database.exceptions import UniqueViolation, CheckViolation, NotFound
 class CarpoolingWithDriverCheckRoutes(Blueprint):
     def __init__(self) -> None:
         super().__init__("carpooling_check", __name__,
-                         url_prefix="/carpooling")
+                         url_prefix=URL_ROUTE_PREFIX)
 
         self.route("/",
                    methods=["POST"])(self.create_route_carpooling_api)
-
-    def extract_token(self) -> str:
-        if request.authorization is None:
-            abort(401)
-
-        token = request.authorization.token
-
-        if token is None:
-            abort(401)
-        return token
 
     def token_and_driver_is_valid(self, token: str):
         user_infos: None | UserInformationDTO
@@ -40,7 +32,7 @@ class CarpoolingWithDriverCheckRoutes(Blueprint):
             abort(403)
 
     def create_route_carpooling_api(self):
-        token = self.extract_token()
+        token = extract_token()
         self.token_and_driver_is_valid(token)
 
         if not request.is_json:

@@ -103,10 +103,25 @@ class PassengerProfileTable:
 class ReserveCarpoolingTable:
     user_id: int
     carpooling_id: int
-    payment_date: datetime
     passenger_code: int
-    passenger_code_validated: bool
-    canceled: bool
+    passenger_code_validated: bool = False
+    passenger_code_date_validated: datetime = None
+    canceled: bool = False
+
+    @staticmethod
+    def to_self(*args, **kwargs):
+        if len(args) != 3:
+            raise ValueError("to_self() requires exactly 3 positional arguments")
+
+        user_id, carpooling_id, passenger_code = args
+        return ReserveCarpoolingTable(
+            user_id,
+            carpooling_id,
+            passenger_code,
+            kwargs.get('passenger_code_validated', False),
+            kwargs.get('passenger_code_date_validated', None),
+            kwargs.get('canceled', False)
+        )
 
 
 @dataclass
@@ -121,38 +136,16 @@ class CarpoolingTable:
     driver_id: int
 
     @staticmethod
-    def to_self(_tuple: tuple):
+    def to_self(*args):
+        if len(args) != 8:
+            raise ValueError("to_self() requires exactly 8 positional arguments")
         return CarpoolingTable(
-            _tuple[0],
-            _tuple[1],
-            _tuple[2],
-            _tuple[3],
-            _tuple[4],
-            _tuple[5],
-            _tuple[6],
-            _tuple[7]
-        )
-
-@dataclass(frozen=True)
-class CarpoolTable:
-    id: int
-    starting_point: List[float]
-    destination: List[float]
-    max_passagers: int
-    price: float
-    is_canceled: bool
-    departure_date_time: datetime
-    driver_id: int
-
-    @staticmethod
-    def to_self(_tuple: tuple):
-        return CarpoolTable(
-            _tuple[0],
-            _tuple[1],
-            _tuple[2],
-            _tuple[3],
-            _tuple[4],
-            _tuple[5],
-            _tuple[6],
-            _tuple[7]
+            args[0],
+            args[1],
+            args[2],
+            args[3],
+            args[4],
+            args[5],
+            args[6],
+            args[7]
         )

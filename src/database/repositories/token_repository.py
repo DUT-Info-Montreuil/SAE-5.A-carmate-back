@@ -15,6 +15,7 @@ from database.schemas import UserTable, TokenTable, DriverProfileTable
 class TokenRepositoryInterface(ABC):
     @staticmethod
     def insert(token: str, expiration: datetime, user: UserTable) -> TokenTable: ...
+    
     @staticmethod
     def get_expiration(token_hashed: bytes) -> datetime: ...
 

@@ -1,5 +1,8 @@
 from flask import Blueprint, Response, jsonify, abort, request
 
+from api.controller import extract_token
+from api.exceptions import InvalidValidationStatus, LicenseNotFound
+from api.worker.auth.models import UserInformationDTO
 from api.worker.auth.use_case import CheckToken
 from api.worker.auth.models import UserInformationDTO
 from api.worker.admin.use_case import (
@@ -33,24 +36,17 @@ class AdminRoutes(Blueprint):
             - 403: Is not admin
             - 500: InternalServerError (other)
         """
-        authorization = request.headers.get("Authorization")
-        if not authorization:
-            abort(401)
-
-        authorization_value = authorization.split(" ")
-        if len(authorization_value) != 2 or authorization_value[0].lower() != "bearer":
-            abort(401)
-
+        token = extract_token()
         user_info_dto: UserInformationDTO
         try:
-            user_info_dto = CheckToken().worker(authorization_value[1])
+            user_info_dto = CheckToken().worker(token)
         except Exception:
             abort(500)
 
         if not user_info_dto:
             abort(401)
 
-        if not IsUserAdmin().worker(authorization_value[1]):
+        if not IsUserAdmin().worker(token):
             abort(403)
 
     def license_to_validate_api(self) -> Response:

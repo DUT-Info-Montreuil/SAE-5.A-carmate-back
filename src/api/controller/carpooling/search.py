@@ -1,6 +1,7 @@
 from typing import List, Tuple
 from flask import Blueprint, abort, jsonify, request
 
+from api.controller.carpooling import URL_ROUTE_PREFIX
 from api.worker.carpooling.models import CarpoolingDTO
 from api.worker.carpooling.use_case import GetRouteCarpoolings
 
@@ -8,7 +9,7 @@ from api.worker.carpooling.use_case import GetRouteCarpoolings
 class SearchRoutes(Blueprint):
     def __init__(self):
         super().__init__("carpooling", __name__,
-                    url_prefix="/carpooling")
+                    url_prefix=URL_ROUTE_PREFIX)
         
         self.route("/search",
                    methods=["GET"])(self.search_route_carpooling_api)

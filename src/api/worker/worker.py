@@ -15,6 +15,7 @@ class Worker(ABC):
     token_repository: TokenRepositoryInterface
     license_repository: LicenseRepositoryInterface
     carpooling_repository: CarpoolingRepositoryInterface
+    booking_carpooling_repository: BookingCarpoolingRepositoryInterface
 
     def __init__(self):
         match os.getenv("API_MODE"):
@@ -37,6 +38,7 @@ class Worker(ABC):
         self.token_repository = InMemoryTokenRepository(self.user_repository, self.driver_profile_repository)
         self.license_repository = InMemoryLicenseRepository(self.user_repository)
         self.carpooling_repository = InMemoryCarpoolingRepository()
+        self.booking_carpooling_repository = InMemoryBookingCarpoolingRepository()
 
     def __postgres(self) -> None:
         self.user_repository = UserRepository()
@@ -47,6 +49,7 @@ class Worker(ABC):
         self.token_repository = TokenRepository()
         self.license_repository = LicenseRepository()
         self.carpooling_repository = CarpoolingRepository()
+        self.booking_carpooling_repository = BookingCarpoolingRepository()
 
     @abstractmethod
     def worker(self):

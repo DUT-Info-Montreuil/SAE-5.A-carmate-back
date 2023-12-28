@@ -37,6 +37,7 @@ class Api:
         self.api.register_blueprint(UserRoutes())
         self.api.register_blueprint(SearchRoutes())
         self.api.register_blueprint(CarpoolingWithDriverCheckRoutes())
+        self.api.register_blueprint(BookingRoutes())
 
         if os.getenv("API_MODE") == "PROD":
             self.api.after_request(self.handle_preflight_requests)
