@@ -1,5 +1,4 @@
 from abc import ABC
-from typing import Any
 
 from psycopg2 import ProgrammingError, errorcodes
 from psycopg2.errors import lookup
@@ -19,24 +18,20 @@ class DriverProfileRepositoryInterface(ABC):
     def get_driver(self,
                    driver_id: int) -> DriverProfileTable: ...
 
+
 class DriverProfileRepository(DriverProfileRepositoryInterface):
     POSTGRES_TABLE_NAME: str = "driver_profile"
 
     def insert(self,
                user: UserTable) -> DriverProfileTable:
         query = f"""
-            INSERT INTO carmate.{DriverProfileRepository.POSTGRES_TABLE_NAME}(user_id)
+            INSERT INTO carmate.{self.POSTGRES_TABLE_NAME}(user_id)
             VALUES (%s)
             RETURNING id, "description", created_at, user_id
         """
 
         conducteur_profile: tuple
-        conn: Any
-        try:
-            conn = establishing_connection()
-        except InternalServer as e:
-            raise InternalServer(str(e))
-        else:
+        with establishing_connection() as conn:
             with conn.cursor() as curs:
                 try:
                     curs.execute(query, (user.id,))
@@ -44,34 +39,27 @@ class DriverProfileRepository(DriverProfileRepositoryInterface):
                     raise UniqueViolation(str(e))
                 except Exception as e:
                     raise InternalServer(str(e))
-                else:
-                    conducteur_profile = curs.fetchone()
-            conn.commit()
-            conn.close()
+                conducteur_profile = curs.fetchone()
         return DriverProfileTable.to_self(conducteur_profile)
 
     def get_driver(self,
                    driver_id: int) -> DriverProfileTable:
-        query = f"""SELECT * 
-                    FROM carmate.{DriverProfileRepository.POSTGRES_TABLE_NAME} 
-                    WHERE id=%s"""
+        query = f"""
+            SELECT * 
+            FROM carmate.{self.POSTGRES_TABLE_NAME} 
+            WHERE id=%s
+        """
 
-        conn: Any
         driver_data: tuple
-        try:
-            conn = establishing_connection()
-        except Exception as e:
-            raise InternalServer(str(e))
-        else:
+        with establishing_connection() as conn:
             with conn.cursor() as curs:
                 try:
                     curs.execute(query, (driver_id,))
-                    driver_data = curs.fetchone()
                 except ProgrammingError:
                     raise NotFound("driver not found")
                 except Exception as e:
                     raise InternalServer(str(e))
-            conn.close()
+                driver_data = curs.fetchone()
 
         if driver_data is None:
             raise NotFound("driver not found")
@@ -79,26 +67,22 @@ class DriverProfileRepository(DriverProfileRepositoryInterface):
 
     def get_driver_by_user_id(self,
                               user_id: int) -> DriverProfileTable:
-        query = f"""SELECT * 
-                    FROM carmate.{DriverProfileRepository.POSTGRES_TABLE_NAME} 
-                    WHERE user_id=%s"""
+        query = f"""
+            SELECT * 
+            FROM carmate.{self.POSTGRES_TABLE_NAME} 
+            WHERE user_id=%s
+        """
 
-        conn: Any
         driver_data: tuple
-        try:
-            conn = establishing_connection()
-        except Exception as e:
-            raise InternalServer(str(e))
-        else:
+        with establishing_connection() as conn:
             with conn.cursor() as curs:
                 try:
                     curs.execute(query, (user_id,))
-                    driver_data = curs.fetchone()
                 except ProgrammingError:
                     raise NotFound("driver not found")
                 except Exception as e:
                     raise InternalServer(str(e))
-            conn.close()
+                driver_data = curs.fetchone()
 
         if driver_data is None:
             raise NotFound("driver not found")
