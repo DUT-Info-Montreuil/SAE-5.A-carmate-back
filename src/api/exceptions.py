@@ -20,7 +20,7 @@ class CredentialInvalid(AuthenticationException):
 class AccountAlreadyExist(AuthenticationException):
     def __init__(self, message: str):
         super().__init__(message)
-        
+
 
 class ProfileAlreadyExist(LoggedException):
     def __init__(self, message="Profile already exist"):
@@ -95,3 +95,10 @@ class CarpoolingAlreadyFull(Exception):
 class CarpoolingBookedTooLate(Exception):
     def __init__(self, message="departure time of carpooling is already passed"):
         super().__init__(message)
+
+
+class CarpoolingReviewTimeExpired(Exception):
+    def __init__(self,
+                 message="The user can't review this carpooling, more than a week has passed since the trip was made"):
+        self.message = message
+        super().__init__(self.message)

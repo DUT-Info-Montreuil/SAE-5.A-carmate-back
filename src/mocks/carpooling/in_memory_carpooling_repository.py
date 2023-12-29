@@ -5,7 +5,7 @@ from datetime import datetime, timedelta
 from typing import List, Tuple
 
 from database.repositories import CarpoolingRepositoryInterface
-from database.schemas import CarpoolingTable
+from database.schemas import CarpoolingTable, ReserveCarpoolingTable
 from database.exceptions import CheckViolation, NotFound
 
 
@@ -112,3 +112,30 @@ class InMemoryCarpoolingRepository(CarpoolingRepositoryInterface):
             if carpooling.id == carpooling_id:
                 return carpooling
         raise NotFound("carpooling not found")
+
+    def get_last_carpooling_between(self, driver_id: int, user_id: int) -> CarpoolingTable:
+        if self.reserve_carpooling_repository is None:
+            raise Exception("To use the fucntion get_carpoolings_route you need the reserve carpooling repository")
+
+        carpooling_list: List[CarpoolingTable] = []
+        for carpooling in self.carpoolings:
+            if carpooling.driver_id == driver_id and carpooling.is_canceled is False:
+                carpooling_list.append(carpooling)
+
+        if len(carpooling_list) == 0:
+            raise NotFound("There are no carpooling existing between these two users")
+
+        filtered_carpooling_list: List[CarpoolingTable] = []
+        for carpooling in carpooling_list:
+            for reserve_carpooling in self.reserve_carpooling_repository.reserved_carpoolings:
+                if reserve_carpooling.user_id == user_id \
+                        and reserve_carpooling.carpooling_id == carpooling.id \
+                        and reserve_carpooling.passenger_code_validated \
+                        and not reserve_carpooling.canceled:
+                    filtered_carpooling_list.append(carpooling)
+
+        if len(filtered_carpooling_list) == 0:
+            raise NotFound("There are no carpooling existing between these two users")
+        return sorted(filtered_carpooling_list, key=lambda x: x.departure_date_time, reverse=True)[0]
+
+

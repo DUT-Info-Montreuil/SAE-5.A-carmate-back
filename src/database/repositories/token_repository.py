@@ -7,8 +7,17 @@ from psycopg2.errors import lookup
 from api import hash
 from database import establishing_connection
 from database.exceptions import *
-from database.repositories import UserRepository, DriverProfileRepository
-from database.schemas import UserTable, TokenTable, DriverProfileTable
+from database.repositories import (
+    UserRepository,
+    DriverProfileRepository,
+    PassengerProfileRepository
+)
+from database.schemas import (
+    UserTable,
+    TokenTable,
+    DriverProfileTable,
+    PassengerProfileTable
+)
 
 
 class TokenRepositoryInterface(ABC):
@@ -25,6 +34,8 @@ class TokenRepositoryInterface(ABC):
     
     def get_driver_profile(self,
                            token: bytes) -> DriverProfileTable: ...
+    def get_passenger_profile(self,
+                              token: bytes) -> DriverProfileTable: ...
 
 
 class TokenRepository(TokenRepositoryInterface):
@@ -119,3 +130,30 @@ class TokenRepository(TokenRepositoryInterface):
                     raise InternalServer(str(e))
                 driver_profile = curs.fetchone()
         return DriverProfileTable(*driver_profile)
+
+    def get_passenger_profile(self, token: bytes) -> DriverProfileTable:
+        query = f"""
+            SELECT passenger.*
+            FROM carmate.{self.POSTGRES_TABLE_NAME} tkn
+            INNER JOIN carmate.{UserRepository.POSTGRES_TABLE_NAME} usr 
+                ON tkn.user_id=usr.id
+            INNER JOIN carmate.{PassengerProfileRepository.POSTGRES_TABLE_NAME} passenger 
+                ON usr.id=passenger.user_id
+            WHERE tkn.token=%s
+        """
+
+        with establishing_connection() as conn:
+            with conn.cursor() as curs:
+                try:
+                    curs.execute(query, (token,))
+                except ProgrammingError:
+                    raise NotFound("passenger not found")
+                except IndexError:
+                    raise NotFound("passenger not found")
+                except Exception as e:
+                    raise InternalServer(str(e))
+                passenger_profile = curs.fetchone()
+
+        if passenger_profile is None:
+            raise NotFound("passenger not found")
+        return PassengerProfileTable(*passenger_profile)

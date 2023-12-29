@@ -7,7 +7,8 @@ from psycopg2.errors import lookup
 from api.worker.carpooling.models import CarpoolingForRecap
 from database import establishing_connection
 from database.schemas import CarpoolingTable
-from database.repositories.booking_carpooling_repository import BookingCarpoolingRepository
+from database.repositories.booking_carpooling_repository import BookingCarpoolingRepository, \
+    BookingCarpoolingRepositoryInterface
 from database.exceptions import (
     InternalServer,
     CheckViolation,
@@ -35,6 +36,8 @@ class CarpoolingRepositoryInterface(ABC):
     
     def get_from_id(self,
                     carpooling_id: int) -> CarpoolingTable: ...
+
+    def get_last_carpooling_between(self, driver_id: int, user_id: int) -> CarpoolingTable: ...
 
 
 class CarpoolingRepository(CarpoolingRepositoryInterface):
@@ -149,4 +152,34 @@ class CarpoolingRepository(CarpoolingRepositoryInterface):
         
         if carpooling is None:
             raise NotFound("carpooling not found")
+        return CarpoolingTable.to_self(carpooling)
+
+    def get_last_carpooling_between(self, driver_id: int, user_id: int) -> CarpoolingTable:
+        query = f"""
+             SELECT c.*
+             FROM carmate.{self.POSTGRES_TABLE_NAME} c
+             LEFT JOIN carmate.{BookingCarpoolingRepository.POSTGRES_TABLE_NAME} r 
+                 ON c.id=r.carpooling_id
+             WHERE c.driver_id=%s 
+                 AND r.user_id=%s
+                 AND r.canceled='f'
+                 AND r.passenger_code_validated='t' 
+                 AND c.is_canceled='f'
+             ORDER BY c.departure_date_time DESC
+             LIMIT 1
+        """
+
+        carpooling: tuple
+        with establishing_connection() as conn:
+            with conn.cursor() as curs:
+                try:
+                    curs.execute(query, (driver_id, user_id))
+                except ProgrammingError:
+                    raise NotFound("There are no carpooling existing between these two users")
+                except Exception as e:
+                    raise InternalServer(str(e))
+                carpooling = curs.fetchone()
+
+        if carpooling is None:
+            raise NotFound("There are no carpooling existing between these two users")
         return CarpoolingTable(*carpooling)
