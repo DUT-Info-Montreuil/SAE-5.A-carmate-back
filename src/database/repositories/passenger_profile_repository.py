@@ -40,7 +40,7 @@ class PassengerProfileRepository(PassengerProfileRepositoryInterface):
                 except Exception as e:
                     raise InternalServer(str(e))
                 passenger_profile = curs.fetchone()
-        return PassengerProfileTable.to_self(passenger_profile)
+        return PassengerProfileTable(*passenger_profile)
 
     def get_passenger(self,
                       passenger_id: int) -> PassengerProfileTable:
@@ -63,7 +63,7 @@ class PassengerProfileRepository(PassengerProfileRepositoryInterface):
 
         if passenger_data is None:
             raise NotFound("passenger not found")
-        return PassengerProfileTable.to_self(passenger_data)
+        return PassengerProfileTable(*passenger_data)
 
     def get_passenger_by_user_id(self,
                                  user_id: int) -> PassengerProfileTable:
@@ -84,4 +84,4 @@ class PassengerProfileRepository(PassengerProfileRepositoryInterface):
 
         if passenger_data is None:
             raise NotFound("passenger not found")
-        return PassengerProfileTable.to_self(passenger_data)
+        return PassengerProfileTable(*passenger_data)

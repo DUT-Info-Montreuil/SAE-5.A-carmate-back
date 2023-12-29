@@ -43,7 +43,7 @@ class BookingCarpoolingRepository(BookingCarpoolingRepositoryInterface):
                 except Exception as e:
                     raise InternalServer(str(e))
                 booking_carpooling = curs.fetchone()
-        return ReserveCarpoolingTable.to_self(booking_carpooling)
+        return ReserveCarpoolingTable(*booking_carpooling)
     
     def seats_taken(self,
                    carpooling_id: int) -> int:

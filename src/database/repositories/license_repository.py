@@ -169,12 +169,13 @@ class LicenseRepository(LicenseRepositoryInterface):
 
     def get_license_by_user_id(self, user_id: int, document_type: str) -> LicenseTable:
         query = f"""
-            SELECT *
-            FROM carmate.{LicenseRepository.POSTGRES_TABLE_NAME} AS lr
-            INNER JOIN carmate."{UserRepository.POSTGRES_TABLE_NAME}" AS ur 
+            SELECT lr.*
+            FROM carmate.{LicenseRepository.POSTGRES_TABLE_NAME} lr
+            INNER JOIN carmate."{UserRepository.POSTGRES_TABLE_NAME}" ur 
                 ON lr.user_id=ur.id
-            WHERE document_type=%s 
-                AND user_id=%s
+            WHERE lr.document_type=%s 
+                AND lr.user_id=%s
+            LIMIT 1
         """
 
         license_table: tuple | None
@@ -190,4 +191,4 @@ class LicenseRepository(LicenseRepositoryInterface):
 
         if license_table is None:
             raise NotFound("License not found")
-        return LicenseTable.to_self(license_table)
+        return LicenseTable(*license_table)

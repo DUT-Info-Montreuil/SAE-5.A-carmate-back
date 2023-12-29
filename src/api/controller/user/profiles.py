@@ -152,7 +152,6 @@ class ProfilesRoutes(Blueprint):
             abort(404)
         except CredentialInvalid:
             abort(401)
-        except Exception as e:
-            print(e)
+        except Exception:
             abort(500)
         return jsonify({"driver_id": driver.id})

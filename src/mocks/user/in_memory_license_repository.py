@@ -24,7 +24,7 @@ class InMemoryLicenseRepository(LicenseRepositoryInterface):
     def insert(self, document: bytes,
                user: UserTable,
                document_type: str) -> LicenseTable:
-        in_memory_student_license = LicenseTable.to_self((self.licenses_count, document, document_type, ValidationStatus.Pending.name, datetime.now(), user.id))
+        in_memory_student_license = LicenseTable(self.licenses_count, document, document_type, ValidationStatus.Pending.name, datetime.now(), user.id)
 
         self.licenses.append(in_memory_student_license)
         self.licenses_count = self.licenses_count + 1

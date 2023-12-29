@@ -149,4 +149,4 @@ class CarpoolingRepository(CarpoolingRepositoryInterface):
         
         if carpooling is None:
             raise NotFound("carpooling not found")
-        return CarpoolingTable.to_self(carpooling)
+        return CarpoolingTable(*carpooling)

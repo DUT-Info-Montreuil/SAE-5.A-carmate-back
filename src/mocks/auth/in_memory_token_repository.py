@@ -22,7 +22,7 @@ class InMemoryTokenRepository(TokenRepositoryInterface):
         self.driver_repository = driver_repository
 
     def insert(self,token: str, expiration: datetime, user: UserTable) -> TokenTable:
-        in_memory_token = TokenTable.to_self((token, expiration, user.id))
+        in_memory_token = TokenTable(token, expiration, user.id)
         self.tokens.append(in_memory_token)
         return in_memory_token
 
