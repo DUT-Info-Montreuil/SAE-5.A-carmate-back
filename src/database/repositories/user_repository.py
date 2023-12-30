@@ -1,4 +1,5 @@
 from abc import ABC
+from typing import Any
 
 from psycopg2 import ProgrammingError, errorcodes
 from psycopg2.errors import lookup
@@ -47,7 +48,7 @@ class UserRepository(UserRepositoryInterface):
                 except Exception as e:
                     raise InternalServer(str(e))
                 user = curs.fetchone()
-        return UserTable.to_self(user)
+        return UserTable(*user)
 
     def get_user_by_email(self,
                           email: str) -> UserTable:
@@ -61,6 +62,26 @@ class UserRepository(UserRepositoryInterface):
             with conn.cursor() as curs:
                 try:
                     curs.execute(query, (email,))
+                except ProgrammingError:
+                    raise NotFound("user not found")
+                except Exception as e:
+                    raise InternalServer(str(e))
+                user_data = curs.fetchone()
+
+        if not user_data:
+            raise NotFound("user not found")
+        return UserTable(*user_data)
+
+    @staticmethod
+    def get_user_by_id(id: int) -> UserTable:
+        query = f"""SELECT * FROM carmate.{UserRepository.POSTGRES_TABLE_NAME} 
+                    WHERE id=%s"""
+
+        user_data: tuple
+        with establishing_connection() as conn:
+            with conn.cursor() as curs:
+                try:
+                    curs.execute(query, (id,))
                 except ProgrammingError:
                     raise NotFound("user not found")
                 except Exception as e:
@@ -91,4 +112,4 @@ class UserRepository(UserRepositoryInterface):
 
         if user_data is None:
             raise NotFound("user not found")
-        return UserTable.to_self(user_data)
+        return UserTable(*user_data)

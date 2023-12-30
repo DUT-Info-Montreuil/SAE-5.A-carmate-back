@@ -40,7 +40,7 @@ class DriverProfileRepository(DriverProfileRepositoryInterface):
                 except Exception as e:
                     raise InternalServer(str(e))
                 conducteur_profile = curs.fetchone()
-        return DriverProfileTable.to_self(conducteur_profile)
+        return DriverProfileTable(*conducteur_profile)
 
     def get_driver(self,
                    driver_id: int) -> DriverProfileTable:
@@ -63,7 +63,7 @@ class DriverProfileRepository(DriverProfileRepositoryInterface):
 
         if driver_data is None:
             raise NotFound("driver not found")
-        return DriverProfileTable.to_self(driver_data)
+        return DriverProfileTable(*driver_data)
 
     def get_driver_by_user_id(self,
                               user_id: int) -> DriverProfileTable:
@@ -86,4 +86,4 @@ class DriverProfileRepository(DriverProfileRepositoryInterface):
 
         if driver_data is None:
             raise NotFound("driver not found")
-        return DriverProfileTable.to_self(driver_data)
+        return DriverProfileTable(*driver_data)

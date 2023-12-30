@@ -95,7 +95,7 @@ class TokenRepository(TokenRepositoryInterface):
     
         if user is None:
             raise NotFound("token not found")
-        return UserTable.to_self(user)
+        return UserTable(*user)
 
     def get_driver_profile(self,
                            token: bytes) -> DriverProfileTable:
@@ -118,4 +118,4 @@ class TokenRepository(TokenRepositoryInterface):
                 except Exception as e:
                     raise InternalServer(str(e))
                 driver_profile = curs.fetchone()
-        return DriverProfileTable.to_self(driver_profile)
+        return DriverProfileTable(*driver_profile)
