@@ -110,6 +110,9 @@ class TokenRepository(TokenRepositoryInterface):
                 except Exception as e:
                     raise InternalServer(str(e))
                 driver_profile = curs.fetchone()
+
+                if not driver_profile:
+                    raise NotFound("driver not found")
         return DriverProfileTable(*driver_profile)
 
     def get_passenger_profile(self, token: bytes) -> DriverProfileTable:

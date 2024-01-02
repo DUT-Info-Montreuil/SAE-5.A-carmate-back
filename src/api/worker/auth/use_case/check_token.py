@@ -42,5 +42,4 @@ class CheckToken(Worker):
             raise InternalServerError(str(e))
         else:
             driver_license_valid = driver_license.validation_status == ValidationStatus.Approved.name
-
         return UserInformationDTO(self.user_admin_repository.is_admin(user.id), self.user_banned_repository.is_banned(user.id), driver_license_valid)

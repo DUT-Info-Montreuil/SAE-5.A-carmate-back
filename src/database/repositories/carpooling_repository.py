@@ -1,3 +1,4 @@
+from datetime import datetime
 from typing import List, Tuple
 
 from psycopg2 import ProgrammingError, errorcodes
@@ -15,7 +16,7 @@ from database.exceptions import (
     CheckViolation,
     NotFound
 )
-from database.schemas import CarpoolingTable
+from database.schemas import CarpoolingTable, Weekday
 
 
 class CarpoolingRepository(CarpoolingRepositoryInterface):
@@ -160,3 +161,34 @@ class CarpoolingRepository(CarpoolingRepositoryInterface):
         if carpooling is None:
             raise NotFound("There are no carpooling existing between these two users")
         return CarpoolingTable(*carpooling)
+
+    def has_carpooling_between_dates_at_hour(self,
+                                             start_date: datetime.date,
+                                             end_date: datetime.date,
+                                             at_time: datetime.time,
+                                             on_days: List[Weekday],
+                                             driver_id: int) -> bool:
+        query = f"""
+            SELECT EXISTS(
+                SELECT 1
+                FROM carmate.{CARPOOLING_TABLE_NAME}
+                WHERE driver_id=%s 
+                    AND is_canceled=false
+                    AND EXTRACT(ISODOW FROM departure_date_time) IN %s
+                    AND departure_date_time BETWEEN to_date(%s) AND to_date(%s)
+                    AND departure_date_time::time = %s
+                LIMIT 1
+            )
+        """
+
+        has_carpooling: bool = False
+        with establishing_connection() as conn:
+            with conn.cursor() as curs:
+                try:
+                    curs.execute(query, (driver_id, on_days, start_date, end_date, at_time))
+                except ProgrammingError:
+                    return has_carpooling
+                except Exception as e:
+                    raise InternalServer(str(e))
+                has_carpooling = curs.fetchone()[0]
+        return has_carpooling

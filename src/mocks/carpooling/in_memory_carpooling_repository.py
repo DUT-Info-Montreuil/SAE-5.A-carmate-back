@@ -5,7 +5,11 @@ from datetime import datetime, timedelta
 from typing import List, Tuple
 
 from database.interfaces import CarpoolingRepositoryInterface
-from database.schemas import CarpoolingTable, ReserveCarpoolingTable
+from database.schemas import (
+    CarpoolingTable,
+    ReserveCarpoolingTable,
+    Weekday
+)
 from database.exceptions import CheckViolation, NotFound
 
 
@@ -138,4 +142,16 @@ class InMemoryCarpoolingRepository(CarpoolingRepositoryInterface):
             raise NotFound("There are no carpooling existing between these two users")
         return sorted(filtered_carpooling_list, key=lambda x: x.departure_date_time, reverse=True)[0]
 
-
+    def has_carpooling_between_dates_at_hour(self,
+                                             start_date: datetime.date,
+                                             end_date: datetime.date,
+                                             at_time: datetime.time,
+                                             on_days: List[Weekday],
+                                             driver_id: int) -> bool:
+        return any(
+            carpooling for carpooling in self.carpoolings
+            if not carpooling.is_canceled
+            and start_date <= carpooling.departure_date_time.date() <= end_date
+            and carpooling.departure_date_time.time() == at_time
+            and Weekday(carpooling.departure_date_time.weekday() + 1) in on_days
+        )

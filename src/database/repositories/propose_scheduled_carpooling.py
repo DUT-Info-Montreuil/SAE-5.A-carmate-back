@@ -1,0 +1,249 @@
+from datetime import datetime
+from typing import List
+
+from database import establishing_connection, PASSENGER_SCHEDULED_CARPOOLING_TABLE_NAME, PASSENGER_PROFILE_TABLE_NAME, \
+    BOOKING_CARPOOLING_TABLE_NAME, CARPOOLING_TABLE_NAME
+from psycopg2 import ProgrammingError, errorcodes
+
+from psycopg2.errors import lookup
+from database.exceptions import UniqueViolation, InternalServer, NotFound
+from database.interfaces import ProposeScheduledCarpoolingRepositoryInterface
+from database.repositories import PassengerProfileRepository, CarpoolingRepository, BookingCarpoolingRepository
+from database.schemas import PassengerScheduledCarpoolingTable, CarpoolingTable
+
+
+class ProposeScheduledCarpoolingRepository(ProposeScheduledCarpoolingRepositoryInterface):
+    def insert(self,
+               data: PassengerScheduledCarpoolingTable) -> int:
+        query = f"""
+                INSERT INTO carmate.{PASSENGER_SCHEDULED_CARPOOLING_TABLE_NAME} (label, starting_point, destination, start_hour, start_date, end_date, days, passenger_id)
+                VALUES (%s, %s, %s, %s, %s, %s, %s::weekday[], %s)
+                RETURNING id
+        """
+
+        propose_id: tuple
+        with establishing_connection() as conn:
+            with conn.cursor() as curs:
+                try:
+                    curs.execute(query, (data.label,
+                                         data.starting_point,
+                                         data.destination,
+                                         data.start_hour,
+                                         data.start_date,
+                                         data.end_date,
+                                         [day.name for day in data.days],
+                                         data.passenger_id))
+                except lookup(errorcodes.UNIQUE_VIOLATION) as e:
+                    raise UniqueViolation(str(e))
+                except Exception as e:
+                    raise InternalServer(str(e))
+                propose_id = curs.fetchone()
+        if propose_id is None:
+            raise InternalServer("Something went wrong")
+        return propose_id[0]
+
+    def has_same_time_proposed_scheduled_carpooling(self,
+                                                    data: PassengerScheduledCarpoolingTable) -> bool:
+        query = f"""
+                SELECT EXISTS(
+                    SELECT 1
+                    FROM carmate.{PASSENGER_SCHEDULED_CARPOOLING_TABLE_NAME} AS sc
+                    WHERE %s <= sc.end_date AND sc.start_date <= %s
+                        AND sc.days && %s::weekday[] AND sc.start_hour = %s
+                )
+        """
+        has_same_time: bool = False
+        with establishing_connection() as conn:
+            with conn.cursor() as curs:
+
+                try:
+                    curs.execute(query, (data.start_date,
+                                         data.end_date,
+                                         [day.name for day in data.days],
+                                         data.start_hour))
+                except ProgrammingError:
+                    return has_same_time
+                except Exception as e:
+                    raise InternalServer(str(e))
+                has_same_time = curs.fetchone()[0]
+
+        return has_same_time
+
+    def get_user_id_from_scheduled_carpooling(self, propose_scheduled_carpooling_id: int) -> int:
+        query = f"""
+                SELECT pp.id
+                FROM carmate.{PASSENGER_SCHEDULED_CARPOOLING_TABLE_NAME} pc
+                INNER JOIN carmate.{PASSENGER_PROFILE_TABLE_NAME} pp ON (pc.passenger_id = pp.id)
+                WHERE pc.id = %s
+        """
+        user_id: tuple
+        with establishing_connection() as conn:
+            with conn.cursor() as curs:
+                try:
+                    curs.execute(query, (propose_scheduled_carpooling_id,))
+                except ProgrammingError:
+                    raise NotFound("User not found for scheduled carpooling")
+                except Exception as e:
+                    raise InternalServer(str(e))
+                else:
+                    user_id = curs.fetchone()
+            if not user_id:
+                raise NotFound("User not found for scheduled carpooling")
+
+        return user_id[0]
+
+
+    def get_carpoolings_to_reserve_for(self, propose_scheduled_carpooling_id: int) -> List[CarpoolingTable]:
+        query = f"""
+                    WITH ProposedSchedule AS (
+                        SELECT
+                            pc.id AS propose_carpool_id,
+                            unnest(pc.days)::weekday AS reserved_day,
+                            pc.start_date,
+                            pc.end_date,
+                            pc.starting_point,
+                            pc.destination,
+                            pc.start_hour,
+                            pp.user_id
+                        FROM carmate.{PASSENGER_SCHEDULED_CARPOOLING_TABLE_NAME} pc
+                            INNER JOIN carmate.{PASSENGER_PROFILE_TABLE_NAME} pp ON (pc.passenger_id = pp.id)
+                        WHERE pc.id = %s
+                    ),
+                    ReservationDates AS (
+                        SELECT
+                            propose_carpool_id,
+                            starting_point,
+                            destination,
+                            start_hour,
+                            user_id,
+                            reserved_date
+                        FROM
+                            (
+                                SELECT *,
+                                    generate_series(start_date, end_date, '1 day'::interval)::DATE AS reserved_date
+                                FROM ProposedSchedule
+                            ) pc
+                        WHERE
+                            EXTRACT(DOW FROM pc.reserved_date) = pc.reserved_day::integer
+                    ),
+                    AlreadyReservedDates AS (
+                        SELECT c.departure_date_time::date
+                        FROM carmate.{BOOKING_CARPOOLING_TABLE_NAME} rc
+                            INNER JOIN carmate.{CARPOOLING_TABLE_NAME} c ON (rc.carpooling_id = c.id)
+                            INNER JOIN ReservationDates rd 
+                                ON (rd.user_id = rc.user_id)
+                        WHERE rd.reserved_date = c.departure_date_time::date
+                            AND rd.start_hour = c.departure_date_time::time
+                    ),
+                    ReservationDatesFiltered AS (
+                        SELECT *
+                        FROM ReservationDates
+                        WHERE reserved_date NOT IN (SELECT departure_date_time FROM AlreadyReservedDates)
+                    ),
+                    NumberOfReservations AS (
+                        SELECT rc.carpooling_id, 
+                            COUNT(*) AS reserved
+                        FROM carmate.reserve_carpooling rc
+                        WHERE NOT rc.canceled
+                        GROUP BY rc.carpooling_id
+                    )
+                    SELECT DISTINCT ON (c.departure_date_time) c.*
+                    FROM
+                        carmate.{CARPOOLING_TABLE_NAME} c
+                    INNER JOIN ReservationDatesFiltered rd 
+                        ON c.starting_point = rd.starting_point
+                        AND c.destination = rd.destination
+                        AND c.departure_date_time::date = rd.reserved_date
+                        AND c.departure_date_time::time = rd.start_hour
+                    LEFT JOIN NumberOfReservations nr 
+                        ON c.id = nr.carpooling_id
+                    WHERE COALESCE(nr.reserved, 0) < c.max_passengers;
+        """
+        carpoolings_to_reserve: List[tuple] = []
+        with establishing_connection() as conn:
+            with conn.cursor() as curs:
+                try:
+                    curs.execute(query, (propose_scheduled_carpooling_id,))
+                except ProgrammingError:
+                    pass
+                except Exception as e:
+                    raise InternalServer(str(e))
+                else:
+                    carpoolings_to_reserve = curs.fetchall()
+
+        return [CarpoolingTable(*tpl) for tpl in carpoolings_to_reserve]
+
+    def get_matching_proposed_scheduled_carpooling(self,
+                                                   starting_point: List[float],
+                                                   destination: List[float],
+                                                   date: datetime.date,
+                                                   time: datetime.time,
+                                                   limit: int) -> List[int]:
+        query = f"""
+                    WITH ProposedSchedule AS (
+                        SELECT
+                            pc.id AS propose_carpool_id,
+                            unnest(pc.days)::weekday AS reserved_day,
+                            pc.start_date,
+                            pc.end_date,
+                            pc.starting_point,
+                            pc.destination,
+                            pc.start_hour,
+                            pp.user_id
+                        FROM carmate.{PASSENGER_SCHEDULED_CARPOOLING_TABLE_NAME} pc
+                        INNER JOIN carmate.{PASSENGER_PROFILE_TABLE_NAME} pp ON (pc.passenger_id = pp.id)
+                        WHERE pc.starting_point = %s::double precision[] 
+                            AND pc.destination = %s::double precision[]
+                            AND %s BETWEEN pc.start_date AND pc.end_date
+                            AND pc.start_hour = %s
+                    ),
+                    ReservationDates AS (
+                        SELECT
+                            propose_carpool_id,
+                            starting_point,
+                            destination,
+                            start_hour,
+                            user_id,
+                            reserved_date
+                        FROM
+                            (
+                                SELECT *,
+                                    generate_series(start_date, end_date, '1 day'::interval)::DATE AS reserved_date
+                                FROM ProposedSchedule
+                            ) pc
+                        WHERE EXTRACT(DOW FROM pc.reserved_date) = pc.reserved_day::integer
+                    ),
+                    AlreadyReservedDates AS (
+                        SELECT c.departure_date_time::date
+                        FROM carmate.{BOOKING_CARPOOLING_TABLE_NAME} rc
+                            INNER JOIN carmate.{CARPOOLING_TABLE_NAME} c ON (rc.carpooling_id = c.id)
+                            INNER JOIN ReservationDates rd ON (rd.user_id = rc.user_id)
+                        WHERE rd.reserved_date = c.departure_date_time::date
+                            AND rd.start_hour = c.departure_date_time::time
+                    ),
+                    ReservationDatesFiltered AS (
+                        SELECT *
+                        FROM ReservationDates
+                        WHERE reserved_date NOT IN (SELECT departure_date_time FROM AlreadyReservedDates)
+                    )
+                    SELECT propose_carpool_id
+                    FROM ReservationDatesFiltered
+                    WHERE reserved_date = %s
+                    LIMIT %s
+        """
+        carpoolings_ids: List[tuple] = []
+        with establishing_connection() as conn:
+            with conn.cursor() as curs:
+                try:
+                    curs.execute(query, (starting_point,
+                                         destination,
+                                         date,
+                                         time,
+                                         date,
+                                         limit))
+                except Exception as e:
+                    raise InternalServer(str(e))
+                else:
+                    carpoolings_ids = curs.fetchall()
+
+        return [carpoolings_id[0] for carpoolings_id in carpoolings_ids]

@@ -6,7 +6,7 @@ from api.controller import extract_token
 from api.controller.carpooling import URL_ROUTE_PREFIX
 from api.worker.auth.models import UserInformationDTO
 from api.worker.auth.use_case import CheckToken
-from api.worker.carpooling.use_case import CreateCarpooling
+from api.worker.carpooling.use_case import CreateCarpooling, CheckForMatchingPassengerScheduled
 from database.exceptions import UniqueViolation, CheckViolation, NotFound
 
 
@@ -84,5 +84,12 @@ class CarpoolingWithDriverCheckRoutes(Blueprint):
             abort(409)
         except Exception:
             abort(500)
+
+        # would be better to launch this in a thread, but it seems like a pain in the ass
+        try:
+            CheckForMatchingPassengerScheduled().worker(carpooling_id)
+        except Exception:
+            # not important for the driver if something fails here
+            pass
 
         return jsonify({"carpooling_id": carpooling_id})

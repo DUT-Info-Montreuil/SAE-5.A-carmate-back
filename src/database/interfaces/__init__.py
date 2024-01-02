@@ -8,3 +8,4 @@ from .token_repository_interface import TokenRepositoryInterface
 from .user_admin_repository_interface import UserAdminRepositoryInterface
 from .user_banned_repository_interface import UserBannedRepositoryInterface
 from .user_repository_interface import UserRepositoryInterface
+from .propose_scheduled_carpooling_repository_interface import ProposeScheduledCarpoolingRepositoryInterface
