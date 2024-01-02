@@ -1,8 +1,6 @@
 from flask import Blueprint, Response, jsonify, abort, request
 
 from api.controller import extract_token
-from api.exceptions import InvalidValidationStatus, LicenseNotFound
-from api.worker.auth.models import UserInformationDTO
 from api.worker.auth.use_case import CheckToken
 from api.worker.auth.models import UserInformationDTO
 from api.worker.admin.use_case import (

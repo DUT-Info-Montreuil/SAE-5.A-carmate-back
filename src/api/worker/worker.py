@@ -1,7 +1,5 @@
 import os
 
-from abc import ABC, abstractmethod
-
 from database.repositories import *
 from mocks import *
 
@@ -16,6 +14,7 @@ class Worker(ABC):
     license_repository: LicenseRepositoryInterface
     carpooling_repository: CarpoolingRepositoryInterface
     booking_carpooling_repository: BookingCarpoolingRepositoryInterface
+    propose_scheduled_carpooling_repository: ProposeScheduledCarpoolingRepositoryInterface
 
     def __init__(self):
         match os.getenv("API_MODE"):
@@ -26,8 +25,7 @@ class Worker(ABC):
             case None:
                 raise Exception("API_MODE must be set !")
             case _:
-                raise Exception(
-                    f"Value error in API_MODE ({os.getenv('API_MODE')} invalid)")
+                raise Exception(f"Value error in API_MODE ({os.getenv('API_MODE')} invalid)")
     
     def __mock(self) -> None:
         self.user_repository = InMemoryUserRepository()
@@ -40,6 +38,8 @@ class Worker(ABC):
         self.booking_carpooling_repository = InMemoryBookingCarpoolingRepository()
         self.carpooling_repository = InMemoryCarpoolingRepository(self.booking_carpooling_repository)
         self.review_repository = InMemoryReviewRepository()
+        self.booking_carpooling_repository.carpooling_repository = self.carpooling_repository
+        self.propose_scheduled_carpooling_repository = InMemoryProposeScheduledCarpoolingRepository(self.booking_carpooling_repository, self.carpooling_repository, self.passenger_profile_repository)
 
     def __postgres(self) -> None:
         self.user_repository = UserRepository()
@@ -52,6 +52,7 @@ class Worker(ABC):
         self.carpooling_repository = CarpoolingRepository()
         self.booking_carpooling_repository = BookingCarpoolingRepository()
         self.review_repository = ReviewRepository()
+        self.propose_scheduled_carpooling_repository = ProposeScheduledCarpoolingRepository()
 
     @abstractmethod
     def worker(self):

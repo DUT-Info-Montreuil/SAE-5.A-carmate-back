@@ -2,7 +2,6 @@ from datetime import datetime
 from hashlib import sha512
 
 from api.worker import Worker
-from api.worker.auth.use_case import PassengerCode
 from api.worker.carpooling.models import BookingCarpoolingDTO
 from api.exceptions import (
     CarpoolingAlreadyBooked,
@@ -19,6 +18,7 @@ from database.exceptions import (
     NotFound,
     UniqueViolation
 )
+from services import PassengerCodeService
 
 
 class BookingCarpooling(Worker):
@@ -58,7 +58,7 @@ class BookingCarpooling(Worker):
         if today_date > carpooling.departure_date_time:
             raise CarpoolingBookedTooLate()
 
-        passenger_code = PassengerCode().worker()
+        passenger_code = PassengerCodeService.next()
         try:
             self.booking_carpooling_repository.insert(user.id,
                                                       carpooling_id,
