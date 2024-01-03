@@ -31,8 +31,8 @@ class Worker(ABC):
     
     def __mock(self) -> None:
         self.user_repository = InMemoryUserRepository()
-        self.driver_profile_repository = InMemoryDriverProfileRepository()
-        self.passenger_profile_repository = InMemoryPassengerProfileRepository()
+        self.driver_profile_repository = InMemoryDriverProfileRepository(self.user_repository)
+        self.passenger_profile_repository = InMemoryPassengerProfileRepository(self.user_repository)
         self.user_admin_repository = InMemoryUserAdminRepository()
         self.user_banned_repository = InMemoryUserBannedRepository()
         self.token_repository = InMemoryTokenRepository(self.user_repository, self.driver_profile_repository, self.passenger_profile_repository)
