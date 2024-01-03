@@ -1,7 +1,7 @@
 from datetime import datetime
-from typing import List
+from typing import List, Tuple
 
-from database.interfaces import DriverProfileRepositoryInterface
+from database.interfaces import DriverProfileRepositoryInterface, UserRepositoryInterface
 from database.exceptions import (
     NotFound,
     UniqueViolation
@@ -13,7 +13,12 @@ from database.schemas import (
 
 
 class InMemoryDriverProfileRepository(DriverProfileRepositoryInterface):
-    def __init__(self):
+    user_repository: UserRepositoryInterface
+
+    def __init__(self,
+                 user_repository: UserRepositoryInterface):
+        self.user_repository = user_repository
+
         self.driver_profile_count = 0
         self.driver_profiles: List[DriverProfileTable] = []
 
@@ -31,15 +36,19 @@ class InMemoryDriverProfileRepository(DriverProfileRepositoryInterface):
         return in_memory_driver_profile
 
     def get_driver_by_user_id(self,
-                              user_id: int) -> DriverProfileTable:
+                              user_id: int) -> Tuple[DriverProfileTable, 
+                                                     bytes | None]:
         for driver in self.driver_profiles:
             if driver.user_id == user_id:
-                return driver
+                profile_picture: bytes | None = self.user_repository.get_user_by_id(driver.user_id).profile_picture
+                return driver, profile_picture
         raise NotFound("Driver not found")
 
     def get_driver(self,
-                   driver_id: int) -> DriverProfileTable:
+                   driver_id: int) -> Tuple[DriverProfileTable, 
+                                                     bytes | None]:
         for driver in self.driver_profiles:
             if driver.id == driver_id:
-                return driver
+                profile_picture: bytes | None = self.user_repository.get_user_by_id(driver.user_id).profile_picture
+                return driver, profile_picture
         raise NotFound("Driver not found")

@@ -1,7 +1,13 @@
+from typing import Tuple
+
 from psycopg2 import ProgrammingError, errorcodes
 from psycopg2.errors import lookup
 
-from database import PASSENGER_PROFILE_TABLE_NAME, establishing_connection
+from database import (
+    PASSENGER_PROFILE_TABLE_NAME,
+    USER_TABLE_NAME,
+    establishing_connection
+)
 from database.interfaces import PassengerProfileRepositoryInterface
 from database.exceptions import (
     InternalServer,
@@ -33,11 +39,14 @@ class PassengerProfileRepository(PassengerProfileRepositoryInterface):
         return PassengerProfileTable(*passenger_profile)
 
     def get_passenger(self,
-                      passenger_id: int) -> PassengerProfileTable:
+                      passenger_id: int) -> Tuple[PassengerProfileTable,
+                                                  bytes | None]:
         query = f"""
-            SELECT * 
-            FROM carmate.{PASSENGER_PROFILE_TABLE_NAME} 
-            WHERE id=%s
+            SELECT pp.*, u.profile_picture
+            FROM carmate.{PASSENGER_PROFILE_TABLE_NAME} pp
+            INNER JOIN carmate.{USER_TABLE_NAME} u
+                ON pp.user_id=u.id
+            WHERE pp.id=%s
         """
 
         passenger_data: tuple
@@ -53,13 +62,18 @@ class PassengerProfileRepository(PassengerProfileRepositoryInterface):
 
         if passenger_data is None:
             raise NotFound("passenger not found")
-        return PassengerProfileTable(*passenger_data)
+        return PassengerProfileTable(*passenger_data[:-1]), passenger_data[-1]
 
     def get_passenger_by_user_id(self,
-                                 user_id: int) -> PassengerProfileTable:
-        query = f"""SELECT * 
-                    FROM carmate.{PASSENGER_PROFILE_TABLE_NAME} 
-                    WHERE user_id=%s"""
+                                 user_id: int) -> Tuple[PassengerProfileTable,
+                                                        bytes | None]:
+        query = f"""
+            SELECT pp.*, u.profile_picture
+            FROM carmate.{PASSENGER_PROFILE_TABLE_NAME} pp
+            INNER JOIN carmate.{USER_TABLE_NAME} u
+                ON pp.user_id=u.id
+            WHERE pp.user_id=%s
+        """
 
         passenger_data: tuple
         with establishing_connection() as conn:
@@ -74,4 +88,4 @@ class PassengerProfileRepository(PassengerProfileRepositoryInterface):
 
         if passenger_data is None:
             raise NotFound("passenger not found")
-        return PassengerProfileTable(*passenger_data)
+        return PassengerProfileTable(*passenger_data[:-1]), passenger_data[-1]
