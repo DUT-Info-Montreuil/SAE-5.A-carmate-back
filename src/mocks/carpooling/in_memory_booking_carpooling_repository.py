@@ -11,7 +11,8 @@ class InMemoryBookingCarpoolingRepository(BookingCarpoolingRepositoryInterface):
             ReserveCarpoolingTable(1, 1, 123456),
             ReserveCarpoolingTable(2, 1, 123456),
             ReserveCarpoolingTable(3, 1, 123456),
-            ReserveCarpoolingTable(4, 1, 123456)
+            ReserveCarpoolingTable(4, 1, 123456),
+            ReserveCarpoolingTable(5, 20, 123456, passenger_code_validated=True)
         ]
 
     def insert(self,
@@ -25,5 +26,10 @@ class InMemoryBookingCarpoolingRepository(BookingCarpoolingRepositoryInterface):
         self.reserved_carpoolings.append(reservation)
         return reservation
 
-    def seats_taken(self, carpooling_id: int) -> int:
+    def seats_taken(self, 
+                    carpooling_id: int) -> int:
         return sum(1 for reservation in self.reserved_carpoolings if reservation.carpooling_id == carpooling_id)
+    
+    def done_from_user_id(self, 
+                          user_id: int) -> List[ReserveCarpoolingTable]:
+        return [reservation for reservation in self.reserved_carpoolings if reservation.user_id == user_id and reservation.passenger_code_validated]

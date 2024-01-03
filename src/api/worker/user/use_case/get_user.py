@@ -28,4 +28,4 @@ class GetUser(Worker):
                 raise InternalServerError(str(e))
         else:
             raise UserNotFound()
-        return UserDTO(user.first_name, user.last_name, user.email_address, user.created_at, user.profile_picture)
+        return UserDTO(user.id, user.first_name, user.last_name, user.email_address, user.created_at, user.profile_picture)
