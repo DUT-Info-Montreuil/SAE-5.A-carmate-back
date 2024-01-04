@@ -1,5 +1,6 @@
 from abc import ABC, abstractmethod
-from typing import Tuple
+from datetime import datetime
+from typing import Tuple, List
 
 from psycopg2 import ProgrammingError, errorcodes
 from psycopg2.errors import lookup
@@ -18,6 +19,9 @@ class BookingCarpoolingRepositoryInterface(ABC):
         
     def seats_taken(self,
                    carpooling_id: int) -> int: ...
+    
+    def done_from_user_id(self,
+                          user_id: int) -> List[ReserveCarpoolingTable]: ...
 
 
 class BookingCarpoolingRepository(BookingCarpoolingRepositoryInterface):
@@ -67,3 +71,22 @@ class BookingCarpoolingRepository(BookingCarpoolingRepositoryInterface):
         if carpooling_seats_taken is None:
             raise NotFound(f"no booking for {carpooling_id}")
         return carpooling_seats_taken[0]
+    
+    def done_from_user_id(self, 
+                          user_id: int) -> List[ReserveCarpoolingTable]:
+        query = f"""
+            SELECT *
+            FROM carmate.{self.POSTGRES_TABLE_NAME}
+            WHERE passenger_code_validated=true
+                AND user_id=%s
+        """
+
+        carpoolings_done: List[Tuple[int, int, int, bool, datetime, bool]] | None
+        with establishing_connection() as conn:
+            with conn.cursor() as curs:
+                try:
+                    curs.execute(query, (user_id,))
+                except Exception as e:
+                    raise InternalServer(str(e))
+                carpoolings_done = curs.fetchall()
+        return [ReserveCarpoolingTable(*carpooling_done) for carpooling_done in carpoolings_done]

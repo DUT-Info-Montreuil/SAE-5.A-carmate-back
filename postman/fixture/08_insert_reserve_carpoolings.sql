@@ -1,0 +1,4 @@
+INSERT INTO carmate.reserve_carpooling VALUES
+    (1, 1, 123456, DEFAULT, DEFAULT, DEFAULT),
+    (2, 1, 123456, DEFAULT, DEFAULT, DEFAULT),
+    (3, 1, 123456, true, DEFAULT, DEFAULT)

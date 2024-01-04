@@ -7,6 +7,7 @@ from typing import Optional
 
 @dataclass(frozen=True)
 class UserDTO:
+    id: int
     first_name: str
     last_name: str
     email_address: str
@@ -15,6 +16,7 @@ class UserDTO:
 
     def to_json(self):
         return {
+            "id": self.id,
             "first_name": self.first_name,
             "last_name": self.last_name,
             "email_address": self.email_address,
