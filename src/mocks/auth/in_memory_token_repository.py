@@ -5,14 +5,20 @@ from datetime import datetime, timedelta
 from typing import List
 
 from database.repositories import TokenRepositoryInterface
-from database.schemas import TokenTable, UserTable, DriverProfileTable
+from database.schemas import (
+    TokenTable,
+    UserTable,
+    DriverProfileTable,
+    PassengerProfileTable
+)
 from database.exceptions import *
 
 
 class InMemoryTokenRepository(TokenRepositoryInterface):
     def __init__(self, 
                  user_repository, 
-                 driver_repository):
+                 driver_repository,
+                 passenger_repository):
         self.tokens: List[TokenTable] = [
             TokenTable(sha512("token-user-valid".encode()).digest(), datetime.now() + timedelta(days=1), 0),
             TokenTable(sha512("token-admin-valid".encode()).digest(), datetime.now() + timedelta(days=1), 1),
@@ -20,6 +26,7 @@ class InMemoryTokenRepository(TokenRepositoryInterface):
         ]
         self.user_repository = user_repository
         self.driver_repository = driver_repository
+        self.passenger_repository = passenger_repository
 
     def insert(self,token: str, expiration: datetime, user: UserTable) -> TokenTable:
         in_memory_token = TokenTable(token, expiration, user.id)
@@ -57,14 +64,28 @@ class InMemoryTokenRepository(TokenRepositoryInterface):
         return found_user
 
     def get_driver_profile(self, token: bytes) -> DriverProfileTable:
+        found_token = next((db_token for db_token in self.tokens if secrets.compare_digest(token, db_token.token)), None)
+        if found_token is None:
+            raise NotFound("token not found")
+
+        found_user = next((user for user in self.user_repository.users if found_token.user == user.id), None)
+        if found_user is None:
+            raise Exception("the token is linked to no user, this shouldn't happen")
+
+        found_driver = next((driver for driver in self.driver_repository.driver_profiles if driver.user_id == found_user.id), None)
+        if found_driver is None:
+            raise NotFound("driver not found")
+
+        return found_driver
+
+    def get_passenger_profile(self, token: bytes) -> DriverProfileTable:
         found_token: TokenTable | None = None
         found_user: UserTable | None = None
-        found_driver: DriverProfileTable | None = None
+        found_passenger: PassengerProfileTable | None = None
 
         for db_token in self.tokens:
             if secrets.compare_digest(token, db_token.token):
                 found_token = db_token
-                break
 
         if found_token is None:
             raise NotFound("token not found")
@@ -72,17 +93,14 @@ class InMemoryTokenRepository(TokenRepositoryInterface):
         for user in self.user_repository.users:
             if found_token.user == user.id:
                 found_user = user
-                break
 
         if found_user is None:
             raise Exception("the token is linked to no user, this shouldn't happen")
 
-        for driver in self.driver_repository.driver_profiles:
-            if driver.user_id == found_user.id:
-                found_driver = driver
-                break
+        for passenger in self.passenger_repository.passenger_profiles:
+            if passenger.user_id == found_user.id:
+                found_passenger = passenger
 
-        if found_driver is None:
-            raise NotFound("driver not found")
-
-        return found_driver
+        if found_passenger is None:
+            raise NotFound("passenger not found")
+        return found_passenger

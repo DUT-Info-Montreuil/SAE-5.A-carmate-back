@@ -35,10 +35,11 @@ class Worker(ABC):
         self.passenger_profile_repository = InMemoryPassengerProfileRepository()
         self.user_admin_repository = InMemoryUserAdminRepository()
         self.user_banned_repository = InMemoryUserBannedRepository()
-        self.token_repository = InMemoryTokenRepository(self.user_repository, self.driver_profile_repository)
+        self.token_repository = InMemoryTokenRepository(self.user_repository, self.driver_profile_repository, self.passenger_profile_repository)
         self.license_repository = InMemoryLicenseRepository(self.user_repository)
-        self.carpooling_repository = InMemoryCarpoolingRepository()
         self.booking_carpooling_repository = InMemoryBookingCarpoolingRepository()
+        self.carpooling_repository = InMemoryCarpoolingRepository(self.booking_carpooling_repository)
+        self.review_repository = InMemoryReviewRepository()
 
     def __postgres(self) -> None:
         self.user_repository = UserRepository()
@@ -50,6 +51,7 @@ class Worker(ABC):
         self.license_repository = LicenseRepository()
         self.carpooling_repository = CarpoolingRepository()
         self.booking_carpooling_repository = BookingCarpoolingRepository()
+        self.review_repository = ReviewRepository()
 
     @abstractmethod
     def worker(self):

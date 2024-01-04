@@ -75,3 +75,15 @@ class CarpoolingTable(DatabaseTable):
     is_canceled: bool
     departure_date_time: datetime
     driver_id: int
+
+
+@dataclass
+class ReviewTable:
+    user_id: int
+    driver_id: int
+    economic_driving_rating: float
+    safe_driving_rating: float
+    sociability_rating: float
+    review: str
+    rating_date: datetime
+    updated_rating_date: datetime
