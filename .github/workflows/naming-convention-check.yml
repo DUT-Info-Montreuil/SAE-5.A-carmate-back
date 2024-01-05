@@ -1,0 +1,145 @@
+name: Naming Convention Check
+
+on:
+  push:
+    branches:
+      - '*'
+  pull_request:
+    branches:
+      - '*'
+
+jobs:
+  check-names:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v2
+
+    - name: Check names in src/database/repositories
+      run: |
+        #!/bin/bash
+    
+        files_repository=$(find src/database/repositories -type f)
+        for file in $files_repository; do
+          if [[ ! "$file" =~ _repository\.py$ ]] && [[ ! "$file" =~ __init__\.py$ ]]; then
+            echo "File '$file' does not match the pattern '*_repository.py'. Please correct."
+            exit 1
+          fi
+        done
+        exit 0
+
+    - name: Check class names in src/database/repositories
+      run: |
+        #!/bin/bash
+
+        python_files=$(find src/database/repositories -name "*.py")
+        for file in $python_files; do
+          # Ignorer les fichiers __init__.py
+          if [[ "$file" == *"__init__.py" ]]; then
+            continue
+          fi
+        
+          # Utilise grep pour rechercher les noms de classe se terminant par "Repository"
+          classes_repository=$(grep -oP "class\s+\K\w+" "$file" | grep "Repository$")
+        
+          if [ -z "$classes_repository" ]; then
+            echo "Le fichier $file contient des classes sans le suffixe Repository."
+          fi
+        done
+        exit 0
+      
+    - name: Check names in src/database/interfaces
+      run: |
+        #!/bin/bash
+        
+        files_interfaces=$(find src/database/interfaces -type f)
+        for file in $files_interfaces; do
+          if [[ ! "$file" =~ _interface\.py$ ]] && [[ ! "$file" =~ __init__\.py$ ]]; then
+            echo "File '$file' does not match the pattern '*_interface.py'. Please correct."
+            exit 1
+          fi
+        done
+        exit 0
+
+    - name: Check class names in src/database/interfaces
+      run: |
+        #!/bin/bash
+
+        python_files=$(find src/database/interfaces -name "*.py")
+        for file in $python_files; do
+          # Ignorer les fichiers __init__.py
+          if [[ "$file" == *"__init__.py" ]]; then
+            continue
+          fi
+        
+          # Utilise grep pour rechercher les noms de classe se terminant par "Repository"
+          classes_repository=$(grep -oP "class\s+\K\w+" "$file" | grep "Interface$")
+        
+          if [ -z "$classes_repository" ]; then
+            echo "Le fichier $file contient des classes sans le suffixe Repository."
+          fi
+        done
+        exit 0
+      
+    - name: Check directories in worker/
+      run: |
+        #!/bin/bash
+
+        for dir in worker/*/; do
+          if [ -d "$dir" ]; then
+            if [ ! -d "${dir}use_case" ] || [ ! -d "${dir}models" ] || [ ! -f "${dir}__init__.py" ]; then
+              echo "Subdirectory '$dir' does not contain 'use_case' and 'models' folders with an '__init__.py' file. Please correct."
+              exit 1
+            fi
+          fi
+        done
+        exit 0
+
+    - name: Check files in controller/
+      run: |
+        #!/bash
+
+        for dir in controller/*/; do
+          if [ -d "$dir" ]; then
+            if [ ! -f "${dir}__init__.py" ]; then
+              echo "Subdirectory '$dir' does not contain an '__init__.py' file. Please correct."
+              exit 1
+            fi
+          fi
+        done
+        exit 0
+
+    - name: Check files in test/
+      run: |
+        #!/bin/bash
+
+        for file in test/**/test_*.py; do
+          if [[ "$file" =~ /res/ ]]; then
+            continue
+          fi
+
+          if [ ! -f "$file" ]; then
+            echo "File '$file' does not exist. Please correct."
+            exit 1
+          fi
+
+          if [[ ! "$(basename "$file")" =~ ^test_.*\.py$ ]]; then
+            echo "File '$file' does not follow the convention for test files. Please correct."
+            exit 1
+          fi
+        done
+
+        for dir in test/*/; do
+          if [[ "$dir" =~ /res/ ]]; then
+            continue
+          fi
+
+          if [ -d "$dir" ]; then
+            if [ ! -f "${dir}__init__.py" ]; then
+              echo "Subdirectory '$dir' in test/ does not contain an '__init__.py' file. Please correct."
+              exit 1
+            fi
+          fi
+        done
+        exit 0
