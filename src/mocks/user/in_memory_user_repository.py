@@ -15,7 +15,11 @@ class InMemoryUserRepository(UserRepositoryInterface):
             UserTable(0, "John", "Doe", "user@example.com", sha512("password".encode()).digest(), AccountStatus.Student.name, None),
             UserTable(1, "Hugo", "McCain", "admin@example.com", sha512("password".encode()).digest(), AccountStatus.Student.name, None),
             UserTable(2, "Ayman", "Mohamed", "bannie@example.com", sha512("password".encode()).digest(), AccountStatus.Student.name, None),
-            UserTable(2, "Jane", "Doe", "driver@example.com", sha512("driver_password".encode('utf-8')).digest(), AccountStatus.Teacher.name, None)
+            UserTable(3, "Jane", "Doe", "driver@example.com", sha512("driver_password".encode('utf-8')).digest(), AccountStatus.Teacher.name, None),
+            UserTable(4, "No", "Passenger", "no-passenger-profile@example.com", sha512("no_passenger_password".encode('utf-8')).digest(), AccountStatus.Student.name, None),
+            UserTable(5, "Drunk", "Driver", "drunk-driver@example.com", sha512("drunk_driver_password".encode('utf-8')).digest(), AccountStatus.Teacher.name, None),
+            UserTable(6, "Suck", "Driver", "suck-driver@example.com", sha512("suck_driver_password".encode('utf-8')).digest(), AccountStatus.Student.name, None)
+
         ]
         self.users_counter: int = len(self.users)-1
 

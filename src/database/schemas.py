@@ -90,7 +90,7 @@ class CarpoolingTable(DatabaseTable):
 
 @dataclass
 class ReviewTable:
-    user_id: int
+    passenger_id: int
     driver_id: int
     economic_driving_rating: float
     safe_driving_rating: float
