@@ -16,6 +16,7 @@ class Worker(ABC):
     license_repository: LicenseRepositoryInterface
     carpooling_repository: CarpoolingRepositoryInterface
     booking_carpooling_repository: BookingCarpoolingRepositoryInterface
+    review_repository: ReviewRepositoryInterface
 
     def __init__(self):
         match os.getenv("API_MODE"):
@@ -39,7 +40,7 @@ class Worker(ABC):
         self.license_repository = InMemoryLicenseRepository(self.user_repository)
         self.booking_carpooling_repository = InMemoryBookingCarpoolingRepository()
         self.carpooling_repository = InMemoryCarpoolingRepository(self.booking_carpooling_repository)
-        self.review_repository = InMemoryReviewRepository()
+        self.review_repository = InMemoryReviewRepository(self.passenger_profile_repository, self.user_repository)
 
     def __postgres(self) -> None:
         self.user_repository = UserRepository()

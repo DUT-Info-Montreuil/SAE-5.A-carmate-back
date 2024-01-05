@@ -9,6 +9,7 @@ from api.worker.user.use_case import (
     CreatePassengerProfile,
     GetPassengerProfile
 )
+from database.schemas import PassengerProfileTable
 
 
 class PassengerProfileTestCase(unittest.TestCase):
@@ -20,15 +21,18 @@ class PassengerProfileTestCase(unittest.TestCase):
 
     def test_create_passenger_profile(self):
         try:
-            passenger_profile_created = self.create_passenger_profile.worker("token-user-valid")
+            passenger_profile_created = self.create_passenger_profile.worker("token-user-no-passenger-valid")
             self.assertIsNotNone(passenger_profile_created)
         except Exception as e:
             self.fail(e)
+
+        del self.create_passenger_profile
+        del self.get_passenger_profile
     
     def test_create_duplicate_passenger_profile(self):
         with self.assertRaises(ProfileAlreadyExist):
-            self.create_passenger_profile.worker("token-user-valid")
-            self.create_passenger_profile.worker("token-user-valid")
+            self.create_passenger_profile.worker("token-user-no-passenger-valid")
+            self.create_passenger_profile.worker("token-user-no-passenger-valid")
 
     def test_create_passenger_profile_with_invalid_token(self):
         with self.assertRaises(UserNotFound):
@@ -36,15 +40,15 @@ class PassengerProfileTestCase(unittest.TestCase):
 
     def test_get_passenger_profile_with_passenger_id(self):
         try:
-            passenger_profile_created = self.create_passenger_profile.worker("token-user-valid")
+            passenger_profile_created = self.create_passenger_profile.worker("token-user-no-passenger-valid")
             self.get_passenger_profile.worker(passenger_id=passenger_profile_created)
         except Exception as e:
             self.fail(e)
 
     def test_get_passenger_profile_with_token(self):
         try:
-            self.create_passenger_profile.worker("token-user-valid")
-            self.get_passenger_profile.worker(token="token-user-valid")
+            self.create_passenger_profile.worker("token-user-no-passenger-valid")
+            self.get_passenger_profile.worker(token="token-user-no-passenger-valid")
         except Exception as e:
             self.fail(e)
 

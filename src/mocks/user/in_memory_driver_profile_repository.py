@@ -14,8 +14,13 @@ from database.schemas import (
 
 class InMemoryDriverProfileRepository(DriverProfileRepositoryInterface):
     def __init__(self):
-        self.driver_profile_count = 0
-        self.driver_profiles: List[DriverProfileTable] = []
+        self.driver_profiles: List[DriverProfileTable] = [
+            DriverProfileTable(0, 'Test of driver profile 1', datetime.now(), 4),
+            DriverProfileTable(1, 'Test of driver profile 1', datetime.now(), 5),
+            DriverProfileTable(2, 'Test of driver profile 1', datetime.now(), 6),
+
+        ]
+        self.driver_profile_count = len(self.driver_profiles)
 
     def insert(self,
                user: UserTable) -> DriverProfileTable:
