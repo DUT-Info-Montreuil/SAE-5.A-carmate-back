@@ -39,6 +39,7 @@ class Worker(ABC):
         self.license_repository = InMemoryLicenseRepository(self.user_repository)
         self.booking_carpooling_repository = InMemoryBookingCarpoolingRepository()
         self.carpooling_repository = InMemoryCarpoolingRepository(self.booking_carpooling_repository)
+        self.booking_carpooling_repository.carpooling_repository = self.carpooling_repository
         self.review_repository = InMemoryReviewRepository()
 
     def __postgres(self) -> None:

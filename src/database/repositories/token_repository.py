@@ -10,7 +10,8 @@ from database.exceptions import *
 from database.repositories import (
     UserRepository,
     DriverProfileRepository,
-    PassengerProfileRepository
+    PassengerProfileRepository, token_table_name, user_table_name, driver_profile_table_name,
+    passenger_profile_table_name
 )
 from database.schemas import (
     UserTable,
@@ -35,18 +36,16 @@ class TokenRepositoryInterface(ABC):
     def get_driver_profile(self,
                            token: bytes) -> DriverProfileTable: ...
     def get_passenger_profile(self,
-                              token: bytes) -> DriverProfileTable: ...
+                              token: bytes) -> PassengerProfileTable: ...
 
 
 class TokenRepository(TokenRepositoryInterface):
-    POSTGRES_TABLE_NAME: str = "token"
-
     def insert(self,
                token: str,
                expiration: datetime,
                user: UserTable) -> TokenTable:
         query = f"""
-            INSERT INTO carmate.{self.POSTGRES_TABLE_NAME}
+            INSERT INTO carmate.{token_table_name}
             VALUES (%s, %s, %s)
         """
 
@@ -64,7 +63,7 @@ class TokenRepository(TokenRepositoryInterface):
                        token_hashed: bytes) -> datetime:
         query = f"""
             SELECT expire_at 
-            FROM carmate.{self.POSTGRES_TABLE_NAME}
+            FROM carmate.{token_table_name}
             WHERE token=%s
             LIMIT 1
         """
@@ -88,8 +87,8 @@ class TokenRepository(TokenRepositoryInterface):
                  token: bytes) -> UserTable:
         query = f"""
             SELECT usr.id, usr.first_name, usr.last_name, usr.email_address, NULL, usr.account_status, usr.created_at, usr.profile_picture
-            FROM carmate."{UserRepository.POSTGRES_TABLE_NAME}" usr
-            INNER JOIN carmate.{self.POSTGRES_TABLE_NAME} tkn 
+            FROM carmate."{user_table_name}" usr
+            INNER JOIN carmate.{token_table_name} tkn 
                 ON usr.id = tkn.user_id 
             WHERE tkn.token=%s
         """
@@ -112,10 +111,10 @@ class TokenRepository(TokenRepositoryInterface):
                            token: bytes) -> DriverProfileTable:
         query = f"""
             SELECT driver.*
-            FROM carmate.{self.POSTGRES_TABLE_NAME} AS tkn
-            INNER JOIN carmate.{UserRepository.POSTGRES_TABLE_NAME} AS usr 
+            FROM carmate.{token_table_name} AS tkn
+            INNER JOIN carmate.{user_table_name} AS usr 
                 ON tkn.user_id = usr.id
-            Inner JOIN carmate.{DriverProfileRepository.POSTGRES_TABLE_NAME} AS driver 
+            Inner JOIN carmate.{driver_profile_table_name} AS driver 
                 ON usr.id = driver.user_id
             WHERE tkn.token=%s
         """
@@ -129,15 +128,17 @@ class TokenRepository(TokenRepositoryInterface):
                 except Exception as e:
                     raise InternalServer(str(e))
                 driver_profile = curs.fetchone()
+                if driver_profile is None:
+                    raise NotFound("driver not found")
         return DriverProfileTable(*driver_profile)
 
     def get_passenger_profile(self, token: bytes) -> DriverProfileTable:
         query = f"""
             SELECT passenger.*
-            FROM carmate.{self.POSTGRES_TABLE_NAME} tkn
-            INNER JOIN carmate.{UserRepository.POSTGRES_TABLE_NAME} usr 
+            FROM carmate.{token_table_name} tkn
+            INNER JOIN carmate.{user_table_name} usr 
                 ON tkn.user_id=usr.id
-            INNER JOIN carmate.{PassengerProfileRepository.POSTGRES_TABLE_NAME} passenger 
+            INNER JOIN carmate.{passenger_profile_table_name} passenger 
                 ON usr.id=passenger.user_id
             WHERE tkn.token=%s
         """

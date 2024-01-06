@@ -5,6 +5,7 @@ from psycopg2.errors import lookup
 
 from database import establishing_connection
 from database.exceptions import InternalServer, NotFound, UniqueViolation
+from database.repositories import passenger_profile_table_name
 from database.schemas import PassengerProfileTable, UserTable
 
 
@@ -20,12 +21,10 @@ class PassengerProfileRepositoryInterface(ABC):
 
 
 class PassengerProfileRepository(PassengerProfileRepositoryInterface):
-    POSTGRES_TABLE_NAME: str = "passengers_profile"
-
     def insert(self,
                user: UserTable) -> PassengerProfileTable:
         query = f"""
-            INSERT INTO carmate.{PassengerProfileRepository.POSTGRES_TABLE_NAME}(user_id)
+            INSERT INTO carmate.{passenger_profile_table_name}(user_id)
             VALUES (%s)
             RETURNING id, "description", created_at, user_id
         """
@@ -46,7 +45,7 @@ class PassengerProfileRepository(PassengerProfileRepositoryInterface):
                       passenger_id: int) -> PassengerProfileTable:
         query = f"""
             SELECT * 
-            FROM carmate.{PassengerProfileRepository.POSTGRES_TABLE_NAME} 
+            FROM carmate.{passenger_profile_table_name} 
             WHERE id=%s
         """
 
@@ -68,7 +67,7 @@ class PassengerProfileRepository(PassengerProfileRepositoryInterface):
     def get_passenger_by_user_id(self,
                                  user_id: int) -> PassengerProfileTable:
         query = f"""SELECT * 
-                    FROM carmate.{PassengerProfileRepository.POSTGRES_TABLE_NAME} 
+                    FROM carmate.{passenger_profile_table_name} 
                     WHERE user_id=%s"""
 
         passenger_data: tuple
