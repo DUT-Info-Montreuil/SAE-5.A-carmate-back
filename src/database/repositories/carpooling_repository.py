@@ -5,10 +5,10 @@ from psycopg2 import ProgrammingError, errorcodes
 from psycopg2.errors import lookup
 
 from api.worker.carpooling.models import CarpoolingForRecap
+from api.worker.user.models.future_events_dto import FutureCarpoolingDTO
 from database import establishing_connection
 from database.schemas import CarpoolingTable
-from database.repositories.booking_carpooling_repository import BookingCarpoolingRepository, \
-    BookingCarpoolingRepositoryInterface
+from database.repositories import BookingCarpoolingRepository
 from database.exceptions import (
     InternalServer,
     CheckViolation,
@@ -38,6 +38,9 @@ class CarpoolingRepositoryInterface(ABC):
                     carpooling_id: int) -> CarpoolingTable: ...
 
     def get_last_carpooling_between(self, driver_id: int, user_id: int) -> CarpoolingTable: ...
+
+    def get_future_carpoolings_by_driver_id(self,
+                                            driver_id: int) -> List[FutureCarpoolingDTO]: ...
 
 
 class CarpoolingRepository(CarpoolingRepositoryInterface):
@@ -183,3 +186,23 @@ class CarpoolingRepository(CarpoolingRepositoryInterface):
         if carpooling is None:
             raise NotFound("There are no carpooling existing between these two users")
         return CarpoolingTable(*carpooling)
+
+    def get_future_carpoolings_by_driver_id(self,
+                                            driver_id: int) -> List[FutureCarpoolingDTO]:
+        query = f"""
+            SELECT c.id, c.departure_date_time, c.destination, c.starting_point, c.max_passengers, COUNT(r.user_id) as seats_taken
+            FROM carmate.{self.POSTGRES_TABLE_NAME} c
+            INNER JOIN carmate.{BookingCarpoolingRepository.POSTGRES_TABLE_NAME} r ON c.id = r.carpooling_id
+            GROUP BY c.id
+            HAVING c.driver_id=%s AND c.is_canceled='f' AND c.departure_date_time > NOW() AND r.canceled='f'
+        """
+        future_carpoolings: List[Tuple]
+        with establishing_connection() as conn:
+            with conn.cursor() as curs:
+                try:
+                    curs.execute(query, (driver_id,))
+                except Exception as e:
+                    raise InternalServer(str(e))
+                future_carpoolings = curs.fetchall()
+
+        return [FutureCarpoolingDTO(*future_carpooling) for future_carpooling in future_carpoolings]
