@@ -1,4 +1,3 @@
-from abc import ABC
 from datetime import datetime
 
 from psycopg2 import ProgrammingError, errorcodes
@@ -12,6 +11,7 @@ from database import (
     PASSENGER_PROFILE_TABLE_NAME,
     establishing_connection
 )
+from database.interfaces import TokenRepositoryInterface
 from database.exceptions import *
 from database.schemas import (
     UserTable,
@@ -19,24 +19,6 @@ from database.schemas import (
     DriverProfileTable,
     PassengerProfileTable
 )
-
-
-class TokenRepositoryInterface(ABC):
-    def insert(self,
-            token: str, 
-            expiration: datetime, 
-            user: UserTable) -> TokenTable: ...
-
-    def get_expiration(self,
-                       token_hashed: bytes) -> datetime: ...
-
-    def get_user(self,
-                 token: bytes) -> UserTable: ...
-    
-    def get_driver_profile(self,
-                           token: bytes) -> DriverProfileTable: ...
-    def get_passenger_profile(self,
-                              token: bytes) -> DriverProfileTable: ...
 
 
 class TokenRepository(TokenRepositoryInterface):

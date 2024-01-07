@@ -4,7 +4,7 @@ import random
 from datetime import datetime, timedelta
 from typing import List, Tuple
 
-from database.repositories import CarpoolingRepositoryInterface
+from database.interfaces import CarpoolingRepositoryInterface
 from database.schemas import CarpoolingTable, ReserveCarpoolingTable
 from database.exceptions import CheckViolation, NotFound
 

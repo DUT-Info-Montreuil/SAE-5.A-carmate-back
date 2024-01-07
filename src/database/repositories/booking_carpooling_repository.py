@@ -1,4 +1,3 @@
-from abc import ABC, abstractmethod
 from typing import Tuple
 
 from psycopg2 import ProgrammingError, errorcodes
@@ -6,18 +5,8 @@ from psycopg2.errors import lookup
 
 from database import BOOKING_CARPOOLING_TABLE_NAME, establishing_connection
 from database.schemas import ReserveCarpoolingTable
+from database.interfaces import BookingCarpoolingRepositoryInterface
 from database.exceptions import InternalServer, NotFound, UniqueViolation
-
-
-class BookingCarpoolingRepositoryInterface(ABC):
-    @abstractmethod
-    def insert(self,
-               user_id: int,
-               carpooling_id: int,
-               passenger_code: int) -> ReserveCarpoolingTable: ...
-        
-    def seats_taken(self,
-                   carpooling_id: int) -> int: ...
 
 
 class BookingCarpoolingRepository(BookingCarpoolingRepositoryInterface):

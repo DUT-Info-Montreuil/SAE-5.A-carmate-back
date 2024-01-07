@@ -1,14 +1,8 @@
-from abc import ABC
-
 from psycopg2 import ProgrammingError
 
 from database import USER_ADMIN_TABLE_NAME, establishing_connection
+from database.interfaces import UserAdminRepositoryInterface
 from database.exceptions import InternalServer, NotFound
-
-
-class UserAdminRepositoryInterface(ABC):
-    def is_admin(self,
-                user_id: int) -> bool: ...
 
 
 class UserAdminRepository(UserAdminRepositoryInterface):

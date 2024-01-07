@@ -1,22 +1,10 @@
-from abc import ABC
-
 from psycopg2 import ProgrammingError, errorcodes
 from psycopg2.errors import lookup
 
 from database import PASSENGER_PROFILE_TABLE_NAME, establishing_connection
 from database.exceptions import InternalServer, NotFound, UniqueViolation
 from database.schemas import PassengerProfileTable, UserTable
-
-
-class PassengerProfileRepositoryInterface(ABC):
-    def insert(self,
-               user: UserTable) -> PassengerProfileTable: ...
-
-    def get_passenger_by_user_id(self,
-                                 user_id: int) -> PassengerProfileTable: ...
-
-    def get_passenger(self,
-                      passenger_id: int) -> PassengerProfileTable: ...
+from database.interfaces import PassengerProfileRepositoryInterface
 
 
 class PassengerProfileRepository(PassengerProfileRepositoryInterface):
