@@ -1,5 +1,3 @@
-from abc import ABC
-
 from psycopg2 import ProgrammingError, errorcodes
 from psycopg2.errors import lookup
 
@@ -7,20 +5,9 @@ from api import hash
 from api.worker.auth.models import CredentialDTO
 from api.worker.user import AccountStatus
 from database import USER_TABLE_NAME, establishing_connection
+from database.interfaces import UserRepositoryInterface
 from database.exceptions import InternalServer, UniqueViolation, NotFound
 from database.schemas import UserTable
-
-
-class UserRepositoryInterface(ABC):
-    def insert(self,
-               credential: CredentialDTO,
-               account_status: AccountStatus) -> UserTable: ...
-
-    def get_user_by_email(self,
-                          email: str) -> UserTable: ...
-
-    def get_user_by_id(self,
-                       id: int) -> UserTable: ...
 
 
 class UserRepository(UserRepositoryInterface):

@@ -1,7 +1,7 @@
 from datetime import datetime
 from typing import List
 
-from database.repositories import ReviewRepositoryInterface
+from database.interfaces import ReviewRepositoryInterface
 from database.schemas import ReviewTable
 from database.exceptions import UniqueViolation
 

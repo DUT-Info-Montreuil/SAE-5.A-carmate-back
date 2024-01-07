@@ -1,4 +1,3 @@
-from abc import ABC
 from typing import List
 
 from psycopg2 import ProgrammingError
@@ -6,11 +5,6 @@ from psycopg2 import ProgrammingError
 from database import USER_BANNED_TABLE_NAME, establishing_connection
 from database.interfaces import UserBannedRepositoryInterface
 from database.exceptions import InternalServer, NotFound
-
-
-class UserBannedRepositoryInterface(ABC):
-    def is_banned(self,
-                  user_id: int): ...
 
 
 class UserBannedRepository(UserBannedRepositoryInterface):

@@ -1,6 +1,6 @@
 from typing import List
 
-from database.repositories import BookingCarpoolingRepositoryInterface
+from database.interfaces import BookingCarpoolingRepositoryInterface
 from database.schemas import ReserveCarpoolingTable
 from database.exceptions import UniqueViolation
 
