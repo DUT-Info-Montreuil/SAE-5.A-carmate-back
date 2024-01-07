@@ -1,0 +1,82 @@
+name: Naming Convention Check
+
+on:
+  push:
+    branches:
+      - '*'
+  pull_request:
+    branches:
+      - '*'
+
+jobs:
+  check-names:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v2
+
+    - name: Check names in src/database/repositories
+      run: |
+        #!/bin/bash
+
+        files_repository=$(find src/database/repositories -type f)
+        for file in $files_repository; do
+          if [[ ! "$file" =~ _repository\.py$ ]]; then
+            echo "File '$file' does not match the pattern '*_repository.py'. Please correct."
+            exit 1
+          fi
+        done
+        exit 0
+
+    - name: Check directories in worker/
+      run: |
+        #!/bin/bash
+
+        for dir in worker/*/; do
+          if [ -d "$dir" ]; then
+            # Check for the presence of use_case, models, and __init__.py in each subdirectory
+            if [ ! -d "${dir}use_case" ] || [ ! -d "${dir}models" ] || [ ! -f "${dir}__init__.py" ]; then
+              echo "Subdirectory '$dir' does not contain 'use_case' and 'models' folders with an '__init__.py' file. Please correct."
+              exit 1
+            fi
+          fi
+        done
+        exit 0
+
+    - name: Check files in controller/
+      run: |
+        #!/bash
+
+        for dir in controller/*/; do
+          if [ -d "$dir" ]; then
+            # Check for the presence of __init__.py in each subdirectory
+            if [ ! -f "${dir}__init__.py" ]; then
+              echo "Subdirectory '$dir' does not contain an '__init__.py' file. Please correct."
+              exit 1
+            fi
+          fi
+        done
+        exit 0
+
+    - name: Check files in test/
+      run: |
+        #!/bin/bash
+
+        for file in test/**/test_*.py; do
+          if [ ! -f "$file" ]; then
+            echo "File '$file' does not follow the convention for test files. Please correct."
+            exit 1
+          fi
+        done
+
+        for dir in test/*/; do
+          if [ -d "$dir" ]; then
+            # Check for the presence of __init__.py in each subdirectory
+            if [ ! -f "${dir}__init__.py" ]; then
+              echo "Subdirectory '$dir' in test/ does not contain an '__init__.py' file. Please correct."
+              exit 1
+            fi
+          fi
+        done
+        exit 0
