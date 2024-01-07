@@ -102,3 +102,8 @@ class CarpoolingReviewTimeExpired(Exception):
                  message="The user can't review this carpooling, more than a week has passed since the trip was made"):
         self.message = message
         super().__init__(self.message)
+
+
+class ScheduledCarpoolingCannotBeCreated(Exception):
+    def __init__(self, message="scheduled carpooling cannot be crated due to conflicts"):
+        super().__init__(message)

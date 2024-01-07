@@ -1,6 +1,17 @@
 from dataclasses import dataclass
 from datetime import datetime
 from typing import List, Optional
+from enum import Enum
+
+
+class Weekday(Enum):
+    Monday = 1
+    Tuesday = 2
+    Wednesday = 3
+    Thursday = 4
+    Friday = 5
+    Saturday = 6
+    Sunday = 7
 
 
 class DatabaseTable:
@@ -87,3 +98,16 @@ class ReviewTable:
     review: str
     rating_date: datetime
     updated_rating_date: datetime
+
+
+@dataclass
+class PassengerScheduledCarpoolingTable(DatabaseTable):
+    id: int
+    label: str
+    starting_point: List[float]
+    destination: List[float]
+    start_date: datetime.date
+    end_date: datetime.date
+    start_hour: datetime.time
+    days: List[Weekday]
+    passenger_id: int

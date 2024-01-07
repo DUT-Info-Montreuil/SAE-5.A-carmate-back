@@ -78,7 +78,7 @@ class InMemoryTokenRepository(TokenRepositoryInterface):
 
         return found_driver
 
-    def get_passenger_profile(self, token: bytes) -> DriverProfileTable:
+    def get_passenger_profile(self, token: bytes) -> PassengerProfileTable:
         found_token: TokenTable | None = None
         found_user: UserTable | None = None
         found_passenger: PassengerProfileTable | None = None
