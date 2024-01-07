@@ -22,7 +22,8 @@ class InMemoryTokenRepository(TokenRepositoryInterface):
         self.tokens: List[TokenTable] = [
             TokenTable(sha512("token-user-valid".encode()).digest(), datetime.now() + timedelta(days=1), 0),
             TokenTable(sha512("token-admin-valid".encode()).digest(), datetime.now() + timedelta(days=1), 1),
-            TokenTable(sha512("token-user-invalid".encode()).digest(), datetime.now() - timedelta(days=15), 2)
+            TokenTable(sha512("token-user-invalid".encode()).digest(), datetime.now() - timedelta(days=15), 2),
+            TokenTable(sha512("token-user-no-passenger-valid".encode()).digest(), datetime.now() + timedelta(days=1), 4),
         ]
         self.user_repository = user_repository
         self.driver_repository = driver_repository

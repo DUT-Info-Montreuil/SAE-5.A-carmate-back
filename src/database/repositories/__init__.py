@@ -7,4 +7,4 @@ from .carpooling_repository import *
 from .booking_carpooling_repository import *
 from .user_admin_repository import *
 from .user_banned_repository import *
-from .review_reposiotry import *
+from .review_repository import *
