@@ -9,7 +9,7 @@ from database.exceptions import NotFound
 class FutureEventsRoutes(Blueprint):
     def __init__(self):
         super().__init__("future_events", __name__,
-                         url_prefix="/future_events")
+                         url_prefix="/future-events")
 
         self.route("/",
                    methods=["GET"])(self.get_future_events_api)

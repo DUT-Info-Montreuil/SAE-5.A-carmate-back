@@ -27,8 +27,8 @@ class FutureReservationDTO:
 class FutureCarpoolingDTO:
     carpooling_id: int
     departure_date_time: datetime
-    destination: str
-    starting_point: str
+    destination: List[float]
+    starting_point: List[float]
     max_passengers: int
     seats_taken: int
 

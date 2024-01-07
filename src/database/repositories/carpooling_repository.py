@@ -7,8 +7,8 @@ from psycopg2.errors import lookup
 from api.worker.carpooling.models import CarpoolingForRecap
 from api.worker.user.models.future_events_dto import FutureCarpoolingDTO
 from database import establishing_connection
+from database.repositories import carpooling_table_name, booking_carpooling_table_name
 from database.schemas import CarpoolingTable
-from database.repositories import BookingCarpoolingRepository
 from database.exceptions import (
     InternalServer,
     CheckViolation,
@@ -44,7 +44,6 @@ class CarpoolingRepositoryInterface(ABC):
 
 
 class CarpoolingRepository(CarpoolingRepositoryInterface):
-    POSTGRES_TABLE_NAME: str = "carpooling"
     RADIUS: float = .07
 
     def insert(self,
@@ -55,7 +54,7 @@ class CarpoolingRepository(CarpoolingRepositoryInterface):
                price: float,
                departure_date_time: int) -> int:
         query = f"""
-            INSERT INTO carmate.{self.POSTGRES_TABLE_NAME}
+            INSERT INTO carmate.{carpooling_table_name}
             VALUES (DEFAULT, %s, %s, %s, %s, DEFAULT, to_timestamp(%s), %s)
             RETURNING id
         """
@@ -84,7 +83,7 @@ class CarpoolingRepository(CarpoolingRepositoryInterface):
                               per_page: int = 10) -> Tuple[int, List[CarpoolingForRecap]] | Tuple[int, List]:
         query_nb_carpoolings_route = f"""
             SELECT count(id) as nb_carpoolings_route
-            FROM carmate.{self.POSTGRES_TABLE_NAME}
+            FROM carmate.{carpooling_table_name}
             WHERE ABS(starting_point[1] - %s) < {self.RADIUS} 
                 AND ABS(starting_point[2] - %s) < {self.RADIUS} 
                 AND ABS(destination[1] - %s) < {self.RADIUS}
@@ -93,8 +92,8 @@ class CarpoolingRepository(CarpoolingRepositoryInterface):
         """
         query = f"""
             SELECT c.id, c.starting_point, c.destination, c.max_passengers, c.price, c.departure_date_time, c.driver_id
-            FROM carmate.{self.POSTGRES_TABLE_NAME} c 
-            LEFT JOIN carmate.{BookingCarpoolingRepository.POSTGRES_TABLE_NAME} r 
+            FROM carmate.{carpooling_table_name} c 
+            LEFT JOIN carmate.{booking_carpooling_table_name} r 
                 ON c.id=r.carpooling_id
             GROUP BY c.id
             HAVING ABS(starting_point[1] - %s) < {self.RADIUS} 
@@ -138,7 +137,7 @@ class CarpoolingRepository(CarpoolingRepositoryInterface):
                     carpooling_id: int) -> CarpoolingTable:
         query = f"""
             SELECT *
-            FROM carmate.{self.POSTGRES_TABLE_NAME}
+            FROM carmate.{carpooling_table_name}
             WHERE id=%s
         """
 
@@ -160,8 +159,8 @@ class CarpoolingRepository(CarpoolingRepositoryInterface):
     def get_last_carpooling_between(self, driver_id: int, user_id: int) -> CarpoolingTable:
         query = f"""
              SELECT c.*
-             FROM carmate.{self.POSTGRES_TABLE_NAME} c
-             LEFT JOIN carmate.{BookingCarpoolingRepository.POSTGRES_TABLE_NAME} r 
+             FROM carmate.{carpooling_table_name} c
+             LEFT JOIN carmate.{booking_carpooling_table_name} r 
                  ON c.id=r.carpooling_id
              WHERE c.driver_id=%s 
                  AND r.user_id=%s
@@ -191,10 +190,10 @@ class CarpoolingRepository(CarpoolingRepositoryInterface):
                                             driver_id: int) -> List[FutureCarpoolingDTO]:
         query = f"""
             SELECT c.id, c.departure_date_time, c.destination, c.starting_point, c.max_passengers, COUNT(r.user_id) as seats_taken
-            FROM carmate.{self.POSTGRES_TABLE_NAME} c
-            INNER JOIN carmate.{BookingCarpoolingRepository.POSTGRES_TABLE_NAME} r ON c.id = r.carpooling_id
-            GROUP BY c.id
-            HAVING c.driver_id=%s AND c.is_canceled='f' AND c.departure_date_time > NOW() AND r.canceled='f'
+            FROM carmate.{carpooling_table_name} c
+            LEFT JOIN carmate.{booking_carpooling_table_name} r ON c.id = r.carpooling_id AND r.canceled = 'f'
+            WHERE c.driver_id = %s AND c.is_canceled = 'f' AND c.departure_date_time > NOW()
+            GROUP BY c.id, c.departure_date_time, c.destination, c.starting_point, c.max_passengers
         """
         future_carpoolings: List[Tuple]
         with establishing_connection() as conn:
