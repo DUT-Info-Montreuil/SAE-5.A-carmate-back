@@ -5,7 +5,7 @@ from datetime import datetime
 from api.worker.auth.models import CredentialDTO
 from api.worker.user import AccountStatus
 from database.exceptions import NotFound, UniqueViolation
-from database.repositories import UserRepositoryInterface
+from database.interfaces import UserRepositoryInterface
 from database.schemas import UserTable, TokenTable
 
 

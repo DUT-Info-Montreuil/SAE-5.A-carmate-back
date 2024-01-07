@@ -1,17 +1,18 @@
-from abc import ABC
 from datetime import datetime
 
 from psycopg2 import ProgrammingError, errorcodes
 from psycopg2.errors import lookup
 
 from api import hash
-from database import establishing_connection
-from database.exceptions import *
-from database.repositories import (
-    UserRepository,
-    DriverProfileRepository,
-    PassengerProfileRepository
+from database import (
+    TOKEN_TABLE_NAME,
+    USER_TABLE_NAME,
+    DRIVER_PROFILE_TABLE_NAME,
+    PASSENGER_PROFILE_TABLE_NAME,
+    establishing_connection
 )
+from database.interfaces import TokenRepositoryInterface
+from database.exceptions import *
 from database.schemas import (
     UserTable,
     TokenTable,
@@ -20,33 +21,13 @@ from database.schemas import (
 )
 
 
-class TokenRepositoryInterface(ABC):
-    def insert(self,
-            token: str, 
-            expiration: datetime, 
-            user: UserTable) -> TokenTable: ...
-
-    def get_expiration(self,
-                       token_hashed: bytes) -> datetime: ...
-
-    def get_user(self,
-                 token: bytes) -> UserTable: ...
-    
-    def get_driver_profile(self,
-                           token: bytes) -> DriverProfileTable: ...
-    def get_passenger_profile(self,
-                              token: bytes) -> DriverProfileTable: ...
-
-
 class TokenRepository(TokenRepositoryInterface):
-    POSTGRES_TABLE_NAME: str = "token"
-
     def insert(self,
                token: str,
                expiration: datetime,
                user: UserTable) -> TokenTable:
         query = f"""
-            INSERT INTO carmate.{self.POSTGRES_TABLE_NAME}
+            INSERT INTO carmate.{TOKEN_TABLE_NAME}
             VALUES (%s, %s, %s)
         """
 
@@ -64,7 +45,7 @@ class TokenRepository(TokenRepositoryInterface):
                        token_hashed: bytes) -> datetime:
         query = f"""
             SELECT expire_at 
-            FROM carmate.{self.POSTGRES_TABLE_NAME}
+            FROM carmate.{TOKEN_TABLE_NAME}
             WHERE token=%s
             LIMIT 1
         """
@@ -88,8 +69,8 @@ class TokenRepository(TokenRepositoryInterface):
                  token: bytes) -> UserTable:
         query = f"""
             SELECT usr.id, usr.first_name, usr.last_name, usr.email_address, NULL, usr.account_status, usr.created_at, usr.profile_picture
-            FROM carmate."{UserRepository.POSTGRES_TABLE_NAME}" usr
-            INNER JOIN carmate.{self.POSTGRES_TABLE_NAME} tkn 
+            FROM carmate."{USER_TABLE_NAME}" usr
+            INNER JOIN carmate.{TOKEN_TABLE_NAME} tkn 
                 ON usr.id = tkn.user_id 
             WHERE tkn.token=%s
         """
@@ -112,10 +93,10 @@ class TokenRepository(TokenRepositoryInterface):
                            token: bytes) -> DriverProfileTable:
         query = f"""
             SELECT driver.*
-            FROM carmate.{self.POSTGRES_TABLE_NAME} AS tkn
-            INNER JOIN carmate.{UserRepository.POSTGRES_TABLE_NAME} AS usr 
+            FROM carmate.{TOKEN_TABLE_NAME} AS tkn
+            INNER JOIN carmate.{USER_TABLE_NAME} AS usr 
                 ON tkn.user_id = usr.id
-            Inner JOIN carmate.{DriverProfileRepository.POSTGRES_TABLE_NAME} AS driver 
+            Inner JOIN carmate.{DRIVER_PROFILE_TABLE_NAME} AS driver 
                 ON usr.id = driver.user_id
             WHERE tkn.token=%s
         """
@@ -134,10 +115,10 @@ class TokenRepository(TokenRepositoryInterface):
     def get_passenger_profile(self, token: bytes) -> DriverProfileTable:
         query = f"""
             SELECT passenger.*
-            FROM carmate.{self.POSTGRES_TABLE_NAME} tkn
-            INNER JOIN carmate.{UserRepository.POSTGRES_TABLE_NAME} usr 
+            FROM carmate.{TOKEN_TABLE_NAME} tkn
+            INNER JOIN carmate.{USER_TABLE_NAME} usr 
                 ON tkn.user_id=usr.id
-            INNER JOIN carmate.{PassengerProfileRepository.POSTGRES_TABLE_NAME} passenger 
+            INNER JOIN carmate.{PASSENGER_PROFILE_TABLE_NAME} passenger 
                 ON usr.id=passenger.user_id
             WHERE tkn.token=%s
         """

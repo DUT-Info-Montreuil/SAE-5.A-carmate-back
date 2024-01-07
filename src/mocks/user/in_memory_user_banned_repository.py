@@ -1,7 +1,7 @@
 from abc import ABC
 from typing import List
 
-from database.repositories import UserBannedRepositoryInterface
+from database.interfaces import UserBannedRepositoryInterface
 
 
 class InMemoryUserBannedRepository(UserBannedRepositoryInterface):

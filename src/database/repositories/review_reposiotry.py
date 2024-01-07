@@ -1,25 +1,16 @@
-from abc import ABC
-
 from psycopg2 import errorcodes
 from psycopg2.errors import lookup
 
 from api.worker.carpooling.models import ReviewDTO
-from database import establishing_connection
+from database import REVIEW_TABLE_NAME, establishing_connection
+from database.interfaces import ReviewRepositoryInterface
 from database.exceptions import UniqueViolation, InternalServer
 
 
-class ReviewRepositoryInterface(ABC):
-    def insert(self,
-               review: ReviewDTO, 
-               passenger_id: int): ...
-
-
 class ReviewRepository(ReviewRepositoryInterface):
-    POSTGRES_TABLE_NAME: str = "review"
-
     def insert(self, review: ReviewDTO, passenger_id: int):
         query = f"""
-                INSERT INTO {self.POSTGRES_TABLE_NAME}(passenger_id, 
+                INSERT INTO {REVIEW_TABLE_NAME}(passenger_id, 
                                                        driver_id, 
                                                        economic_driving_rating, 
                                                        safe_driving_rating, 

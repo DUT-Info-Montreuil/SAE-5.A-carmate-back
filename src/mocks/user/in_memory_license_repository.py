@@ -4,7 +4,7 @@ from typing import List, Dict, Union
 from api.worker.admin import ValidationStatus
 from api.worker.admin.models import LicenseToValidateDTO, LicenseToValidate
 from database.exceptions import InvalidInputEnumValue, NotFound, DocumentAlreadyChecked
-from database.repositories import LicenseRepositoryInterface
+from database.interfaces import LicenseRepositoryInterface
 from database.schemas import LicenseTable, UserTable
 
 

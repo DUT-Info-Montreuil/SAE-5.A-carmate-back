@@ -1,25 +1,17 @@
-from abc import ABC
-
 from psycopg2 import ProgrammingError
 
-from database import establishing_connection
+from database import USER_ADMIN_TABLE_NAME, establishing_connection
+from database.interfaces import UserAdminRepositoryInterface
 from database.exceptions import InternalServer, NotFound
 
 
-class UserAdminRepositoryInterface(ABC):
-    def is_admin(self,
-                user_id: int) -> bool: ...
-
-
 class UserAdminRepository(UserAdminRepositoryInterface):
-    POSTGRES_TABLE_NAME: str = "user_admin"
-
     def is_admin(self,
                  user_id: int) -> bool:
         query = f"""
             SELECT EXISTS (
                 SELECT 1 
-                FROM carmate.{self.POSTGRES_TABLE_NAME}
+                FROM carmate.{USER_ADMIN_TABLE_NAME}
                 WHERE user_id=%s
             ) AS is_admin
         """
