@@ -3,8 +3,9 @@ from abc import ABC
 from psycopg2 import ProgrammingError, errorcodes
 from psycopg2.errors import lookup
 
-from database import establishing_connection
+from database import DRIVER_PROFILE_TABLE_NAME, establishing_connection
 from database.exceptions import InternalServer, NotFound, UniqueViolation
+from database.interfaces import DriverProfileRepositoryInterface
 from database.schemas import DriverProfileTable, UserTable
 
 
@@ -20,12 +21,10 @@ class DriverProfileRepositoryInterface(ABC):
 
 
 class DriverProfileRepository(DriverProfileRepositoryInterface):
-    POSTGRES_TABLE_NAME: str = "driver_profile"
-
     def insert(self,
                user: UserTable) -> DriverProfileTable:
         query = f"""
-            INSERT INTO carmate.{self.POSTGRES_TABLE_NAME}(user_id)
+            INSERT INTO carmate.{DRIVER_PROFILE_TABLE_NAME}(user_id)
             VALUES (%s)
             RETURNING id, "description", created_at, user_id
         """
@@ -46,7 +45,7 @@ class DriverProfileRepository(DriverProfileRepositoryInterface):
                    driver_id: int) -> DriverProfileTable:
         query = f"""
             SELECT * 
-            FROM carmate.{self.POSTGRES_TABLE_NAME} 
+            FROM carmate.{DRIVER_PROFILE_TABLE_NAME} 
             WHERE id=%s
         """
 
@@ -69,7 +68,7 @@ class DriverProfileRepository(DriverProfileRepositoryInterface):
                               user_id: int) -> DriverProfileTable:
         query = f"""
             SELECT * 
-            FROM carmate.{self.POSTGRES_TABLE_NAME} 
+            FROM carmate.{DRIVER_PROFILE_TABLE_NAME} 
             WHERE user_id=%s
         """
 

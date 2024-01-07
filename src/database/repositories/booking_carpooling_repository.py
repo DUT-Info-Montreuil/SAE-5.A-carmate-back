@@ -4,7 +4,7 @@ from typing import Tuple
 from psycopg2 import ProgrammingError, errorcodes
 from psycopg2.errors import lookup
 
-from database import establishing_connection
+from database import BOOKING_CARPOOLING_TABLE_NAME, establishing_connection
 from database.schemas import ReserveCarpoolingTable
 from database.exceptions import InternalServer, NotFound, UniqueViolation
 
@@ -21,14 +21,12 @@ class BookingCarpoolingRepositoryInterface(ABC):
 
 
 class BookingCarpoolingRepository(BookingCarpoolingRepositoryInterface):
-    POSTGRES_TABLE_NAME: str = "reserve_carpooling"
-
     def insert(self,
                user_id: int,
                carpooling_id: int,
                passenger_code: int) -> ReserveCarpoolingTable:
         query = f"""
-            INSERT INTO carmate.{self.POSTGRES_TABLE_NAME}(user_id, carpooling_id, passenger_code)
+            INSERT INTO carmate.{BOOKING_CARPOOLING_TABLE_NAME}(user_id, carpooling_id, passenger_code)
             VALUES (%s, %s, %s)
             RETURNING user_id, carpooling_id, passenger_code
         """
@@ -49,7 +47,7 @@ class BookingCarpoolingRepository(BookingCarpoolingRepositoryInterface):
                    carpooling_id: int) -> int:
         query = f"""
             SELECT count(user_id)
-            FROM carmate.{self.POSTGRES_TABLE_NAME}
+            FROM carmate.{BOOKING_CARPOOLING_TABLE_NAME}
             WHERE carpooling_id=%s
         """
 

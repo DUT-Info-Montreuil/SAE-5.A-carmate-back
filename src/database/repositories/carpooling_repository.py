@@ -1,14 +1,17 @@
-from abc import ABC
 from typing import List, Tuple
 
 from psycopg2 import ProgrammingError, errorcodes
 from psycopg2.errors import lookup
 
 from api.worker.carpooling.models import CarpoolingForRecap
-from database import establishing_connection
+from database import (
+    CARPOOLING_TABLE_NAME,
+    BOOKING_CARPOOLING_TABLE_NAME,
+    establishing_connection
+)
 from database.schemas import CarpoolingTable
-from database.repositories.booking_carpooling_repository import BookingCarpoolingRepository, \
-    BookingCarpoolingRepositoryInterface
+from database.interfaces import CarpoolingRepositoryInterface
+from database.repositories import BookingCarpoolingRepository
 from database.exceptions import (
     InternalServer,
     CheckViolation,
@@ -41,7 +44,6 @@ class CarpoolingRepositoryInterface(ABC):
 
 
 class CarpoolingRepository(CarpoolingRepositoryInterface):
-    POSTGRES_TABLE_NAME: str = "carpooling"
     RADIUS: float = .07
 
     def insert(self,
@@ -52,7 +54,7 @@ class CarpoolingRepository(CarpoolingRepositoryInterface):
                price: float,
                departure_date_time: int) -> int:
         query = f"""
-            INSERT INTO carmate.{self.POSTGRES_TABLE_NAME}
+            INSERT INTO carmate.{CARPOOLING_TABLE_NAME}
             VALUES (DEFAULT, %s, %s, %s, %s, DEFAULT, to_timestamp(%s), %s)
             RETURNING id
         """
@@ -81,7 +83,7 @@ class CarpoolingRepository(CarpoolingRepositoryInterface):
                               per_page: int = 10) -> Tuple[int, List[CarpoolingForRecap]] | Tuple[int, List]:
         query_nb_carpoolings_route = f"""
             SELECT count(id) as nb_carpoolings_route
-            FROM carmate.{self.POSTGRES_TABLE_NAME}
+            FROM carmate.{CARPOOLING_TABLE_NAME}
             WHERE ABS(starting_point[1] - %s) < {self.RADIUS} 
                 AND ABS(starting_point[2] - %s) < {self.RADIUS} 
                 AND ABS(destination[1] - %s) < {self.RADIUS}
@@ -90,8 +92,8 @@ class CarpoolingRepository(CarpoolingRepositoryInterface):
         """
         query = f"""
             SELECT c.id, c.starting_point, c.destination, c.max_passengers, c.price, c.departure_date_time, c.driver_id
-            FROM carmate.{self.POSTGRES_TABLE_NAME} c 
-            LEFT JOIN carmate.{BookingCarpoolingRepository.POSTGRES_TABLE_NAME} r 
+            FROM carmate.{CARPOOLING_TABLE_NAME} c 
+            LEFT JOIN carmate.{BOOKING_CARPOOLING_TABLE_NAME} r 
                 ON c.id=r.carpooling_id
             GROUP BY c.id
             HAVING ABS(starting_point[1] - %s) < {self.RADIUS} 
@@ -135,7 +137,7 @@ class CarpoolingRepository(CarpoolingRepositoryInterface):
                     carpooling_id: int) -> CarpoolingTable:
         query = f"""
             SELECT *
-            FROM carmate.{self.POSTGRES_TABLE_NAME}
+            FROM carmate.{CARPOOLING_TABLE_NAME}
             WHERE id=%s
         """
 
@@ -157,8 +159,8 @@ class CarpoolingRepository(CarpoolingRepositoryInterface):
     def get_last_carpooling_between(self, driver_id: int, user_id: int) -> CarpoolingTable:
         query = f"""
              SELECT c.*
-             FROM carmate.{self.POSTGRES_TABLE_NAME} c
-             LEFT JOIN carmate.{BookingCarpoolingRepository.POSTGRES_TABLE_NAME} r 
+             FROM carmate.{CARPOOLING_TABLE_NAME} c
+             LEFT JOIN carmate.{BOOKING_CARPOOLING_TABLE_NAME} r 
                  ON c.id=r.carpooling_id
              WHERE c.driver_id=%s 
                  AND r.user_id=%s
