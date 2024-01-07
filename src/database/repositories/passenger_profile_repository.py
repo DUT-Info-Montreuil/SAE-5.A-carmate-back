@@ -1,10 +1,12 @@
 from abc import ABC
+from typing import Tuple
 
 from psycopg2 import ProgrammingError, errorcodes
 from psycopg2.errors import lookup
 
 from database import establishing_connection
 from database.exceptions import InternalServer, NotFound, UniqueViolation
+from database.repositories import UserRepository
 from database.schemas import PassengerProfileTable, UserTable
 
 
@@ -13,10 +15,12 @@ class PassengerProfileRepositoryInterface(ABC):
                user: UserTable) -> PassengerProfileTable: ...
 
     def get_passenger_by_user_id(self,
-                                 user_id: int) -> PassengerProfileTable: ...
+                                 user_id: int) -> Tuple[PassengerProfileTable,
+                                                        bytes | None]: ...
 
     def get_passenger(self,
-                      passenger_id: int) -> PassengerProfileTable: ...
+                      passenger_id: int) -> Tuple[PassengerProfileTable,
+                                                  bytes | None]: ...
 
 
 class PassengerProfileRepository(PassengerProfileRepositoryInterface):
@@ -25,7 +29,7 @@ class PassengerProfileRepository(PassengerProfileRepositoryInterface):
     def insert(self,
                user: UserTable) -> PassengerProfileTable:
         query = f"""
-            INSERT INTO carmate.{PassengerProfileRepository.POSTGRES_TABLE_NAME}(user_id)
+            INSERT INTO carmate.{self.POSTGRES_TABLE_NAME}(user_id)
             VALUES (%s)
             RETURNING id, "description", created_at, user_id
         """
@@ -43,11 +47,14 @@ class PassengerProfileRepository(PassengerProfileRepositoryInterface):
         return PassengerProfileTable(*passenger_profile)
 
     def get_passenger(self,
-                      passenger_id: int) -> PassengerProfileTable:
+                      passenger_id: int) -> Tuple[PassengerProfileTable,
+                                                  bytes | None]:
         query = f"""
-            SELECT * 
-            FROM carmate.{PassengerProfileRepository.POSTGRES_TABLE_NAME} 
-            WHERE id=%s
+            SELECT pp.*, u.profile_picture
+            FROM carmate.{self.POSTGRES_TABLE_NAME} pp
+            INNER JOIN carmate.{UserRepository.POSTGRES_TABLE_NAME} u
+                ON pp.user_id=u.id
+            WHERE pp.id=%s
         """
 
         passenger_data: tuple
@@ -63,13 +70,18 @@ class PassengerProfileRepository(PassengerProfileRepositoryInterface):
 
         if passenger_data is None:
             raise NotFound("passenger not found")
-        return PassengerProfileTable(*passenger_data)
+        return PassengerProfileTable(*passenger_data[:-1]), passenger_data[-1]
 
     def get_passenger_by_user_id(self,
-                                 user_id: int) -> PassengerProfileTable:
-        query = f"""SELECT * 
-                    FROM carmate.{PassengerProfileRepository.POSTGRES_TABLE_NAME} 
-                    WHERE user_id=%s"""
+                                 user_id: int) -> Tuple[PassengerProfileTable,
+                                                        bytes | None]:
+        query = f"""
+            SELECT pp.*, u.profile_picture
+            FROM carmate.{self.POSTGRES_TABLE_NAME} pp
+            INNER JOIN carmate.{UserRepository.POSTGRES_TABLE_NAME} u
+                ON pp.user_id=u.id
+            WHERE pp.user_id=%s
+        """
 
         passenger_data: tuple
         with establishing_connection() as conn:
@@ -84,4 +96,4 @@ class PassengerProfileRepository(PassengerProfileRepositoryInterface):
 
         if passenger_data is None:
             raise NotFound("passenger not found")
-        return PassengerProfileTable(*passenger_data)
+        return PassengerProfileTable(*passenger_data[:-1]), passenger_data[-1]
