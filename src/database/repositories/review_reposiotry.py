@@ -6,6 +6,7 @@ from psycopg2.errors import lookup
 from api.worker.carpooling.models import ReviewDTO
 from database import establishing_connection
 from database.exceptions import UniqueViolation, InternalServer
+from database.repositories import review_table_name
 
 
 class ReviewRepositoryInterface(ABC):
@@ -15,11 +16,9 @@ class ReviewRepositoryInterface(ABC):
 
 
 class ReviewRepository(ReviewRepositoryInterface):
-    POSTGRES_TABLE_NAME: str = "review"
-
     def insert(self, review: ReviewDTO, passenger_id: int):
         query = f"""
-                INSERT INTO {self.POSTGRES_TABLE_NAME}(passenger_id, 
+                INSERT INTO {review_table_name}(passenger_id, 
                                                        driver_id, 
                                                        economic_driving_rating, 
                                                        safe_driving_rating, 

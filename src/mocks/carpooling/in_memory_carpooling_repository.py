@@ -4,8 +4,9 @@ import random
 from datetime import datetime, timedelta
 from typing import List, Tuple
 
+from api.worker.user.models import FutureCarpoolingDTO
 from database.repositories import CarpoolingRepositoryInterface
-from database.schemas import CarpoolingTable, ReserveCarpoolingTable
+from database.schemas import CarpoolingTable
 from database.exceptions import CheckViolation, NotFound
 
 
@@ -138,4 +139,29 @@ class InMemoryCarpoolingRepository(CarpoolingRepositoryInterface):
             raise NotFound("There are no carpooling existing between these two users")
         return sorted(filtered_carpooling_list, key=lambda x: x.departure_date_time, reverse=True)[0]
 
+    def get_future_carpoolings_by_driver_id(self,
+                                            driver_id: int) -> List[FutureCarpoolingDTO]:
+        carpoolings: List[CarpoolingTable] = []
+        for carpooling in self.carpoolings:
+            if carpooling.driver_id == driver_id \
+                    and carpooling.is_canceled is False \
+                    and carpooling.departure_date_time > datetime.now():
+                carpoolings.append(carpooling)
 
+        future_carpoolings: List[FutureCarpoolingDTO] = []
+        for carpooling in carpoolings:
+            seats_taken = 0
+            for reserved_carpooling in self.reserve_carpooling_repository.reserved_carpoolings:
+                if reserved_carpooling.carpooling_id == carpooling.id \
+                        and not reserved_carpooling.canceled :
+                    seats_taken += 1
+            future_carpoolings.append(
+                FutureCarpoolingDTO(carpooling.id,
+                                    carpooling.departure_date_time,
+                                    carpooling.destination,
+                                    carpooling.starting_point,
+                                    carpooling.max_passengers,
+                                    seats_taken)
+            )
+
+        return future_carpoolings
