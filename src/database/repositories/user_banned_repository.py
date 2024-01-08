@@ -1,20 +1,13 @@
-from abc import ABC
 from typing import List
 
 from psycopg2 import ProgrammingError
 
-from database import establishing_connection
+from database import USER_BANNED_TABLE_NAME, establishing_connection
+from database.interfaces import UserBannedRepositoryInterface
 from database.exceptions import InternalServer, NotFound
 
 
-class UserBannedRepositoryInterface(ABC):
-    def is_banned(self,
-                  user_id: int): ...
-
-
 class UserBannedRepository(UserBannedRepositoryInterface):
-    POSTGRES_TABLE_NAME: str = "user_banned"
-
     def __init__(self):
         self.banned_users: List[int] = [2]
 
@@ -23,7 +16,7 @@ class UserBannedRepository(UserBannedRepositoryInterface):
         query = f"""
             SELECT EXISTS (
                 SELECT 1 
-                FROM carmate.{self.POSTGRES_TABLE_NAME}
+                FROM carmate.{USER_BANNED_TABLE_NAME}
                 WHERE user_id = %s
             ) as is_banned
         """

@@ -1,7 +1,7 @@
 from datetime import datetime
 from typing import List
 
-from database.repositories import PassengerProfileRepositoryInterface
+from database.interfaces import PassengerProfileRepositoryInterface
 from database.exceptions import (
     NotFound,
     UniqueViolation

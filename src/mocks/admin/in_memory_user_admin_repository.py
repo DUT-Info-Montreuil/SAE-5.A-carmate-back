@@ -1,6 +1,6 @@
 from typing import List
 
-from database.repositories.user_admin_repository import UserAdminRepositoryInterface
+from database.interfaces import UserAdminRepositoryInterface
 
 
 class InMemoryUserAdminRepository(UserAdminRepositoryInterface):

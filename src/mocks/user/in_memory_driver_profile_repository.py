@@ -1,7 +1,7 @@
 from datetime import datetime
 from typing import List
 
-from database.repositories import DriverProfileRepositoryInterface
+from database.interfaces import DriverProfileRepositoryInterface
 from database.exceptions import (
     NotFound,
     UniqueViolation

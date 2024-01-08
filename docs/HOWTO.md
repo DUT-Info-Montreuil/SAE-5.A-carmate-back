@@ -220,21 +220,13 @@ Exemple d'un DTO :
 from dataclasses import dataclass
 
 
-@dataclass(frozen=True)
+@dataclass
 class DriverDTO:
     id: int
     first_name: str
     last_name: str
-
-    @staticmethod
-    def to_self(_tuple: tuple) -> Self:
-        return UserTable(
-            _tuple[0],
-            _tuple[1],
-            _tuple[2]
-        )
 ```
-Les DTO doivent être en capacité de ce traduire en plusieurs format utile dans notre API, comme par exemple une fonction `self_to_json()` qui permet de traduire ses données vers un format `json`
+Les DTO doivent être en capacité de ce traduire en plusieurs format utile dans notre API, comme par exemple une fonction `to_json()` qui permet de traduire ses données vers un format `json`
 
 
 ## Faire un repository
@@ -244,6 +236,9 @@ Placez-vous dans le dossier database/repositories et nommé vous un ficher qui c
 ^
 | 📁 - database
 |  ^
+|  | 📁 - interfaces
+|  |  ^
+|  |  | 📄 - driver_repository_interface.py
 |  | 📁 - repositories
 |  |  ^
 |  |  | 📄 - driver_repository.py
@@ -251,18 +246,16 @@ Placez-vous dans le dossier database/repositories et nommé vous un ficher qui c
 
 Le repository est destiné uniquement au requête vers la base de données, il doit toujours hériter obligatoirement d'une interface
 
+Exemple d'une interface :
+```python
+class DriverRepositoryInterface(ABC):
+    def insert(id: int) -> DriverTable: ...
+```
+
 Exemple d'un repository :
 ```python
 # * driver_repository.py *
-class DriverRepositoryInterface(ABC):
-    @staticmethod
-    def insert(id: int) -> DriverTable: ...
-
-
 class DriverRepository(DriverRepositoryInterface):
-    POSTGRES_TABLE_NAME: str = "driver"
-
-    @staticmethod
     def insert(id: int) -> DriverTable:
         # request and insert here thanks to psycopg2
 ```
@@ -279,22 +272,30 @@ CREATE TABLE "user" (
 ```
 Representation de la table en objet dans `schemas.py` :
 ```python
-@dataclass(frozen=True)
+@dataclass
 class UserTable:
     id: int
     first_name: str
     last_name: str
-
-    @staticmethod
-    def to_self(_tuple: tuple) -> Self:
-        return UserTable(
-            _tuple[0],
-            _tuple[1],
-            _tuple[2]
-        )
 ```
 
 Il doit être utilisé en valeurs de retour des fonctions dans les repositories.
+
+### Qu'est-ce que c'est le `tables_name.py` ?
+C'est un fichier qui contient uniquement des déclarations de constante.
+
+Les constantes défini un nom d'une table dans le schema de la base de donnée
+
+Exemple :
+```python
+# ... Autre déclaration
+DRIVER_TABLE_NAME = "driver"
+```
+`driver` est le nom de la table
+
+Les constantes on toujours le suffix `_TABLE_NAME`
+
+Les constantes `TABLE_NAME` peuvent être importer depuis le module `database`
 
 ## Faire un test unitaire
 ### Faire un  mock 

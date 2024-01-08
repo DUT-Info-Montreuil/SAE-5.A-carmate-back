@@ -1,31 +1,21 @@
-from abc import ABC
-
 from psycopg2 import ProgrammingError, errorcodes
 from psycopg2.errors import lookup
 
-from database import establishing_connection
-from database.exceptions import InternalServer, NotFound, UniqueViolation
+from database import PASSENGER_PROFILE_TABLE_NAME, establishing_connection
+from database.interfaces import PassengerProfileRepositoryInterface
+from database.exceptions import (
+    InternalServer,
+    NotFound,
+    UniqueViolation
+)
 from database.schemas import PassengerProfileTable, UserTable
 
 
-class PassengerProfileRepositoryInterface(ABC):
-    def insert(self,
-               user: UserTable) -> PassengerProfileTable: ...
-
-    def get_passenger_by_user_id(self,
-                                 user_id: int) -> PassengerProfileTable: ...
-
-    def get_passenger(self,
-                      passenger_id: int) -> PassengerProfileTable: ...
-
-
 class PassengerProfileRepository(PassengerProfileRepositoryInterface):
-    POSTGRES_TABLE_NAME: str = "passengers_profile"
-
     def insert(self,
                user: UserTable) -> PassengerProfileTable:
         query = f"""
-            INSERT INTO carmate.{PassengerProfileRepository.POSTGRES_TABLE_NAME}(user_id)
+            INSERT INTO carmate.{PASSENGER_PROFILE_TABLE_NAME}(user_id)
             VALUES (%s)
             RETURNING id, "description", created_at, user_id
         """
@@ -46,7 +36,7 @@ class PassengerProfileRepository(PassengerProfileRepositoryInterface):
                       passenger_id: int) -> PassengerProfileTable:
         query = f"""
             SELECT * 
-            FROM carmate.{PassengerProfileRepository.POSTGRES_TABLE_NAME} 
+            FROM carmate.{PASSENGER_PROFILE_TABLE_NAME} 
             WHERE id=%s
         """
 
@@ -68,7 +58,7 @@ class PassengerProfileRepository(PassengerProfileRepositoryInterface):
     def get_passenger_by_user_id(self,
                                  user_id: int) -> PassengerProfileTable:
         query = f"""SELECT * 
-                    FROM carmate.{PassengerProfileRepository.POSTGRES_TABLE_NAME} 
+                    FROM carmate.{PASSENGER_PROFILE_TABLE_NAME} 
                     WHERE user_id=%s"""
 
         passenger_data: tuple

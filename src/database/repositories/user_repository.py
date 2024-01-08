@@ -1,38 +1,26 @@
-from abc import ABC
-from typing import Any
-
 from psycopg2 import ProgrammingError, errorcodes
 from psycopg2.errors import lookup
 
 from api import hash
-from api.worker.auth.models import CredentialDTO
 from api.worker.user import AccountStatus
-from database import establishing_connection
-from database.exceptions import InternalServer, UniqueViolation, NotFound
+from api.worker.auth.models import CredentialDTO
+from database import USER_TABLE_NAME, establishing_connection
+from database.interfaces import UserRepositoryInterface
+from database.exceptions import (
+    InternalServer,
+    UniqueViolation,
+    NotFound
+)
 from database.schemas import UserTable
 
 
-class UserRepositoryInterface(ABC):
-    def insert(self,
-               credential: CredentialDTO,
-               account_status: AccountStatus) -> UserTable: ...
-
-    def get_user_by_email(self,
-                          email: str) -> UserTable: ...
-
-    def get_user_by_id(self,
-                       id: int) -> UserTable: ...
-
-
 class UserRepository(UserRepositoryInterface):
-    POSTGRES_TABLE_NAME: str = "user"
-
     def insert(self,
                credential: CredentialDTO, 
                account_status: AccountStatus) -> UserTable:
         first_name, last_name, email_address, password = credential.to_json().values()
         query: str = f"""
-            INSERT INTO carmate.{self.POSTGRES_TABLE_NAME}(first_name, last_name, email_address, password, account_status)
+            INSERT INTO carmate.{USER_TABLE_NAME}(first_name, last_name, email_address, password, account_status)
             VALUES (%s, %s, %s, %s, %s) 
             RETURNING id, first_name, last_name, email_address, password, account_status, created_at, profile_picture
         """
@@ -53,7 +41,7 @@ class UserRepository(UserRepositoryInterface):
     def get_user_by_email(self,
                           email: str) -> UserTable:
         query = f"""
-            SELECT * FROM carmate.{self.POSTGRES_TABLE_NAME} 
+            SELECT * FROM carmate.{USER_TABLE_NAME} 
             WHERE email_address=%s
         """
 
@@ -74,7 +62,7 @@ class UserRepository(UserRepositoryInterface):
 
     @staticmethod
     def get_user_by_id(id: int) -> UserTable:
-        query = f"""SELECT * FROM carmate.{UserRepository.POSTGRES_TABLE_NAME} 
+        query = f"""SELECT * FROM carmate.{USER_TABLE_NAME} 
                     WHERE id=%s"""
 
         user_data: tuple
@@ -95,7 +83,7 @@ class UserRepository(UserRepositoryInterface):
     def get_user_by_id(self,
                        id: int) -> UserTable:
         query = f"""
-            SELECT * FROM carmate.{self.POSTGRES_TABLE_NAME} 
+            SELECT * FROM carmate.{USER_TABLE_NAME} 
             WHERE id=%s
         """
 

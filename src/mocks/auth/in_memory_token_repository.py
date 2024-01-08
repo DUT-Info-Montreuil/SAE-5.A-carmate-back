@@ -4,7 +4,7 @@ from hashlib import sha512
 from datetime import datetime, timedelta
 from typing import List
 
-from database.repositories import TokenRepositoryInterface
+from database.interfaces import TokenRepositoryInterface
 from database.schemas import (
     TokenTable,
     UserTable,

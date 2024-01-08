@@ -1,48 +1,42 @@
-from abc import ABC
 from datetime import datetime
-from typing import List, Union, Dict
+from typing import (
+    List,
+    Union,
+    Dict
+)
 
 from psycopg2 import errorcodes
-from psycopg2.errors import lookup, ProgrammingError, InvalidTextRepresentation
+from psycopg2.errors import (
+    lookup,
+    ProgrammingError,
+    InvalidTextRepresentation
+)
 
 from api.worker.admin import ValidationStatus
 from api.worker.admin.models import LicenseToValidateDTO, LicenseToValidate
-from database import establishing_connection
-from database.exceptions import InternalServer, InvalidInputEnumValue, NotFound, UniqueViolation, DocumentAlreadyChecked
-from database.repositories import UserRepository
+from database import (
+    LICENSE_TABLE_NAME,
+    USER_TABLE_NAME,
+    establishing_connection
+)
+from database.interfaces import LicenseRepositoryInterface
+from database.exceptions import (
+    InternalServer,
+    InvalidInputEnumValue,
+    NotFound,
+    UniqueViolation,
+    DocumentAlreadyChecked
+)
 from database.schemas import LicenseTable, UserTable
 
 
-class LicenseRepositoryInterface(ABC):
-    def insert(self,
-               document: bytes,
-               user: UserTable,
-               document_type: str) -> LicenseTable: ...
-
-    def get_licenses_not_validated(self, 
-                                   page: int | None) -> Dict[str, Union[int, List[LicenseToValidateDTO]]]: ...
-
-    def get_license_not_validated(self, 
-                                  document_id: int) -> LicenseToValidate: ...
-
-    def get_license_by_user_id(self, user_id: int, document_type: str) -> LicenseTable: ...
-
-    def update_status(self, 
-                      license_id: int,
-                      validation_status: str) -> None: ...
-
-    def get_next_license_id_to_validate(self) -> int: ...
-
-
 class LicenseRepository(LicenseRepositoryInterface):
-    POSTGRES_TABLE_NAME: str = "license"
-
     def insert(self,
                document: bytes,
                user: UserTable,
                document_type: str) -> LicenseTable:
         query = f"""
-            INSERT INTO carmate.{self.POSTGRES_TABLE_NAME}
+            INSERT INTO carmate.{LICENSE_TABLE_NAME}
             VALUES (DEFAULT, %s, %s, DEFAULT, DEFAULT, %s)
             RETURNING id, validation_status, published_at
         """
@@ -64,8 +58,8 @@ class LicenseRepository(LicenseRepositoryInterface):
     def get_licenses_not_validated(self, page: int | None) -> Dict[str, Union[int, List[LicenseToValidateDTO]]]:
         query = f"""
             SELECT ur.first_name, ur.last_name, ur.account_status, lr.published_at, lr.document_type, lr.id
-            FROM carmate.{self.POSTGRES_TABLE_NAME} lr
-            INNER JOIN carmate."{UserRepository.POSTGRES_TABLE_NAME}" ur 
+            FROM carmate.{LICENSE_TABLE_NAME} lr
+            INNER JOIN carmate."{USER_TABLE_NAME}" ur 
                 ON lr.user_id=ur.id
             WHERE validation_status='Pending'
             LIMIT 30
@@ -73,7 +67,7 @@ class LicenseRepository(LicenseRepositoryInterface):
         """
         nb_documents_query = f"""
             SELECT COUNT(*)
-            FROM carmate.{self.POSTGRES_TABLE_NAME}
+            FROM carmate.{LICENSE_TABLE_NAME}
             WHERE validation_status='Pending'
         """
 
@@ -99,8 +93,8 @@ class LicenseRepository(LicenseRepositoryInterface):
     def get_license_not_validated(self, document_id: int) -> LicenseToValidate:
         query = f"""
             SELECT ur.first_name, ur.last_name, ur.account_status, lr.published_at, lr.document_type, lr.license_img, lr.validation_status
-            FROM carmate.{LicenseRepository.POSTGRES_TABLE_NAME} lr
-            INNER JOIN carmate."{UserRepository.POSTGRES_TABLE_NAME}" ur 
+            FROM carmate.{LICENSE_TABLE_NAME} lr
+            INNER JOIN carmate."{USER_TABLE_NAME}" ur 
                 ON lr.user_id=ur.id
             WHERE lr.id=%s
         """
@@ -125,7 +119,7 @@ class LicenseRepository(LicenseRepositoryInterface):
 
     def update_status(self, license_id: int, validation_status: str) -> None:
         query = f"""
-            UPDATE carmate.{LicenseRepository.POSTGRES_TABLE_NAME}
+            UPDATE carmate.{LICENSE_TABLE_NAME}
             SET validation_status=%s
             WHERE id=%s
         """
@@ -144,8 +138,8 @@ class LicenseRepository(LicenseRepositoryInterface):
     def get_next_license_id_to_validate(self) -> int:
         query = f"""
             SELECT lr.id
-            FROM carmate.{LicenseRepository.POSTGRES_TABLE_NAME} lr
-            INNER JOIN carmate."{UserRepository.POSTGRES_TABLE_NAME}" ur 
+            FROM carmate.{LICENSE_TABLE_NAME} lr
+            INNER JOIN carmate."{USER_TABLE_NAME}" ur 
                 ON lr.user_id = ur.id
             WHERE validation_status = 'Pending'
             LIMIT 1
@@ -170,8 +164,8 @@ class LicenseRepository(LicenseRepositoryInterface):
     def get_license_by_user_id(self, user_id: int, document_type: str) -> LicenseTable:
         query = f"""
             SELECT lr.*
-            FROM carmate.{LicenseRepository.POSTGRES_TABLE_NAME} lr
-            INNER JOIN carmate."{UserRepository.POSTGRES_TABLE_NAME}" ur 
+            FROM carmate.{LICENSE_TABLE_NAME} lr
+            INNER JOIN carmate."{USER_TABLE_NAME}" ur 
                 ON lr.user_id=ur.id
             WHERE lr.document_type=%s 
                 AND lr.user_id=%s
