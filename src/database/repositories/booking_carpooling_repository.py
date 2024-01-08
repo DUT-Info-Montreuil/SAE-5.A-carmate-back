@@ -4,7 +4,7 @@ from typing import Tuple, List
 from psycopg2 import ProgrammingError, errorcodes
 from psycopg2.errors import lookup
 
-from api.worker.user.models.future_events_dto import FutureReservationDTO
+from api.worker.user.models import FutureReservationDTO
 from database import establishing_connection
 from database.repositories import booking_carpooling_table_name, carpooling_table_name
 from database.schemas import ReserveCarpoolingTable
