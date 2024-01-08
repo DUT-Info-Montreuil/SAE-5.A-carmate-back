@@ -77,7 +77,10 @@ class BookingCarpoolingRepository(BookingCarpoolingRepositoryInterface):
             FROM carmate.{booking_carpooling_table_name} rc
             INNER JOIN carmate.{carpooling_table_name} c 
                 ON c.id = rc.carpooling_id
-            WHERE rc.user_id=%s AND rc.canceled='f' AND c.is_canceled='f' AND c.departure_date_time > NOW()
+            WHERE rc.user_id=%s 
+                AND rc.canceled='f' 
+                AND c.is_canceled='f' 
+                AND c.departure_date_time > NOW()
         """
         future_reservations: List[Tuple]
         with establishing_connection() as conn:
