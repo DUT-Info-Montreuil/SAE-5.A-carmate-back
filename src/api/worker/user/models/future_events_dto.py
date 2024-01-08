@@ -42,7 +42,4 @@ class FutureEventsDTO:
     proposed: List[FutureCarpoolingDTO]
 
     def to_json(self):
-        return {
-            "reserved": [r.to_json() for r in self.reserved],
-            "proposed": [p.to_json() for p in self.proposed]
-        }
+        return asdict(self)
