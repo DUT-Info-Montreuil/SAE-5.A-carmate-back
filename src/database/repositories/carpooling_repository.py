@@ -5,7 +5,7 @@ from psycopg2 import ProgrammingError, errorcodes
 from psycopg2.errors import lookup
 
 from api.worker.carpooling.models import CarpoolingForRecap
-from api.worker.user.models.future_events_dto import FutureCarpoolingDTO
+from api.worker.user.models import FutureCarpoolingDTO
 from database import establishing_connection
 from database.repositories import carpooling_table_name, booking_carpooling_table_name
 from database.schemas import CarpoolingTable
