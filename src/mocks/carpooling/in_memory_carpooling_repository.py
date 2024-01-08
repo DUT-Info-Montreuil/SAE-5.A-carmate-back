@@ -4,7 +4,7 @@ import random
 from datetime import datetime, timedelta
 from typing import List, Tuple
 
-from api.worker.user.models.future_events_dto import FutureCarpoolingDTO
+from api.worker.user.models import FutureCarpoolingDTO
 from database.repositories import CarpoolingRepositoryInterface
 from database.schemas import CarpoolingTable
 from database.exceptions import CheckViolation, NotFound

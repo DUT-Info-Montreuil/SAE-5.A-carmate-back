@@ -1,8 +1,8 @@
 from hashlib import sha512
 from typing import List
 
-from api.worker import Worker, FutureReservationDTO, FutureCarpoolingDTO
-from api.worker.user.models.future_events_dto import FutureEventsDTO
+from api.worker import Worker, FutureCarpoolingDTO
+from api.worker.user.models import FutureEventsDTO
 from database.exceptions import NotFound
 from database.schemas import DriverProfileTable, UserTable
 

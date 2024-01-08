@@ -1,7 +1,7 @@
 from datetime import datetime
 from typing import List
 
-from api.worker.user.models.future_events_dto import FutureReservationDTO
+from api.worker.user.models import FutureReservationDTO
 from database.repositories import BookingCarpoolingRepositoryInterface
 from database.schemas import ReserveCarpoolingTable
 from database.exceptions import UniqueViolation
