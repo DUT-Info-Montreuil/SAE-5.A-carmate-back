@@ -192,7 +192,9 @@ class CarpoolingRepository(CarpoolingRepositoryInterface):
             SELECT c.id, c.departure_date_time, c.destination, c.starting_point, c.max_passengers, COUNT(r.user_id) as seats_taken
             FROM carmate.{carpooling_table_name} c
             LEFT JOIN carmate.{booking_carpooling_table_name} r ON c.id = r.carpooling_id AND r.canceled = 'f'
-            WHERE c.driver_id = %s AND c.is_canceled = 'f' AND c.departure_date_time > NOW()
+            WHERE c.driver_id = %s 
+                AND c.is_canceled = 'f' 
+                AND c.departure_date_time > NOW()
             GROUP BY c.id, c.departure_date_time, c.destination, c.starting_point, c.max_passengers
         """
         future_carpoolings: List[Tuple]
