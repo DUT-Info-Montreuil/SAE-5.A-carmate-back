@@ -35,8 +35,8 @@ class InMemoryBookingCarpoolingRepository(BookingCarpoolingRepositoryInterface):
                                                 user_id: int) -> List[FutureReservationDTO]:
         reservations: List[ReserveCarpoolingTable] = []
         for reservation in self.reserved_carpoolings:
-            if reservation.user_id == user_id and \
-                    reservation.canceled is False:
+            if reservation.user_id == user_id \
+                    and reservation.canceled is False:
                 reservations.append(reservation)
 
         future_reservations: List[FutureReservationDTO] = []
