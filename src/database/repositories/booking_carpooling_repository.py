@@ -1,4 +1,5 @@
-from typing import Tuple
+import datetime
+from typing import Tuple, List
 
 from psycopg2 import ProgrammingError, errorcodes
 from psycopg2.errors import lookup
@@ -10,7 +11,7 @@ from database.exceptions import (
     NotFound,
     UniqueViolation
 )
-from database.schemas import ReserveCarpoolingTable
+from database.schemas import ReserveCarpoolingTable, Weekday
 
 
 class BookingCarpoolingRepository(BookingCarpoolingRepositoryInterface):
@@ -58,3 +59,39 @@ class BookingCarpoolingRepository(BookingCarpoolingRepositoryInterface):
         if carpooling_seats_taken is None:
             raise NotFound(f"no booking for {carpooling_id}")
         return carpooling_seats_taken[0]
+
+    def has_reserved_carpooling_between_dates_at_hour(self,
+                                                      start_date: datetime.date,
+                                                      end_date: datetime.date,
+                                                      at_time: datetime.time,
+                                                      on_days: List[Weekday],
+                                                      user_id: int) -> bool:
+        query = f"""
+                SELECT EXISTS(
+                        SELECT 1
+                        FROM carmate.{BOOKING_CARPOOLING_TABLE_NAME} rc
+                        INNER JOIN carmate.carpooling c 
+                            ON (rc.carpooling_id = c.id)
+                        WHERE rc.user_id = %s 
+                            AND rc.canceled = 'f'
+                            AND c.is_canceled = 'f'
+                            AND EXTRACT(ISODOW FROM c.departure_date_time) = ANY(%s)
+                            AND c.departure_date_time BETWEEN %s AND %s
+                            AND c.departure_date_time::time = %s
+                        LIMIT 1
+                )
+        """
+        has_reserved_carpooling: bool = False
+        with establishing_connection() as conn:
+            with conn.cursor() as curs:
+                try:
+                    curs.execute(query, (user_id, [day.value for day in on_days], start_date, end_date, at_time))
+                except ProgrammingError as e:
+                    print(str(e))
+                    return has_reserved_carpooling
+                except Exception as e:
+                    raise InternalServer(str(e))
+                has_reserved_carpooling = curs.fetchone()[0]
+
+        return has_reserved_carpooling
+
