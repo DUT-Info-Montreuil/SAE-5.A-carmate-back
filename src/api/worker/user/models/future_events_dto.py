@@ -16,7 +16,7 @@ class FutureReservationDTO:
         return asdict(self)
 
 
-@dataclass()
+@dataclass
 class FutureCarpoolingDTO:
     carpooling_id: int
     departure_date_time: datetime
