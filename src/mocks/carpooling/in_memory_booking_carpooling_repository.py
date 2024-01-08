@@ -42,9 +42,9 @@ class InMemoryBookingCarpoolingRepository(BookingCarpoolingRepositoryInterface):
         future_reservations: List[FutureReservationDTO] = []
         for reservation in reservations:
             for carpooling in self.carpooling_repository.carpoolings:
-                if carpooling.id == reservation.carpooling_id and \
-                        carpooling.is_canceled is False and \
-                        carpooling.departure_date_time > datetime.now():
+                if carpooling.id == reservation.carpooling_id \
+                        and carpooling.is_canceled is False \
+                        and carpooling.departure_date_time > datetime.now():
                     future_reservations.append(
                         FutureReservationDTO(reservation.passenger_code,
                                              carpooling.driver_id,
