@@ -7,4 +7,4 @@ from .license_repository import LicenseRepository
 from .carpooling_repository import CarpoolingRepository
 from .user_admin_repository import UserAdminRepository
 from .user_banned_repository import UserBannedRepository
-from .review_reposiotry import ReviewRepository
+from .review_repository import ReviewRepository
