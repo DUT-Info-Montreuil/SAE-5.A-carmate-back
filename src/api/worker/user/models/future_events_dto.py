@@ -29,7 +29,7 @@ class FutureCarpoolingDTO:
         return asdict(self)
 
 
-@dataclass()
+@dataclass
 class FutureEventsDTO:
     reserved: List[FutureReservationDTO]
     proposed: List[FutureCarpoolingDTO]
