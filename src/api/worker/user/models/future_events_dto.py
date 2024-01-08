@@ -26,14 +26,7 @@ class FutureCarpoolingDTO:
     seats_taken: int
 
     def to_json(self):
-        return {
-            "carpooling_id": self.carpooling_id,
-            "departure_date_time": self.departure_date_time,
-            "destination": self.destination,
-            "starting_point": self.starting_point,
-            "max_passengers": self.max_passengers,
-            "seats_taken": self.seats_taken
-        }
+        return asdict(self)
 
 
 @dataclass()
