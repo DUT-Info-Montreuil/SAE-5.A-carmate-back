@@ -15,7 +15,8 @@ class FutureEventsRoutes(Blueprint):
                    methods=["GET"])(self.get_future_events_api)
 
     def get_future_events_api(self):
-        user_infos = CheckToken().worker(extract_token())
+        token = extract_token()
+        user_infos = CheckToken().worker(token)
 
         if not user_infos:
             abort(401)
@@ -23,7 +24,7 @@ class FutureEventsRoutes(Blueprint):
             abort(403)
 
         try:
-            future_events = GetFutureEvents().worker(extract_token())
+            future_events = GetFutureEvents().worker(token)
         except NotFound:
             abort(401)
         except Exception:
