@@ -1,7 +1,7 @@
 from abc import ABC
 
-from api.worker.auth.models import CredentialDTO
 from api.worker.user import AccountStatus
+from api.worker.auth.models import CredentialDTO
 from database.schemas import UserTable
 
 

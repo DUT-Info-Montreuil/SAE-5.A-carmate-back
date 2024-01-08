@@ -3,7 +3,11 @@ from psycopg2.errors import lookup
 
 from database import DRIVER_PROFILE_TABLE_NAME, establishing_connection
 from database.interfaces import DriverProfileRepositoryInterface
-from database.exceptions import InternalServer, NotFound, UniqueViolation
+from database.exceptions import (
+    InternalServer,
+    NotFound,
+    UniqueViolation
+)
 from database.schemas import DriverProfileTable, UserTable
 
 

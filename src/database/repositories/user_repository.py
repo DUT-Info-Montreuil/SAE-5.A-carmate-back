@@ -2,11 +2,15 @@ from psycopg2 import ProgrammingError, errorcodes
 from psycopg2.errors import lookup
 
 from api import hash
-from api.worker.auth.models import CredentialDTO
 from api.worker.user import AccountStatus
+from api.worker.auth.models import CredentialDTO
 from database import USER_TABLE_NAME, establishing_connection
 from database.interfaces import UserRepositoryInterface
-from database.exceptions import InternalServer, UniqueViolation, NotFound
+from database.exceptions import (
+    InternalServer,
+    UniqueViolation,
+    NotFound
+)
 from database.schemas import UserTable
 
 

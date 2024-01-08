@@ -1,8 +1,16 @@
 from datetime import datetime
-from typing import List, Union, Dict
+from typing import (
+    List,
+    Union,
+    Dict
+)
 
 from psycopg2 import errorcodes
-from psycopg2.errors import lookup, ProgrammingError, InvalidTextRepresentation
+from psycopg2.errors import (
+    lookup,
+    ProgrammingError,
+    InvalidTextRepresentation
+)
 
 from api.worker.admin import ValidationStatus
 from api.worker.admin.models import LicenseToValidateDTO, LicenseToValidate
@@ -11,6 +19,7 @@ from database import (
     USER_TABLE_NAME,
     establishing_connection
 )
+from database.interfaces import LicenseRepositoryInterface
 from database.exceptions import (
     InternalServer,
     InvalidInputEnumValue,
@@ -18,12 +27,10 @@ from database.exceptions import (
     UniqueViolation,
     DocumentAlreadyChecked
 )
-from database.interfaces import LicenseRepositoryInterface
 from database.schemas import LicenseTable, UserTable
 
 
 class LicenseRepository(LicenseRepositoryInterface):
-
     def insert(self,
                document: bytes,
                user: UserTable,

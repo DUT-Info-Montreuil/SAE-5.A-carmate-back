@@ -4,9 +4,13 @@ from psycopg2 import ProgrammingError, errorcodes
 from psycopg2.errors import lookup
 
 from database import BOOKING_CARPOOLING_TABLE_NAME, establishing_connection
-from database.schemas import ReserveCarpoolingTable
 from database.interfaces import BookingCarpoolingRepositoryInterface
-from database.exceptions import InternalServer, NotFound, UniqueViolation
+from database.exceptions import (
+    InternalServer,
+    NotFound,
+    UniqueViolation
+)
+from database.schemas import ReserveCarpoolingTable
 
 
 class BookingCarpoolingRepository(BookingCarpoolingRepositoryInterface):

@@ -2,9 +2,13 @@ from psycopg2 import ProgrammingError, errorcodes
 from psycopg2.errors import lookup
 
 from database import PASSENGER_PROFILE_TABLE_NAME, establishing_connection
-from database.exceptions import InternalServer, NotFound, UniqueViolation
-from database.schemas import PassengerProfileTable, UserTable
 from database.interfaces import PassengerProfileRepositoryInterface
+from database.exceptions import (
+    InternalServer,
+    NotFound,
+    UniqueViolation
+)
+from database.schemas import PassengerProfileTable, UserTable
 
 
 class PassengerProfileRepository(PassengerProfileRepositoryInterface):

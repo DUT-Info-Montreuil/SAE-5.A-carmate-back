@@ -9,13 +9,13 @@ from database import (
     BOOKING_CARPOOLING_TABLE_NAME,
     establishing_connection
 )
-from database.schemas import CarpoolingTable
 from database.interfaces import CarpoolingRepositoryInterface
 from database.exceptions import (
     InternalServer,
     CheckViolation,
     NotFound
 )
+from database.schemas import CarpoolingTable
 
 
 class CarpoolingRepository(CarpoolingRepositoryInterface):
