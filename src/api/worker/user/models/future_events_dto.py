@@ -3,7 +3,7 @@ from datetime import datetime
 from typing import List
 
 
-@dataclass()
+@dataclass
 class FutureReservationDTO:
     passenger_code: int
     driver_id: int
