@@ -75,7 +75,8 @@ class BookingCarpoolingRepository(BookingCarpoolingRepositoryInterface):
         query = f"""
             SELECT rc.passenger_code, c.driver_id, c.departure_date_time, c.destination, c.starting_point, c.id
             FROM carmate.{booking_carpooling_table_name} rc
-            INNER JOIN carmate.{carpooling_table_name} c ON c.id = rc.carpooling_id
+            INNER JOIN carmate.{carpooling_table_name} c 
+                ON c.id = rc.carpooling_id
             WHERE rc.user_id=%s AND rc.canceled='f' AND c.is_canceled='f' AND c.departure_date_time > NOW()
         """
         future_reservations: List[Tuple]
