@@ -10,9 +10,15 @@ from api.exceptions import (
     CarpoolingCanceled,
     CarpoolingNotFound,
     CredentialInvalid,
-    InternalServerError
+    InternalServerError,
+    BookingCanNotBeCreated
 )
-from database.schemas import CarpoolingTable, UserTable
+from database.schemas import (
+    CarpoolingTable,
+    PassengerProfileTable,
+    Weekday,
+    DriverProfileTable
+)
 from database.exceptions import (
     InternalServer,
     NotFound,
@@ -25,9 +31,10 @@ class BookingCarpooling(Worker):
     def worker(self,
                token: str,
                carpooling_id: int) -> BookingCarpoolingDTO:
-        user: UserTable
+        passenger_profile: PassengerProfileTable
+        driver_profile: DriverProfileTable
         try:
-            user = self.token_repository.get_user(sha512(token.encode()).digest())
+            passenger_profile = self.token_repository.get_passenger_profile(sha512(token.encode()).digest())
         except NotFound:
             raise CredentialInvalid()
         except InternalServer as e:
@@ -42,7 +49,28 @@ class BookingCarpooling(Worker):
             raise InternalServerError(str(e))
         if carpooling.is_canceled:
             raise CarpoolingCanceled()
-        
+        try:
+            driver_profile = self.token_repository.get_driver_profile(sha512(token.encode()).digest())
+        except Exception:
+            driver_profile = None
+
+        if driver_profile:
+            has_conflicts = self.carpooling_repository.has_carpooling_at(driver_profile.id,
+                                                                         int(carpooling.departure_date_time.timestamp()))
+            if has_conflicts:
+                raise BookingCanNotBeCreated()
+
+        has_conflicts = self.propose_scheduled_carpooling_repository.has_scheduled_with_date_and_day(passenger_profile.id,
+                                                                                                     carpooling.departure_date_time.date(),
+                                                                                                     Weekday(carpooling.departure_date_time.weekday() + 1))
+        if has_conflicts:
+            raise BookingCanNotBeCreated()
+
+        has_conflicts = self.booking_carpooling_repository.has_reserved_carpooling_at(passenger_profile.user_id,
+                                                                                      int(carpooling.departure_date_time.timestamp()))
+        if has_conflicts:
+            raise BookingCanNotBeCreated()
+
         carpooling_seats_taken: int
         try:
             carpooling_seats_taken = self.booking_carpooling_repository.seats_taken(carpooling_id)
@@ -60,7 +88,7 @@ class BookingCarpooling(Worker):
 
         passenger_code = PassengerCodeService.next()
         try:
-            self.booking_carpooling_repository.insert(user.id,
+            self.booking_carpooling_repository.insert(passenger_profile.user_id,
                                                       carpooling_id,
                                                       passenger_code)
         except UniqueViolation:

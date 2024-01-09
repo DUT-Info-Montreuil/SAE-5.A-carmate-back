@@ -9,7 +9,7 @@ from psycopg2.errors import lookup
 from database.exceptions import UniqueViolation, InternalServer, NotFound
 from database.interfaces import ProposeScheduledCarpoolingRepositoryInterface
 from database.repositories import PassengerProfileRepository, CarpoolingRepository, BookingCarpoolingRepository
-from database.schemas import PassengerScheduledCarpoolingTable, CarpoolingTable
+from database.schemas import PassengerScheduledCarpoolingTable, CarpoolingTable, Weekday
 
 
 class ProposeScheduledCarpoolingRepository(ProposeScheduledCarpoolingRepositoryInterface):
@@ -247,3 +247,28 @@ class ProposeScheduledCarpoolingRepository(ProposeScheduledCarpoolingRepositoryI
                     carpoolings_ids = curs.fetchall()
 
         return [carpoolings_id[0] for carpoolings_id in carpoolings_ids]
+
+    def has_scheduled_with_date_and_day(self,
+                                        passenger_id: int,
+                                        date: datetime.date,
+                                        day: Weekday) -> bool:
+        query = f"""
+            SELECT EXISTS (
+                SELECT 1
+                FROM carmate.{PASSENGER_SCHEDULED_CARPOOLING_TABLE_NAME} pc
+                WHERE pc.passenger_id = %s
+                    AND %s BETWEEN pc.start_date AND pc.end_date
+                    AND %s::weekday = ANY(pc.days)
+                LIMIT 1
+            )
+        """
+        has_conflict: bool
+        with establishing_connection() as conn:
+            with conn.cursor() as curs:
+                try:
+                    curs.execute(query, (passenger_id, date, day.name))
+                except Exception as e:
+                    raise InternalServer(str(e))
+                has_conflict = curs.fetchone()[0]
+        return has_conflict
+

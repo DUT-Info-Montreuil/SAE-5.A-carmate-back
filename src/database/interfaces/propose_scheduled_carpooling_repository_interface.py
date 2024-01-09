@@ -2,7 +2,7 @@ from abc import ABC
 from datetime import datetime
 from typing import List
 
-from database.schemas import PassengerScheduledCarpoolingTable, CarpoolingTable
+from database.schemas import PassengerScheduledCarpoolingTable, CarpoolingTable, Weekday
 
 
 class ProposeScheduledCarpoolingRepositoryInterface(ABC):
@@ -22,3 +22,8 @@ class ProposeScheduledCarpoolingRepositoryInterface(ABC):
                                                    date: datetime.date,
                                                    time: datetime.time,
                                                    limit: int) -> List[int]: ...
+
+    def has_scheduled_with_date_and_day(self,
+                                        passenger_id: int,
+                                        date: datetime.date,
+                                        day: Weekday) -> bool: ...

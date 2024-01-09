@@ -107,3 +107,13 @@ class CarpoolingReviewTimeExpired(Exception):
 class ScheduledCarpoolingCannotBeCreated(Exception):
     def __init__(self, message="scheduled carpooling cannot be crated due to conflicts"):
         super().__init__(message)
+
+
+class CarpoolingCanNotBeCreated(Exception):
+    def __init__(self, message="carpooling cannot be crated due to conflicts"):
+        super().__init__(message)
+
+
+class BookingCanNotBeCreated(Exception):
+    def __init__(self, message="booking cannot be crated due to conflicts"):
+        super().__init__(message)

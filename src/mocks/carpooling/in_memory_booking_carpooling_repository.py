@@ -60,3 +60,21 @@ class InMemoryBookingCarpoolingRepository(BookingCarpoolingRepositoryInterface):
                 return True
 
         return False
+
+    def has_reserved_carpooling_at(self,
+                                   user_id: int,
+                                   timestamp: int):
+        if self.carpooling_repository is None:
+            raise Exception("this function won't work without carpooling repository")
+
+        carpooling_ids: List[int] = []
+        for reserved in self.reserved_carpoolings:
+            if reserved.user_id == user_id \
+                    and not reserved.canceled:
+                carpooling_ids.append(reserved.carpooling_id)
+
+        for carpooling in self.carpooling_repository.carpoolings:
+            if carpooling.id in carpooling_ids \
+                    and carpooling.departure_date_time.timestamp() == timestamp:
+                return True
+        return False

@@ -4,7 +4,7 @@ from typing import Tuple, List
 from psycopg2 import ProgrammingError, errorcodes
 from psycopg2.errors import lookup
 
-from database import BOOKING_CARPOOLING_TABLE_NAME, establishing_connection
+from database import BOOKING_CARPOOLING_TABLE_NAME, establishing_connection, CARPOOLING_TABLE_NAME
 from database.interfaces import BookingCarpoolingRepositoryInterface
 from database.exceptions import (
     InternalServer,
@@ -70,7 +70,7 @@ class BookingCarpoolingRepository(BookingCarpoolingRepositoryInterface):
                 SELECT EXISTS(
                         SELECT 1
                         FROM carmate.{BOOKING_CARPOOLING_TABLE_NAME} rc
-                        INNER JOIN carmate.carpooling c 
+                        INNER JOIN carmate.{CARPOOLING_TABLE_NAME} c 
                             ON (rc.carpooling_id = c.id)
                         WHERE rc.user_id = %s 
                             AND rc.canceled = 'f'
@@ -86,12 +86,35 @@ class BookingCarpoolingRepository(BookingCarpoolingRepositoryInterface):
             with conn.cursor() as curs:
                 try:
                     curs.execute(query, (user_id, [day.value for day in on_days], start_date, end_date, at_time))
-                except ProgrammingError as e:
-                    print(str(e))
-                    return has_reserved_carpooling
                 except Exception as e:
                     raise InternalServer(str(e))
                 has_reserved_carpooling = curs.fetchone()[0]
 
         return has_reserved_carpooling
 
+    def has_reserved_carpooling_at(self,
+                                   user_id: int,
+                                   timestamp: int):
+        query = f"""
+            SELECT EXISTS(
+                SELECT 1
+                FROM carmate.{BOOKING_CARPOOLING_TABLE_NAME} rc
+                INNER JOIN carmate.{CARPOOLING_TABLE_NAME} c 
+                    ON rc.carpooling_id = c.id
+                WHERE rc.user_id = %s 
+                    AND rc.canceled = 'f'
+                    AND c.is_canceled = 'f'
+                    AND c.departure_date_time = to_timestamp(%s)
+            )
+        """
+
+        has_reserved_carpooling: bool = False
+        with establishing_connection() as conn:
+            with conn.cursor() as curs:
+                try:
+                    curs.execute(query, (user_id, timestamp))
+                except Exception as e:
+                    raise InternalServer(str(e))
+                has_reserved_carpooling = curs.fetchone()[0]
+
+        return has_reserved_carpooling

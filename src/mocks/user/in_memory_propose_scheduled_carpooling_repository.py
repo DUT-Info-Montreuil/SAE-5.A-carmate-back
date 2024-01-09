@@ -3,7 +3,12 @@ from typing import List
 
 from database.exceptions import UniqueViolation, NotFound
 from database.interfaces import ProposeScheduledCarpoolingRepositoryInterface
-from database.schemas import PassengerScheduledCarpoolingTable, PassengerProfileTable, CarpoolingTable
+from database.schemas import (
+    PassengerScheduledCarpoolingTable,
+    PassengerProfileTable,
+    CarpoolingTable,
+    Weekday
+)
 
 
 class InMemoryProposeScheduledCarpoolingRepository(ProposeScheduledCarpoolingRepositoryInterface):
@@ -186,3 +191,13 @@ class InMemoryProposeScheduledCarpoolingRepository(ProposeScheduledCarpoolingRep
 
         return result
 
+    def has_scheduled_with_date_and_day(self,
+                                        passenger_id: int,
+                                        date: datetime.date,
+                                        day: Weekday) -> bool:
+        for scheduled in self.propose_scheduled_carpoolings:
+            if scheduled.passenger_id == passenger_id \
+                    and scheduled.start_date <= date <= scheduled.end_date \
+                    and day in scheduled.days:
+                return True
+        return False

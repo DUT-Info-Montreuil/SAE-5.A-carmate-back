@@ -4,7 +4,8 @@ from datetime import datetime
 from database.schemas import (
     DriverProfileTable,
     TokenTable,
-    UserTable
+    UserTable,
+    PassengerProfileTable
 )
 
 
@@ -24,4 +25,4 @@ class TokenRepositoryInterface(ABC):
                            token: bytes) -> DriverProfileTable: ...
 
     def get_passenger_profile(self,
-                              token: bytes) -> DriverProfileTable: ...
+                              token: bytes) -> PassengerProfileTable: ...

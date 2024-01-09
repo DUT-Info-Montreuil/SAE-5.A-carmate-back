@@ -9,7 +9,8 @@ from api.exceptions import (
     CarpoolingBookedTooLate,
     CarpoolingCanceled,
     CarpoolingNotFound,
-    CredentialInvalid
+    CredentialInvalid,
+    BookingCanNotBeCreated
 )
 
 
@@ -39,6 +40,8 @@ class BookingRoutes(Blueprint):
         except CarpoolingNotFound:
             abort(404)
         except CarpoolingAlreadyFull:
+            abort(409)
+        except BookingCanNotBeCreated:
             abort(409)
         except CarpoolingCanceled:
             abort(410)
