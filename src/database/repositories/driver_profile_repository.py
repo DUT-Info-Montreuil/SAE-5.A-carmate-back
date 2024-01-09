@@ -1,7 +1,13 @@
+from typing import Tuple
+
 from psycopg2 import ProgrammingError, errorcodes
 from psycopg2.errors import lookup
 
-from database import DRIVER_PROFILE_TABLE_NAME, establishing_connection
+from database import (
+    DRIVER_PROFILE_TABLE_NAME,
+    USER_TABLE_NAME,
+    establishing_connection
+)
 from database.interfaces import DriverProfileRepositoryInterface
 from database.exceptions import (
     InternalServer,
@@ -33,11 +39,14 @@ class DriverProfileRepository(DriverProfileRepositoryInterface):
         return DriverProfileTable(*conducteur_profile)
 
     def get_driver(self,
-                   driver_id: int) -> DriverProfileTable:
+                   driver_id: int) -> Tuple[DriverProfileTable,
+                                            bytes | None]:
         query = f"""
-            SELECT * 
-            FROM carmate.{DRIVER_PROFILE_TABLE_NAME} 
-            WHERE id=%s
+            SELECT dp.*, u.profile_picture
+            FROM carmate.{DRIVER_PROFILE_TABLE_NAME} dp
+            INNER JOIN carmate.{USER_TABLE_NAME} u
+                ON dp.user_id=u.id
+            WHERE dp.id=%s
         """
 
         driver_data: tuple
@@ -53,14 +62,17 @@ class DriverProfileRepository(DriverProfileRepositoryInterface):
 
         if driver_data is None:
             raise NotFound("driver not found")
-        return DriverProfileTable(*driver_data)
+        return DriverProfileTable(*driver_data[:-1]), driver_data[-1]
 
     def get_driver_by_user_id(self,
-                              user_id: int) -> DriverProfileTable:
+                              user_id: int) -> Tuple[DriverProfileTable, 
+                                                     bytes | None]:
         query = f"""
-            SELECT * 
-            FROM carmate.{DRIVER_PROFILE_TABLE_NAME} 
-            WHERE user_id=%s
+            SELECT dp.*, u.profile_picture
+            FROM carmate.{DRIVER_PROFILE_TABLE_NAME} dp
+            INNER JOIN carmate.{USER_TABLE_NAME} u
+                ON dp.user_id=u.id
+            WHERE dp.user_id=%s
         """
 
         driver_data: tuple
@@ -76,4 +88,4 @@ class DriverProfileRepository(DriverProfileRepositoryInterface):
 
         if driver_data is None:
             raise NotFound("driver not found")
-        return DriverProfileTable(*driver_data)
+        return DriverProfileTable(*driver_data[:-1]), driver_data[-1]

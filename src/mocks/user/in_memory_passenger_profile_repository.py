@@ -1,7 +1,7 @@
 from datetime import datetime
 from typing import List
 
-from database.interfaces import PassengerProfileRepositoryInterface
+from database.interfaces import PassengerProfileRepositoryInterface, UserRepositoryInterface
 from database.exceptions import (
     NotFound,
     UniqueViolation
@@ -13,7 +13,12 @@ from database.schemas import (
 
 
 class InMemoryPassengerProfileRepository(PassengerProfileRepositoryInterface):
-    def __init__(self):
+    user_repository: UserRepositoryInterface
+    
+    def __init__(self,
+                 user_repository: UserRepositoryInterface):
+        self.user_repository = user_repository
+
         self.passenger_profile_count = 0
         self.passenger_profiles: List[PassengerProfileTable] = []
 
@@ -34,12 +39,14 @@ class InMemoryPassengerProfileRepository(PassengerProfileRepositoryInterface):
                                  user_id: int) -> PassengerProfileTable:
         for passenger in self.passenger_profiles:
             if passenger.user_id == user_id:
-                return passenger
+                profile_picture: bytes | None = self.user_repository.get_user_by_id(passenger.user_id).profile_picture
+                return passenger, profile_picture
         raise NotFound("Passenger not found")
 
     def get_passenger(self,
                       passenger_id: int) -> PassengerProfileTable:
         for passenger in self.passenger_profiles:
             if passenger.id == passenger_id:
-                return passenger
+                profile_picture: bytes | None = self.user_repository.get_user_by_id(passenger.user_id).profile_picture
+                return passenger, profile_picture
         raise NotFound("Passenger not found")
