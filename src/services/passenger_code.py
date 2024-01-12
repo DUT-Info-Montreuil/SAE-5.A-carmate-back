@@ -1,3 +1,5 @@
+import secrets
+
 from abc import ABC
 
 
@@ -9,4 +11,4 @@ class PassengerCodeServiceInterface(ABC):
 class PassengerCodeService(PassengerCodeServiceInterface):
     @staticmethod
     def next() -> int:
-        return 123456
+        return int(''.join([str(secrets.randbelow(10)) for n in range(6)]))

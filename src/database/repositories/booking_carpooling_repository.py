@@ -101,6 +101,51 @@ class BookingCarpoolingRepository(BookingCarpoolingRepositoryInterface):
 
         return has_reserved_carpooling
 
+    def get_reservation_non_cancelled_by_carpooling_and_code(self,
+                                                             carpooling_id: int,
+                                                             passenger_code: int) -> ReserveCarpoolingTable:
+        query = f"""
+            SELECT *
+            FROM carmate.{BOOKING_CARPOOLING_TABLE_NAME}
+            WHERE carpooling_id = %s
+                AND passenger_code = %s
+                AND canceled = 'f'
+                AND passenger_code_validated = 'f'
+        """
+        reservation: Tuple
+        with establishing_connection() as conn:
+            with conn.cursor() as curs:
+                try:
+                    curs.execute(query, (carpooling_id, passenger_code,))
+                except Exception as e:
+                    raise InternalServer(str(e))
+                reservation = curs.fetchone()
+
+        if reservation is None:
+            raise NotFound(f"no reservation for carpooling_id {carpooling_id} and passenger_code {passenger_code}")
+        return ReserveCarpoolingTable(*reservation)
+
+    def confirm_reservation(self,
+                            user_id: int,
+                            carpooling_id: int) -> None:
+        query = f"""
+            UPDATE carmate.{BOOKING_CARPOOLING_TABLE_NAME}
+            SET 
+                passenger_code_validated = 't',
+                passenger_code_date_validated = NOW()
+            WHERE 
+                user_id = %s
+                AND carpooling_id = %s
+                AND canceled = 'f'
+                AND passenger_code_validated = 'f'
+        """
+        with establishing_connection() as conn:
+            with conn.cursor() as curs:
+                try:
+                    curs.execute(query, (user_id, carpooling_id))
+                except Exception as e:
+                    raise InternalServer(str(e))
+
     def has_reserved_carpooling_at(self,
                                    user_id: int,
                                    timestamp: int):
@@ -127,7 +172,7 @@ class BookingCarpoolingRepository(BookingCarpoolingRepositoryInterface):
                 has_reserved_carpooling = curs.fetchone()[0]
 
         return has_reserved_carpooling
-    
+
     def get_passengers_from_carpooling(self,
                                        carpooling_id: int) -> List[PassengerProfileTable]:
         query = f"""
@@ -147,4 +192,5 @@ class BookingCarpoolingRepository(BookingCarpoolingRepositoryInterface):
                     raise InternalServer(str(e))
                 passengers = curs.fetchall()
         return [PassengerProfileTable(*passenger) for passenger in passengers]
+
 

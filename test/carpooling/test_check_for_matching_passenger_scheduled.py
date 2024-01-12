@@ -99,7 +99,6 @@ class CheckForMatchingPassengerScheduledTest(unittest.TestCase):
         self.assertEqual(len(self.use_case.booking_carpooling_repository.reserved_carpoolings), base_len + 1)
         self.assertEqual(self.use_case.booking_carpooling_repository.reserved_carpoolings[base_len].user_id, 99999)
         self.assertEqual(self.use_case.booking_carpooling_repository.reserved_carpoolings[base_len].carpooling_id, 9999)
-        self.assertEqual(self.use_case.booking_carpooling_repository.reserved_carpoolings[base_len].passenger_code, 123456)
 
     def test_create_multiple_reservation(self):
         self.use_case.propose_scheduled_carpooling_repository.propose_scheduled_carpoolings.append(
