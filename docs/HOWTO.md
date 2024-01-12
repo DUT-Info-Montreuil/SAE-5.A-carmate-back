@@ -150,7 +150,7 @@ Placez-vous dans le dossier worker et nommé vous un dossier qui correspond au n
 |  |  ^
 |  |  | 📁 - driver
 ```
-Une fois le dossier crée, vous devez obligatoirement crée 3 autres dossiers qui portera le nom `interfaces`, `models` et `use_case`.
+Une fois le dossier crée, vous devez obligatoirement créer 2 autres dossiers qui porteront le nom `models` et `use_case`.
 ```
 📁 - src
 ^
@@ -160,7 +160,6 @@ Une fois le dossier crée, vous devez obligatoirement crée 3 autres dossiers qu
 |  |  ^
 |  |  | 📁 - driver
 |  |  |  ^
-|  |  |  | 📁 - interfaces
 |  |  |  | 📁 - models
 |  |  |  | 📁 - use_case
 ```
@@ -176,7 +175,6 @@ Lorque les 3 dossiers on été crée, vous pouvez commencez a mettre votre parti
 |  |  ^
 |  |  | 📁 - driver
 |  |  |  ^
-|  |  |  | 📁 - interfaces
 |  |  |  | 📁 - models
 |  |  |  | 📁 - use_case
 |  |  |  |  ^
@@ -207,7 +205,6 @@ Placez-vous dans le dossier worker/models et nommé vous un ficher qui correspon
 |  |  ^
 |  |  | 📁 - driver
 |  |  |  ^
-|  |  |  | 📁 - interfaces
 |  |  |  | 📁 - models
 |  |  |  |  ^
 |  |  |  |  | 📄 - driver_dto.py
@@ -299,11 +296,11 @@ Les constantes `TABLE_NAME` peuvent être importer depuis le module `database`
 
 ## Faire un test unitaire
 ### Faire un  mock 
-Placez-vous dans le dossier tests/mock et nommez vous un ficher qui aura toujours comme prefix `InMemory` suivie du nom de votre repository, exemple :
+Placez-vous dans le dossier src/mocks et nommez vous un ficher qui aura toujours comme prefixe `in_memory` suivie du nom de votre repository, exemple :
 ```
-📁 - test
+📁 - src
 ^
-| 📁 - mock
+| 📁 - mocks
 |  ^
 |  | 📁 - user
 |  |  ^
