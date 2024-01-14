@@ -1,8 +1,9 @@
 from abc import ABC
+from datetime import datetime
 from typing import List, Tuple
 
 from api.worker.carpooling.models import CarpoolingForRecap
-from database.schemas import CarpoolingTable
+from database.schemas import CarpoolingTable, Weekday
 
 
 class CarpoolingRepositoryInterface(ABC):
@@ -29,3 +30,14 @@ class CarpoolingRepositoryInterface(ABC):
     def get_last_carpooling_between(self,
                                     driver_id: int,
                                     user_id: int) -> CarpoolingTable: ...
+
+    def has_carpooling_between_dates_at_hour(self,
+                                             start_date: datetime.date,
+                                             end_date: datetime.date,
+                                             at_time: datetime.time,
+                                             on_days: List[Weekday],
+                                             driver_id: int) -> bool: ...
+
+    def has_carpooling_at(self,
+                          driver_id: int,
+                          timestamp: int) -> bool: ...

@@ -155,3 +155,13 @@ class InMemoryCarpoolingRepository(CarpoolingRepositoryInterface):
             and carpooling.departure_date_time.time() == at_time
             and Weekday(carpooling.departure_date_time.weekday() + 1) in on_days
         )
+
+    def has_carpooling_at(self,
+                          driver_id: int,
+                          timestamp: int) -> bool:
+        for carpooling in self.carpoolings:
+            if carpooling.driver_id == driver_id \
+                    and carpooling.departure_date_time.timestamp() == timestamp \
+                    and not carpooling.is_canceled:
+                return True
+        return False

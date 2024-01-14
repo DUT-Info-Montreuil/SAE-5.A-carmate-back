@@ -192,3 +192,26 @@ class CarpoolingRepository(CarpoolingRepositoryInterface):
                     raise InternalServer(str(e))
                 has_carpooling = curs.fetchone()[0]
         return has_carpooling
+
+    def has_carpooling_at(self,
+                          driver_id: int,
+                          timestamp: int) -> bool:
+        query = f"""
+            SELECT EXISTS(
+                SELECT 1
+                FROM carmate.{CARPOOLING_TABLE_NAME}
+                WHERE driver_id=%s 
+                    AND is_canceled=false
+                    AND departure_date_time = to_timestamp(%s)
+            )
+        """
+        has_carpooling: bool = False
+        with establishing_connection() as conn:
+            with conn.cursor() as curs:
+                try:
+                    curs.execute(query, (driver_id, timestamp))
+                except Exception as e:
+                    raise InternalServer(str(e))
+                has_carpooling = curs.fetchone()[0]
+        return has_carpooling
+

@@ -21,3 +21,6 @@ class BookingCarpoolingRepositoryInterface(ABC):
                                                       on_days: List[Weekday],
                                                       user_id: int) -> bool: ...
 
+    def has_reserved_carpooling_at(self,
+                                   user_id: int,
+                                   timestamp: int): ...

@@ -4,6 +4,7 @@ from flask import Blueprint, request, abort, jsonify
 
 from api.controller import extract_token
 from api.controller.carpooling import URL_ROUTE_PREFIX
+from api.exceptions import CarpoolingCanNotBeCreated
 from api.worker.auth.models import UserInformationDTO
 from api.worker.auth.use_case import CheckToken
 from api.worker.carpooling.use_case import CreateCarpooling, CheckForMatchingPassengerScheduled
@@ -81,6 +82,8 @@ class CarpoolingWithDriverCheckRoutes(Blueprint):
         except NotFound:
             abort(403)
         except UniqueViolation:
+            abort(409)
+        except CarpoolingCanNotBeCreated:
             abort(409)
         except Exception:
             abort(500)
