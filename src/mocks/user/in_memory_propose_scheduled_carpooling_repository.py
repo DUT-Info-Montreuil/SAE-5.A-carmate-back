@@ -7,7 +7,8 @@ from database.schemas import (
     PassengerScheduledCarpoolingTable,
     PassengerProfileTable,
     CarpoolingTable,
-    Weekday
+    Weekday,
+    DriverScheduledCarpoolingTable
 )
 
 
@@ -15,40 +16,50 @@ class InMemoryProposeScheduledCarpoolingRepository(ProposeScheduledCarpoolingRep
     def __init__(self,
                  booked_carpooling_repository,
                  carpooling_repository,
-                 passengers_repository):
+                 passengers_repository,
+                 scheduled_carpooling_repository):
         self.propose_scheduled_carpooling_count = 0
         self.propose_scheduled_carpoolings: List[PassengerScheduledCarpoolingTable] = []
         self.booked_carpooling_repository = booked_carpooling_repository
         self.carpooling_repository = carpooling_repository
         self.passengers_repository = passengers_repository
+        self.scheduled_carpooling_repository = scheduled_carpooling_repository
 
     def insert(self,
-               data: PassengerScheduledCarpoolingTable) -> int:
-        for element in self.propose_scheduled_carpoolings:
-            if element.id == data.id:
-                raise UniqueViolation
-
+               label: str,
+               starting_point: List[float],
+               destination: List[float],
+               start_date: datetime.date,
+               end_date: datetime.date,
+               start_hour: datetime.time,
+               days: List[Weekday],
+               passenger_id: int) -> int:
         self.propose_scheduled_carpoolings.append(
             PassengerScheduledCarpoolingTable(self.propose_scheduled_carpooling_count,
-                                              data.label,
-                                              data.starting_point,
-                                              data.destination,
-                                              data.start_date,
-                                              data.end_date,
-                                              data.start_hour,
-                                              data.days,
-                                              data.passenger_id))
+                                              label,
+                                              starting_point,
+                                              destination,
+                                              start_date,
+                                              end_date,
+                                              start_hour,
+                                              days,
+                                              passenger_id))
         self.propose_scheduled_carpooling_count += 1
 
         return self.propose_scheduled_carpooling_count - 1
 
     def has_same_time_proposed_scheduled_carpooling(self,
-                                                    data: PassengerScheduledCarpoolingTable) -> bool:
+                                                    start_date: datetime.date,
+                                                    end_date: datetime.date,
+                                                    days: List[Weekday],
+                                                    start_hour: datetime.time,
+                                                    passenger_id: int) -> bool:
         for propose_scheduled in self.propose_scheduled_carpoolings:
-            if data.start_date <= propose_scheduled.end_date \
-                    and propose_scheduled.start_date <= data.end_date \
-                    and bool(set(propose_scheduled.days).intersection(set(data.days))) \
-                    and propose_scheduled.start_hour == data.start_hour:
+            if start_date <= propose_scheduled.end_date \
+                    and propose_scheduled.start_date <= end_date \
+                    and bool(set(propose_scheduled.days).intersection(set(days))) \
+                    and propose_scheduled.start_hour == start_hour \
+                    and propose_scheduled.passenger_id == passenger_id:
                 return True
         return False
 
@@ -201,3 +212,37 @@ class InMemoryProposeScheduledCarpoolingRepository(ProposeScheduledCarpoolingRep
                     and day in scheduled.days:
                 return True
         return False
+
+    def get_carpoolings_to_create_and_reserve_for(self,
+                                                  propose_scheduled_carpooling_id: int) -> List[tuple[int, datetime, int, List[float], List[float]]]:
+        found_scheduled: PassengerScheduledCarpoolingTable
+        for propose_scheduled in self.propose_scheduled_carpoolings:
+            if propose_scheduled.id == propose_scheduled_carpooling_id:
+                found_scheduled = propose_scheduled
+
+        if not found_scheduled:
+            return []
+
+        possible_carpoolings: List[DriverScheduledCarpoolingTable] = []
+        for scheduled_carpooling in self.scheduled_carpooling_repository.scheduled_carpoolings:
+            if scheduled_carpooling.start_date == found_scheduled.start_date \
+                    and scheduled_carpooling.end_date == found_scheduled.end_date \
+                    and scheduled_carpooling.start_hour == found_scheduled.start_hour \
+                    and any(day in scheduled_carpooling.days for day in found_scheduled.days):
+                possible_carpoolings.append(scheduled_carpooling)
+
+        response: List[tuple[int, datetime, int, List[float], List[float]]] = []
+        for possible_carpooling in possible_carpoolings:
+            dates = self.get_dates_between(possible_carpooling.start_date,
+                                           possible_carpooling.end_date,
+                                           possible_carpooling.days)
+            for date in dates:
+                if found_scheduled.start_date <= date <= found_scheduled.end_date \
+                        and date.weekday() + 1 in [day.value for day in found_scheduled.days]:
+                    response.append((possible_carpooling.driver_id,
+                                     datetime.combine(date, possible_carpooling.start_hour),
+                                     possible_carpooling.max_passengers,
+                                     possible_carpooling.starting_point,
+                                     possible_carpooling.destination))
+
+        return response

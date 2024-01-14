@@ -15,7 +15,7 @@ class GetRouteCarpoolings(Worker):
                page: int | None = None) -> Tuple[int, List[CarpoolingForRecap]]:
         try:
             if page is not None:
-                return self.carpooling_repository.get_carpoolings_route(start_lat, start_lon, end_lat, end_lon, departure_date_time,                                                                     page=page)
+                return self.carpooling_repository.get_carpoolings_route(start_lat, start_lon, end_lat, end_lon, departure_date_time, page)
             else:
                 return self.carpooling_repository.get_carpoolings_route(start_lat, start_lon, end_lat, end_lon, departure_date_time)
         except Exception as e:

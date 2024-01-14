@@ -27,8 +27,8 @@ class CreateCarpooling(Worker):
         if has_conflicts:
             raise CarpoolingCanNotBeCreated()
 
+        date_from_timestamp = datetime.fromtimestamp(departure_date_time)
         if passenger:
-            date_from_timestamp = datetime.fromtimestamp(departure_date_time)
             has_conflicts = self.propose_scheduled_carpooling_repository.has_scheduled_with_date_and_day(passenger.id,
                                                                                                          date_from_timestamp.date(),
                                                                                                          Weekday(date_from_timestamp.weekday() + 1))
@@ -36,6 +36,13 @@ class CreateCarpooling(Worker):
                 raise CarpoolingCanNotBeCreated()
 
         has_conflicts = self.carpooling_repository.has_carpooling_at(driver.id, departure_date_time)
+        if has_conflicts:
+            raise CarpoolingCanNotBeCreated()
+
+        has_conflicts = self.scheduled_carpooling_repository.has_scheduled_with_date_and_day(driver.id,
+                                                                                             date_from_timestamp.date(),
+                                                                                             Weekday(date_from_timestamp.weekday() + 1))
+
         if has_conflicts:
             raise CarpoolingCanNotBeCreated()
 

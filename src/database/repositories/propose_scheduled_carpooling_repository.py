@@ -8,13 +8,19 @@ from psycopg2 import ProgrammingError, errorcodes
 from psycopg2.errors import lookup
 from database.exceptions import UniqueViolation, InternalServer, NotFound
 from database.interfaces import ProposeScheduledCarpoolingRepositoryInterface
-from database.repositories import PassengerProfileRepository, CarpoolingRepository, BookingCarpoolingRepository
-from database.schemas import PassengerScheduledCarpoolingTable, CarpoolingTable, Weekday
+from database.schemas import CarpoolingTable, Weekday
 
 
 class ProposeScheduledCarpoolingRepository(ProposeScheduledCarpoolingRepositoryInterface):
     def insert(self,
-               data: PassengerScheduledCarpoolingTable) -> int:
+               label: str,
+               starting_point: List[float],
+               destination: List[float],
+               start_date: datetime.date,
+               end_date: datetime.date,
+               start_hour: datetime.time,
+               days: List[Weekday],
+               passenger_id: int) -> int:
         query = f"""
                 INSERT INTO carmate.{PASSENGER_SCHEDULED_CARPOOLING_TABLE_NAME} (label, starting_point, destination, start_hour, start_date, end_date, days, passenger_id)
                 VALUES (%s, %s, %s, %s, %s, %s, %s::weekday[], %s)
@@ -25,14 +31,14 @@ class ProposeScheduledCarpoolingRepository(ProposeScheduledCarpoolingRepositoryI
         with establishing_connection() as conn:
             with conn.cursor() as curs:
                 try:
-                    curs.execute(query, (data.label,
-                                         data.starting_point,
-                                         data.destination,
-                                         data.start_hour,
-                                         data.start_date,
-                                         data.end_date,
-                                         [day.name for day in data.days],
-                                         data.passenger_id))
+                    curs.execute(query, (label,
+                                         starting_point,
+                                         destination,
+                                         start_hour,
+                                         start_date,
+                                         end_date,
+                                         [day.name for day in days],
+                                         passenger_id))
                 except lookup(errorcodes.UNIQUE_VIOLATION) as e:
                     raise UniqueViolation(str(e))
                 except Exception as e:
@@ -43,13 +49,20 @@ class ProposeScheduledCarpoolingRepository(ProposeScheduledCarpoolingRepositoryI
         return propose_id[0]
 
     def has_same_time_proposed_scheduled_carpooling(self,
-                                                    data: PassengerScheduledCarpoolingTable) -> bool:
+                                                    start_date: datetime.date,
+                                                    end_date: datetime.date,
+                                                    days: List[Weekday],
+                                                    start_hour: datetime.time,
+                                                    passenger_id: int) -> bool:
         query = f"""
                 SELECT EXISTS(
                     SELECT 1
                     FROM carmate.{PASSENGER_SCHEDULED_CARPOOLING_TABLE_NAME} AS sc
-                    WHERE %s <= sc.end_date AND sc.start_date <= %s
-                        AND sc.days && %s::weekday[] AND sc.start_hour = %s
+                    WHERE %s <= sc.end_date 
+                        AND sc.start_date <= %s
+                        AND sc.days && %s::weekday[] 
+                        AND sc.start_hour = %s
+                        AND sc.passenger_id = %s
                 )
         """
         has_same_time: bool = False
@@ -57,10 +70,11 @@ class ProposeScheduledCarpoolingRepository(ProposeScheduledCarpoolingRepositoryI
             with conn.cursor() as curs:
 
                 try:
-                    curs.execute(query, (data.start_date,
-                                         data.end_date,
-                                         [day.name for day in data.days],
-                                         data.start_hour))
+                    curs.execute(query, (start_date,
+                                         end_date,
+                                         [day.name for day in days],
+                                         start_hour,
+                                         passenger_id))
                 except ProgrammingError:
                     return has_same_time
                 except Exception as e:
@@ -272,3 +286,75 @@ class ProposeScheduledCarpoolingRepository(ProposeScheduledCarpoolingRepositoryI
                 has_conflict = curs.fetchone()[0]
         return has_conflict
 
+
+    def get_carpoolings_to_create_and_reserve_for(self, propose_scheduled_carpooling_id: int) -> List[tuple[int, datetime, int, List[float], List[float]]]:
+        query = f"""
+                WITH ProposedScheduled AS (SELECT psc.starting_point,
+                                                  psc.destination,
+                                                  psc.start_date            as start_date_psc,
+                                                  psc.end_date              as end_date_psc,
+                                                  psc.start_hour,
+                                                  unnest(psc.days)::weekday as reserved_day,
+                                                  pp.user_id
+                                           FROM carmate.propose_scheduled_carpooling psc
+                                                    INNER JOIN carmate.passengers_profile pp on psc.passenger_id = pp.id
+                                           WHERE psc.id = %s
+                ),
+                     PotentialScheduledCarpooling AS (SELECT sc.driver_id,
+                                                             sc.start_date as start_date_sc,
+                                                             sc.end_date   as end_date_sc,
+                                                             sc.max_passengers,
+                                                             sc.starting_point,
+                                                             sc.destination,
+                                                             psc.start_hour,
+                                                             psc.start_date_psc,
+                                                             psc.reserved_day,
+                                                             psc.end_date_psc
+                                                      FROM carmate.scheduled_carpooling sc
+                                                               JOIN ProposedScheduled psc
+                                                                    ON (psc.start_date_psc, psc.end_date_psc) OVERLAPS
+                                                                       (sc.start_date, sc.end_date)
+                                                                        AND psc.reserved_day = ANY (sc.days)
+                                                                        AND psc.start_hour = sc.start_hour
+                                                                        AND psc.starting_point = sc.starting_point
+                                                                        AND psc.destination = sc.destination),
+                     PotentialScheduledCarpoolingsWithDates as (SELECT potsc.driver_id,
+                                                                       potsc.reserved_date,
+                                                                       potsc.max_passengers,
+                                                                       potsc.starting_point,
+                                                                       potsc.destination
+                                                                FROM (SELECT *,
+                                                                             generate_series(
+                                                                                     GREATEST(start_date_sc, start_date_psc),
+                                                                                     LEAST(end_date_sc, end_date_psc),
+                                                                                     '1 day'::interval
+                                                                             ) + start_hour AS reserved_date
+                                                                      FROM PotentialScheduledCarpooling) potsc
+                                                                WHERE EXTRACT(DOW FROM potsc.reserved_date) = potsc.reserved_day::integer),
+                     FilteredPotentialScheduledCarpoolingsWithDates as (SELECT *,
+                                                                               ROW_NUMBER() OVER (PARTITION BY potsc.reserved_date) AS row_num
+                                                                        FROM PotentialScheduledCarpoolingsWithDates potsc
+                                                                        WHERE NOT EXISTS (SELECT 1
+                                                                                          FROM carmate.carpooling c
+                                                                                          WHERE c.is_canceled = false
+                                                                                            AND c.departure_date_time = potsc.reserved_date
+                                                                                            AND c.driver_id = potsc.driver_id))
+                SELECT driver_id,
+                       reserved_date,
+                       max_passengers,
+                       starting_point,
+                       destination
+                FROM FilteredPotentialScheduledCarpoolingsWithDates
+                WHERE row_num = 1
+        """
+        carpoolings_to_create_and_reserve: List[tuple[int, datetime, int, List[float], List[float]]]
+        with establishing_connection() as conn:
+            with conn.cursor() as curs:
+                try:
+                    curs.execute(query, (propose_scheduled_carpooling_id,))
+                except Exception as e:
+                    raise InternalServer(str(e))
+                else:
+                    carpoolings_to_create_and_reserve = curs.fetchall()
+
+        return carpoolings_to_create_and_reserve

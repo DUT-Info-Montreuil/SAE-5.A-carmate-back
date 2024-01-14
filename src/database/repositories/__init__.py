@@ -9,3 +9,4 @@ from .user_admin_repository import UserAdminRepository
 from .user_banned_repository import UserBannedRepository
 from .review_repository import ReviewRepository
 from .propose_scheduled_carpooling_repository import ProposeScheduledCarpoolingRepository
+from .scheduled_carpooling_repository import ScheduledCarpoolingRepository

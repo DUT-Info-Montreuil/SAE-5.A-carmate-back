@@ -41,6 +41,7 @@ class CarpoolingForRecap:
     departure_date_time: datetime
     driver_id: int
     seats_taken: int
+    is_scheduled: bool
 
     @staticmethod
     def to_self(_tuple: tuple):
@@ -53,4 +54,5 @@ class CarpoolingForRecap:
             _tuple[5],
             _tuple[6],
             _tuple[7] if len(_tuple) > 7 else 0,
+            _tuple[8] if len(_tuple) > 8 else False
         )

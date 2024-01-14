@@ -78,7 +78,7 @@ class UserRepository(UserRepositoryInterface):
 
         if user_data is None:
             raise NotFound("user not found")
-        return UserTable.to_self(user_data)
+        return UserTable(*user_data)
 
     def get_user_by_id(self,
                        id: int) -> UserTable:

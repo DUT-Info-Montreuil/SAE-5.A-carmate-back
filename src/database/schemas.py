@@ -111,3 +111,18 @@ class PassengerScheduledCarpoolingTable(DatabaseTable):
     start_hour: datetime.time
     days: List[Weekday]
     passenger_id: int
+
+
+@dataclass
+class DriverScheduledCarpoolingTable(DatabaseTable):
+    id: int
+    label: str
+    starting_point: List[float]
+    destination: List[float]
+    start_hour: datetime.time
+    start_date: datetime.date
+    end_date: datetime.date
+    days: List[Weekday]
+    max_passengers: int
+    driver_id: int
+
