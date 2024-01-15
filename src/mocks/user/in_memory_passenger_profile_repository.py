@@ -20,7 +20,12 @@ class InMemoryPassengerProfileRepository(PassengerProfileRepositoryInterface):
         self.user_repository = user_repository
 
         self.passenger_profile_count = 0
-        self.passenger_profiles: List[PassengerProfileTable] = []
+        self.passenger_profiles: List[PassengerProfileTable] = [
+            PassengerProfileTable(0, ' ', datetime.now(), 0),
+            PassengerProfileTable(1, ' ', datetime.now(), 1),
+            PassengerProfileTable(2, ' ', datetime.now(), 2),
+            PassengerProfileTable(3, ' ', datetime.now(), 3),
+        ]
 
     def insert(self,
                user: UserTable) -> PassengerProfileTable:

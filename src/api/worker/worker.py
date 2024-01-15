@@ -2,7 +2,6 @@ import os
 from abc import abstractmethod
 
 from database.repositories import *
-from database.repositories import ProposeScheduledCarpoolingRepository
 from mocks import *
 
 
@@ -17,6 +16,7 @@ class Worker(ABC):
     carpooling_repository: CarpoolingRepositoryInterface
     booking_carpooling_repository: BookingCarpoolingRepositoryInterface
     propose_scheduled_carpooling_repository: ProposeScheduledCarpoolingRepositoryInterface
+    review_repository: ReviewRepositoryInterface
 
     def __init__(self):
         match os.getenv("API_MODE"):
@@ -39,9 +39,9 @@ class Worker(ABC):
         self.license_repository = InMemoryLicenseRepository(self.user_repository)
         self.booking_carpooling_repository = InMemoryBookingCarpoolingRepository()
         self.carpooling_repository = InMemoryCarpoolingRepository(self.booking_carpooling_repository)
-        self.review_repository = InMemoryReviewRepository()
         self.booking_carpooling_repository.carpooling_repository = self.carpooling_repository
         self.propose_scheduled_carpooling_repository = InMemoryProposeScheduledCarpoolingRepository(self.booking_carpooling_repository, self.carpooling_repository, self.passenger_profile_repository)
+        self.review_repository = InMemoryReviewRepository(self.driver_profile_repository, self.user_repository, self.carpooling_repository, self.booking_carpooling_repository)
 
     def __postgres(self) -> None:
         self.user_repository = UserRepository()

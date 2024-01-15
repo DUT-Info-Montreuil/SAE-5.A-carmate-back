@@ -40,7 +40,8 @@ class Api:
         self.api.register_blueprint(BookingRoutes())
         self.api.register_blueprint(ReviewRoutes())
         self.api.register_blueprint(ScheduleCarpoolingRoutes())
-
+        self.api.register_blueprint(ScoreboardRoutes())
+        
         if os.getenv("API_MODE") == "PROD":
             self.api.after_request(self.handle_preflight_requests)
             self.api.before_request(monitoring.readiness_api)

@@ -18,7 +18,7 @@ services:
       - ./fixture/05_insert_licenses.sql:/docker-entrypoint-initdb.d/05_insert_licenses.sql
       - ./fixture/06_insert_driver_profiles.sql:/docker-entrypoint-initdb.d/06_insert_driver_profiles.sql
       - ./fixture/07_insert_carpoolings.sql:/docker-entrypoint-initdb.d/07_insert_carpoolings.sql
-
+      
   api:
     build:
       context: ../
