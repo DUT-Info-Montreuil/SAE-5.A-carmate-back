@@ -4,14 +4,23 @@ from typing import Tuple, List
 from psycopg2 import ProgrammingError, errorcodes
 from psycopg2.errors import lookup
 
-from database import BOOKING_CARPOOLING_TABLE_NAME, establishing_connection, CARPOOLING_TABLE_NAME
+from database import (
+    BOOKING_CARPOOLING_TABLE_NAME,
+    CARPOOLING_TABLE_NAME,
+    PASSENGER_PROFILE_TABLE_NAME,
+    establishing_connection
+)
 from database.interfaces import BookingCarpoolingRepositoryInterface
 from database.exceptions import (
     InternalServer,
     NotFound,
     UniqueViolation
 )
-from database.schemas import ReserveCarpoolingTable, Weekday
+from database.schemas import (
+    ReserveCarpoolingTable,
+    PassengerProfileTable,
+    Weekday
+)
 
 
 class BookingCarpoolingRepository(BookingCarpoolingRepositoryInterface):
@@ -118,3 +127,24 @@ class BookingCarpoolingRepository(BookingCarpoolingRepositoryInterface):
                 has_reserved_carpooling = curs.fetchone()[0]
 
         return has_reserved_carpooling
+    
+    def get_passengers_from_carpooling(self,
+                                       carpooling_id: int) -> List[PassengerProfileTable]:
+        query = f"""
+            SELECT p.*
+            FROM carmate.{BOOKING_CARPOOLING_TABLE_NAME} bc
+            INNER JOIN carmate.{PASSENGER_PROFILE_TABLE_NAME} p
+                ON bc.user_id=p.user_id
+            WHERE bc.carpooling_id=%s
+        """
+
+        passengers: List[tuple]
+        with establishing_connection() as conn:
+            with conn.cursor() as curs:
+                try:
+                    curs.execute(query, (carpooling_id,))
+                except Exception as e:
+                    raise InternalServer(str(e))
+                passengers = curs.fetchall()
+        return [PassengerProfileTable(*passenger) for passenger in passengers]
+

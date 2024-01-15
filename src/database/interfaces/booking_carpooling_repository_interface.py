@@ -2,7 +2,11 @@ from abc import ABC
 from datetime import datetime
 from typing import List
 
-from database.schemas import ReserveCarpoolingTable, Weekday
+from database.schemas import (
+    PassengerProfileTable,
+    ReserveCarpoolingTable,
+    Weekday
+)
 
 
 class BookingCarpoolingRepositoryInterface(ABC):
@@ -24,3 +28,6 @@ class BookingCarpoolingRepositoryInterface(ABC):
     def has_reserved_carpooling_at(self,
                                    user_id: int,
                                    timestamp: int): ...
+    
+    def get_passengers_from_carpooling(self,
+                                       carpooling_id: int) -> List[PassengerProfileTable]: ...

@@ -215,3 +215,20 @@ class CarpoolingRepository(CarpoolingRepositoryInterface):
                 has_carpooling = curs.fetchone()[0]
         return has_carpooling
 
+    def get_carpooling_created_by(self,
+                                  driver_id: int) -> List[CarpoolingTable]:
+        query = f"""
+            SELECT *
+            FROM carmate.{CARPOOLING_TABLE_NAME}
+            WHERE driver_id=%s
+        """
+
+        carpoolings: List[tuple]
+        with establishing_connection() as conn:
+            with conn.cursor() as curs:
+                try:
+                    curs.execute(query, (driver_id,))
+                except Exception as e:
+                    raise InternalServer(str(e))
+                carpoolings = curs.fetchall()
+        return [CarpoolingTable(*carpooling) for carpooling in carpoolings]
