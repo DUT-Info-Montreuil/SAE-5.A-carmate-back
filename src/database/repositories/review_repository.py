@@ -124,3 +124,30 @@ class ReviewRepository(ReviewRepositoryInterface):
                                                                                         int,
                                                                                         int]]:
         return self.__get_list_best_drivers_according_to_criterion_of("sociability_rating")
+    
+    def get_average_criterions_from_driver(self, driver_id) -> Tuple[int, 
+                                                                     float,
+                                                                     float,
+                                                                     float] | None:
+        query = f"""
+            SELECT driver_id, 
+                AVG(economic_driving_rating),
+                AVG(safe_driving_rating),
+                AVG(sociability_rating),
+            FROM carmate.{REVIEW_TABLE_NAME}
+            GROUP BY driver_id
+        """
+
+        average_criterions: list
+        with establishing_connection() as conn:
+            with conn.cursor() as curs:
+                try:
+                    curs.execute(query)
+                except Exception as e:
+                    raise InternalServer(str(e))
+                average_criterions = curs.fetchone()
+        
+        if average_criterions is None:
+            return None
+        return average_criterions[0:]
+

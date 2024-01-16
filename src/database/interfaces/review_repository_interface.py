@@ -27,3 +27,8 @@ class ReviewRepositoryInterface(ABC):
                                                                                         float,
                                                                                         int,
                                                                                         int]]: ...
+
+    def get_average_criterions_from_driver(self, driver_id) -> Tuple[int,
+                                                                     float,
+                                                                     float,
+                                                                     float]: ...
