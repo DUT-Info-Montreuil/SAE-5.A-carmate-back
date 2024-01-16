@@ -117,3 +117,17 @@ class CarpoolingCanNotBeCreated(Exception):
 class BookingCanNotBeCreated(Exception):
     def __init__(self, message="booking cannot be crated due to conflicts"):
         super().__init__(message)
+
+class CarpoolingNotFromThisDriver(Exception):
+    def __init__(self, message="carpooling is not from this driver"):
+        super().__init__(message)
+
+
+class InvalidTimeToConfirmCode(Exception):
+    def __init__(self, message="invalid time to confirm code"):
+        super().__init__(message)
+
+
+class BookingNotFound(Exception):
+    def __init__(self, message="booking not found"):
+        super().__init__(message)

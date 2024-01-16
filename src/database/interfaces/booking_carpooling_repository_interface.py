@@ -25,9 +25,17 @@ class BookingCarpoolingRepositoryInterface(ABC):
                                                       on_days: List[Weekday],
                                                       user_id: int) -> bool: ...
 
+    def get_reservation_non_cancelled_by_carpooling_and_code(self,
+                                                             carpooling_id: int,
+                                                             passenger_code: int) -> ReserveCarpoolingTable: ...
+
+    def confirm_reservation(self,
+                            user_id: int,
+                            carpooling_id: int) -> None: ...
+
     def has_reserved_carpooling_at(self,
                                    user_id: int,
                                    timestamp: int): ...
-    
+
     def get_passengers_from_carpooling(self,
                                        carpooling_id: int) -> List[PassengerProfileTable]: ...

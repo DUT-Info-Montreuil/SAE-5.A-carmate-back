@@ -130,7 +130,7 @@ class CarpoolingRepository(CarpoolingRepositoryInterface):
         
         if carpooling is None:
             raise NotFound("carpooling not found")
-        return CarpoolingTable.to_self(carpooling)
+        return CarpoolingTable(*carpooling)
 
     def get_last_carpooling_between(self, driver_id: int, user_id: int) -> CarpoolingTable:
         query = f"""

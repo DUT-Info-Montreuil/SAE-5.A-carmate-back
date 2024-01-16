@@ -1,6 +1,7 @@
 from datetime import datetime
 from typing import List
 
+from database.exceptions import NotFound
 from database.schemas import ReserveCarpoolingTable, CarpoolingTable, Weekday
 from database.interfaces import BookingCarpoolingRepositoryInterface
 from database.schemas import ReserveCarpoolingTable
@@ -60,6 +61,29 @@ class InMemoryBookingCarpoolingRepository(BookingCarpoolingRepositoryInterface):
                 return True
 
         return False
+
+    def get_reservation_non_cancelled_by_carpooling_and_code(self,
+                                                             carpooling_id: int,
+                                                             passenger_code: int) -> ReserveCarpoolingTable:
+        for reservation in self.reserved_carpoolings:
+            if reservation.carpooling_id == carpooling_id \
+                    and reservation.passenger_code == passenger_code \
+                    and not reservation.canceled \
+                    and not reservation.passenger_code_validated:
+                return reservation
+        raise NotFound(f"no reservation for carpooling_id {carpooling_id} and passenger_code {passenger_code}")
+
+    def confirm_reservation(self,
+                            user_id: int,
+                            carpooling_id: int) -> None:
+        for reservation in self.reserved_carpoolings:
+            if reservation.user_id == user_id \
+                    and reservation.carpooling_id == carpooling_id \
+                    and not reservation.canceled \
+                    and not reservation.passenger_code_validated:
+                reservation.passenger_code_validated = True
+                reservation.passenger_code_date_validated = datetime.now()
+
 
     def has_reserved_carpooling_at(self,
                                    user_id: int,

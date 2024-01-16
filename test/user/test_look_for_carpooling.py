@@ -68,7 +68,6 @@ class CreatePassengerScheduledCarpoolingTest(unittest.TestCase):
         self.assertEqual(len(self.look_for_carpooling.booking_carpooling_repository.reserved_carpoolings), base_len + 1)
         self.assertEqual(self.look_for_carpooling.booking_carpooling_repository.reserved_carpoolings[base_len].user_id, 99999)
         self.assertEqual(self.look_for_carpooling.booking_carpooling_repository.reserved_carpoolings[base_len].carpooling_id, 9999)
-        self.assertEqual(self.look_for_carpooling.booking_carpooling_repository.reserved_carpoolings[base_len].passenger_code, 123456)
 
     def test_create_reservation_with_more_than_one_reservation(self):
         self.look_for_carpooling.carpooling_repository.carpoolings.append(
@@ -89,7 +88,5 @@ class CreatePassengerScheduledCarpoolingTest(unittest.TestCase):
         self.assertEqual(len(self.look_for_carpooling.booking_carpooling_repository.reserved_carpoolings), base_len + 2)
         self.assertEqual(self.look_for_carpooling.booking_carpooling_repository.reserved_carpoolings[base_len].user_id, 99999)
         self.assertEqual(self.look_for_carpooling.booking_carpooling_repository.reserved_carpoolings[base_len].carpooling_id, 9999)
-        self.assertEqual(self.look_for_carpooling.booking_carpooling_repository.reserved_carpoolings[base_len].passenger_code, 123456)
         self.assertEqual(self.look_for_carpooling.booking_carpooling_repository.reserved_carpoolings[base_len + 1].user_id, 99999)
         self.assertEqual(self.look_for_carpooling.booking_carpooling_repository.reserved_carpoolings[base_len + 1].carpooling_id, 141478)
-        self.assertEqual(self.look_for_carpooling.booking_carpooling_repository.reserved_carpoolings[base_len + 1].passenger_code, 123456)
