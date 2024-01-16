@@ -39,3 +39,6 @@ class BookingCarpoolingRepositoryInterface(ABC):
 
     def get_passengers_from_carpooling(self,
                                        carpooling_id: int) -> List[PassengerProfileTable]: ...
+    
+    def get_booked_carpoolings(self,
+                               user_id: int) -> List[ReserveCarpoolingTable]: ...

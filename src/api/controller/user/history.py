@@ -8,8 +8,8 @@ from flask import (
 from api.controller import token_is_valid, extract_token
 from api.worker.auth.models import UserInformationDTO
 from api.worker.auth.use_case import CheckToken
-from api.worker.user.models import PublishedCarpoolingDTO
-from api.worker.user.use_case import GetPublishedCarpooling
+from api.worker.user.models import PublishedCarpoolingDTO, BookedCarpoolingDTO
+from api.worker.user.use_case import GetPublishedCarpooling, GetBookedCarpoolings
 
 
 class HistoryRoutes(Blueprint):
@@ -28,7 +28,12 @@ class HistoryRoutes(Blueprint):
                    methods=["GET"])(self.history_schedule_carpooling_published_api)
 
     def history_carpooling_booked_api(self):
-        pass
+        booked_carpoolings: List[BookedCarpoolingDTO]
+        try:
+            booked_carpoolings = GetBookedCarpoolings().worker(extract_token())
+        except Exception:
+            abort(500)
+        return jsonify([booked_carpooling.to_json() for booked_carpooling in booked_carpoolings])        
 
     def history_carpooling_published_api(self):
         token = extract_token()

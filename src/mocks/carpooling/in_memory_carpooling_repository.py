@@ -165,3 +165,8 @@ class InMemoryCarpoolingRepository(CarpoolingRepositoryInterface):
                     and not carpooling.is_canceled:
                 return True
         return False
+    
+    def get_booked_carpoolings(self,
+                               user_id: int) -> List[ReserveCarpoolingTable]:
+        """ TODO """
+        return []

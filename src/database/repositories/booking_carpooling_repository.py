@@ -193,4 +193,20 @@ class BookingCarpoolingRepository(BookingCarpoolingRepositoryInterface):
                 passengers = curs.fetchall()
         return [PassengerProfileTable(*passenger) for passenger in passengers]
 
+    def get_booked_carpoolings(self,
+                               user_id: int) -> List[ReserveCarpoolingTable]:
+        query = f""""
+            SELECT *
+            FROM carmmate.{BOOKING_CARPOOLING_TABLE_NAME}
+            WHERE user_id=%s
+        """
 
+        booking_carpoolings: List[tuple]
+        with establishing_connection() as conn:
+            with conn.cursor() as curs:
+                try:
+                    curs.execute(query, (user_id,))
+                except Exception as e:
+                    raise InternalServer(str(e))
+                booking_carpoolings = curs.fetchall()
+        return [ReserveCarpoolingTable(*booking_carpooling) for booking_carpooling in booking_carpoolings]
