@@ -8,8 +8,16 @@ from flask import (
 from api.controller import token_is_valid, extract_token
 from api.worker.auth.models import UserInformationDTO
 from api.worker.auth.use_case import CheckToken
-from api.worker.user.models import PublishedCarpoolingDTO, BookedCarpoolingDTO
-from api.worker.user.use_case import GetPublishedCarpooling, GetBookedCarpoolings
+from api.worker.user.models import (
+    PublishedCarpoolingDTO,
+    BookedCarpoolingDTO,
+    PublishedScheduleCarpoolingDTO
+)
+from api.worker.user.use_case import (
+    GetPublishedCarpooling,
+    GetBookedCarpoolings,
+    GetPublishedScheduleCarpooling
+)
 
 
 class HistoryRoutes(Blueprint):
@@ -22,8 +30,6 @@ class HistoryRoutes(Blueprint):
                    methods=["GET"])(self.history_carpooling_booked_api)
         self.route("/carpooling/published",
                    methods=["GET"])(self.history_carpooling_published_api)
-        self.route("/schedule-carpooling/booked",
-                   methods=["GET"])(self.history_schedule_carpooling_booked_api)
         self.route("/schedule-carpooling/published",
                    methods=["GET"])(self.history_schedule_carpooling_published_api)
 
@@ -53,10 +59,7 @@ class HistoryRoutes(Blueprint):
         except Exception:
             abort(500)
         return jsonify([published_carpooling.to_json() for published_carpooling in published_carpoolings])
-
-    def history_schedule_carpooling_booked_api(self):
-        pass
-
+    
     def history_schedule_carpooling_published_api(self):
         token = extract_token()
 
@@ -68,3 +71,10 @@ class HistoryRoutes(Blueprint):
         
         if not user_information.driver:
             abort(403)
+
+        published_schedule_carpoolings: List[PublishedScheduleCarpoolingDTO]
+        try:
+            published_schedule_carpoolings = GetPublishedScheduleCarpooling().worker(token)
+        except Exception:
+            abort(500)
+        return jsonify([PublishedScheduleCarpoolingDTO(*published_schedule_carpooling) for published_schedule_carpooling in published_schedule_carpoolings])

@@ -16,7 +16,7 @@ class GetPublishedCarpooling(Worker):
                token: str) -> List[PublishedCarpoolingDTO]:
         driver_profile: DriverProfileTable
         try:
-            driver_profile = self.token_repository.get_driver_profile(sha512(token).digest())
+            driver_profile = self.token_repository.get_driver_profile(sha512(token.encode()).digest())
         except Exception as e:
             raise InternalServerError(str(e))
         

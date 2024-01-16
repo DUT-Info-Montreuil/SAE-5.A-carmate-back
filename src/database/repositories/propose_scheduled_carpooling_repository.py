@@ -296,7 +296,6 @@ class ProposeScheduledCarpoolingRepository(ProposeScheduledCarpoolingRepositoryI
                 has_conflict = curs.fetchone()[0]
         return has_conflict
 
-
     def get_carpoolings_to_create_and_reserve_for(self, propose_scheduled_carpooling_id: int) -> List[tuple[int, datetime, int, List[float], List[float]]]:
         query = f"""
                 WITH ProposedScheduled AS (SELECT psc.starting_point,
@@ -368,3 +367,4 @@ class ProposeScheduledCarpoolingRepository(ProposeScheduledCarpoolingRepositoryI
                     carpoolings_to_create_and_reserve = curs.fetchall()
 
         return carpoolings_to_create_and_reserve
+

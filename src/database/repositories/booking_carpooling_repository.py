@@ -195,9 +195,9 @@ class BookingCarpoolingRepository(BookingCarpoolingRepositoryInterface):
 
     def get_booked_carpoolings(self,
                                user_id: int) -> List[ReserveCarpoolingTable]:
-        query = f""""
+        query = f"""
             SELECT *
-            FROM carmmate.{BOOKING_CARPOOLING_TABLE_NAME}
+            FROM carmate.{BOOKING_CARPOOLING_TABLE_NAME}
             WHERE user_id=%s
         """
 
