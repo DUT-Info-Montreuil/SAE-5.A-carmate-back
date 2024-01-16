@@ -59,7 +59,7 @@ python3 src/main.py
 ### Comment execute l'image ?
 Pour lancer l'image Docker depuis votre machine, vous devez tous d'abord `pull` l'image :
 ```
-docker pull ghcr.io/dut-info-montreuil/sae-5.a-carmate-back:master
+docker pull ghcr.io/dut-info-montreuil/sae-5.a-carmate-back:latest
 ```
 Ensuite, lancez l'image Docker :
 ```

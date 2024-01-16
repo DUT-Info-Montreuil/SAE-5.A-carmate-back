@@ -1,5 +1,11 @@
 # Code style
 PEP guide: https://peps.python.org/pep-0008/
+## Sommaire :
+- [Import](#import)
+- [Classe](#classe)
+- [Fonction](#fonction)
+- [Condition](#condition)
+
 ## Import
 ```python
 import os
@@ -9,13 +15,25 @@ from datetime import datetime
 from typing import List
 
 from src.something import MyClazz
+from src.many_import import (
+    a,
+    b,
+    c,
+    d,
+    e,
+    f
+)
+from tests import A
+from tests.b import B
 ```
+
 ## Classe
 ```python
-@something
-class MyClazz(object):
-    """hello world"""
 
+
+@something
+class MyClazz:
+    """hello world"""
     var: str = "something"
 
     def __init__(self) -> None:
@@ -40,18 +58,52 @@ class MyClazz(object):
             Exception: incredible 
         """
         pass
+
+
+class MyClazzHeritance(object):
+    """hello world"""
+    var: str = "something"
+
+    def __init__(self) -> None:
+        super().__init__()
+
+
 ```
+
 ## Fonction
 ```python
+
+
 @something
-def func_foo(args: List[str]) -> None:
+def func_foo(args1: List[str],
+             args2: Tuple[int, int, int]) -> None:
     """he make something
 
     :param args: beautiful args
+    :param args2: other beautiful args
     
     :return None: nothing
     :raise:
         Exception: incredible 
     """
     pass
+
+
+def func_foo2() -> Tuple[int,
+                         float,
+                         int,
+                         str,
+                         Tuple[int, int, int], 
+                         List[Tuple[int, int, int]]]:
+    pass
+
+
+```
+
+## Condition
+```python
+if val == 'val' \
+        and other_val == 'val' \
+        or wrong_val == 'val':
+    print('i d\'ont know')
 ```
