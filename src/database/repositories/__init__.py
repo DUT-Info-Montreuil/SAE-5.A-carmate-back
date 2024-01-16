@@ -8,4 +8,4 @@ from .carpooling_repository import CarpoolingRepository
 from .user_admin_repository import UserAdminRepository
 from .user_banned_repository import UserBannedRepository
 from .review_repository import ReviewRepository
-from .propose_scheduled_carpooling import ProposeScheduledCarpoolingRepository
+from .propose_scheduled_carpooling_repository import ProposeScheduledCarpoolingRepository
