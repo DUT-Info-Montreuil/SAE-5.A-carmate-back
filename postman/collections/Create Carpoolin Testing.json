@@ -1,0 +1,666 @@
+{
+	"info": {
+		"_postman_id": "5848c1bd-0c42-4c95-8c87-fe3e76e5ae53",
+		"name": "Create Carpoolin Testing",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_uid": "31708025-5848c1bd-0c42-4c95-8c87-fe3e76e5ae53"
+	},
+	"item": [
+		{
+			"name": "regular_usage (expect 204)",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "38a5d558-4bf1-4e2e-8240-2eca3986bd14",
+						"exec": [
+							"pm.test(\"Status code is 200\", function () {\r",
+							"    pm.response.to.have.status(200);\r",
+							"});\r",
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"id": "bcd114c1-8ecf-4110-9f5f-371a80406845",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "bearer token-driver-valid",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"starting_point\": [48.85598, 2.36329],\r\n    \"destination\": [48.85458, 2.1296],\r\n    \"max_passengers\": 4,\r\n    \"price\": 0,\r\n    \"departure_date_time\": 1732611600\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:5000/carpooling",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "5000",
+					"path": [
+						"carpooling"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "start_date invalid (expect 400)",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "d9732786-4594-4d44-9258-5539c14a22be",
+						"exec": [
+							"pm.test(\"Status code is 400\", function () {\r",
+							"    pm.response.to.have.status(400);\r",
+							"});\r",
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"id": "091f022b-8f3d-4680-af9b-0a400de5fbf7",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "bearer token-driver-valid",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"starting_point\": [48.85598, 2.36329],\r\n    \"destination\": [48.85458, 2.1296],\r\n    \"max_passengers\": 4,\r\n    \"price\": 0,\r\n    \"departure_date_time\": -199\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:5000/carpooling",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "5000",
+					"path": [
+						"carpooling"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "start_date sooner than today (expect 400)",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "8cd4087f-c6eb-4f08-8583-734f1cca2903",
+						"exec": [
+							"pm.test(\"Status code is 400\", function () {\r",
+							"    pm.response.to.have.status(400);\r",
+							"});\r",
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"id": "2c7b473c-530e-4ab0-a031-14c4eb0adf8d",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "bearer token-driver-valid",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"starting_point\": [48.85598, 2.36329],\r\n    \"destination\": [48.85458, 2.1296],\r\n    \"max_passengers\": 4,\r\n    \"price\": 0,\r\n    \"departure_date_time\": 1703175575\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:5000/carpooling",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "5000",
+					"path": [
+						"carpooling"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "starting point invalid (expect 422)",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "6f7456eb-6a0c-45d3-b65d-c0ec1ccac8a1",
+						"exec": [
+							"pm.test(\"Status code is 422\", function () {\r",
+							"    pm.response.to.have.status(422);\r",
+							"});\r",
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"id": "3b8942d0-a955-4438-9db0-1f18304b12a4",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "bearer token-driver-valid",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"starting_point\": [99.2222, 2.36329],\r\n    \"destination\": [48.85458, 2.1296],\r\n    \"max_passengers\": 4,\r\n    \"price\": 0,\r\n    \"departure_date_time\": 2032611600\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:5000/carpooling",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "5000",
+					"path": [
+						"carpooling"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "destination invalid (expect 422)",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "fca9d65d-3505-4eb2-99f9-1f035f49aa88",
+						"exec": [
+							"pm.test(\"Status code is 422\", function () {\r",
+							"    pm.response.to.have.status(422);\r",
+							"});\r",
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"id": "ecd998c6-3cd7-4b5a-af5c-dc1641d98af7",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "bearer token-driver-valid",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"starting_point\": [48.85458, 2.36329],\r\n    \"destination\": [99.222, 2.1296],\r\n    \"max_passengers\": 4,\r\n    \"price\": 0,\r\n    \"departure_date_time\": 1932611600\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:5000/carpooling",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "5000",
+					"path": [
+						"carpooling"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "price invalid negative price (expect 400)",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "8ee00066-563c-4a3e-ba4f-cc18b5c7ce8a",
+						"exec": [
+							"pm.test(\"Status code is 400\", function () {\r",
+							"    pm.response.to.have.status(400);\r",
+							"});\r",
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"id": "8008f0ca-de50-41e1-87c3-68a0882a74e0",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "bearer token-driver-valid",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"starting_point\": [48.85598, 2.36329],\r\n    \"destination\": [48.85458, 2.1296],\r\n    \"max_passengers\": 4,\r\n    \"price\": -10,\r\n    \"departure_date_time\": 1732611600\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:5000/carpooling",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "5000",
+					"path": [
+						"carpooling"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "user is not a connected (expect 401)",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "69f2f819-8d2f-45fe-8d5e-f16851cc8473",
+						"exec": [
+							"pm.test(\"Status code is 401\", function () {\r",
+							"    pm.response.to.have.status(401);\r",
+							"});\r",
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"id": "5e82e915-05fb-40ff-9a62-9ec17c6480d9",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"starting_point\": [48.85598, 2.36329],\r\n    \"destination\": [48.85458, 2.1296],\r\n    \"max_passengers\": 4,\r\n    \"price\": 0,\r\n    \"departure_date_time\": 1703175575\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:5000/carpooling",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "5000",
+					"path": [
+						"carpooling"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "user has token expired (expect 401)",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "ca67bae4-cf5e-4b1f-a1f6-87d1198d6126",
+						"exec": [
+							"pm.test(\"Status code is 401\", function () {\r",
+							"    pm.response.to.have.status(401);\r",
+							"});\r",
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"id": "76b06172-03c1-4f04-869f-a3b011f978a2",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "bearer token-user-invalid",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"starting_point\": [48.85598, 2.36329],\r\n    \"destination\": [48.85458, 2.1296],\r\n    \"max_passengers\": 4,\r\n    \"price\": 0,\r\n    \"departure_date_time\": 1703175575\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:5000/carpooling",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "5000",
+					"path": [
+						"carpooling"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "has driver license not validated (expect 403)",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "e4193002-98a1-4214-b57f-91e792ece68b",
+						"exec": [
+							"pm.test(\"Status code is 403\", function () {\r",
+							"    pm.response.to.have.status(403);\r",
+							"});\r",
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"id": "96ac759a-c079-4a81-97ec-08fff67e3cac",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "bearer token-driver-not-validated",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"starting_point\": [48.85598, 2.36329],\r\n    \"destination\": [48.85458, 2.1296],\r\n    \"max_passengers\": 4,\r\n    \"price\": 0,\r\n    \"departure_date_time\": 1703175575\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:5000/carpooling",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "5000",
+					"path": [
+						"carpooling"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "user is not a driver (expect 403)",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "27c37fba-2c02-4a74-a9f4-e0ef28025abc",
+						"exec": [
+							"pm.test(\"Status code is 403\", function () {\r",
+							"    pm.response.to.have.status(403);\r",
+							"});\r",
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"id": "b92096f4-efbd-4445-801b-b8379a65774a",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "bearer token-user-valid",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"starting_point\": [48.85598, 2.36329],\r\n    \"destination\": [48.85458, 2.1296],\r\n    \"max_passengers\": 4,\r\n    \"price\": 0,\r\n    \"departure_date_time\": 1703175575\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:5000/carpooling",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "5000",
+					"path": [
+						"carpooling"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "user is banned (expect 403)",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "977eed5e-fcb9-4468-8890-bb291dc17964",
+						"exec": [
+							"pm.test(\"Status code is 403\", function () {\r",
+							"    pm.response.to.have.status(403);\r",
+							"});\r",
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"id": "446db31f-edc4-4de9-92db-cac8497b8bcc",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "bearer token-user-valid",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"starting_point\": [48.85598, 2.36329],\r\n    \"destination\": [48.85458, 2.1296],\r\n    \"max_passengers\": 4,\r\n    \"price\": 0,\r\n    \"departure_date_time\": 1703175575\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:5000/carpooling",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "5000",
+					"path": [
+						"carpooling"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "request content invalid (expect 415)",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "571d457e-674f-41ee-acac-ec6748af62b4",
+						"exec": [
+							"pm.test(\"Status code is 415\", function () {\r",
+							"    pm.response.to.have.status(415);\r",
+							"});\r",
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"id": "119e8587-0c23-4b41-9755-f736d6f155f4",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "bearer token-driver-valid",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "formdata",
+					"formdata": [
+						{
+							"key": "starting_point",
+							"value": "[48.85598, 2.36329]",
+							"type": "text"
+						},
+						{
+							"key": "destination",
+							"value": "[48.85458, 2.1296]",
+							"type": "text"
+						},
+						{
+							"key": "max_passengers",
+							"value": "4",
+							"type": "text"
+						},
+						{
+							"key": "price",
+							"value": "0",
+							"type": "text"
+						},
+						{
+							"key": "departure_date_time",
+							"value": "1732611600",
+							"type": "text"
+						}
+					],
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:5000/carpooling",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "5000",
+					"path": [
+						"carpooling"
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}
