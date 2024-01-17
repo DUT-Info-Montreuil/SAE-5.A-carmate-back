@@ -92,7 +92,7 @@ class LicenseRepository(LicenseRepositoryInterface):
 
     def get_license_not_validated(self, document_id: int) -> LicenseToValidate:
         query = f"""
-            SELECT ur.first_name, ur.last_name, ur.account_status, lr.published_at, lr.document_type, lr.license_img, lr.validation_status
+            SELECT lr.id, ur.first_name, ur.last_name, ur.account_status, lr.published_at, lr.document_type, lr.license_img, lr.validation_status
             FROM carmate.{LICENSE_TABLE_NAME} lr
             INNER JOIN carmate."{USER_TABLE_NAME}" ur 
                 ON lr.user_id=ur.id
@@ -110,10 +110,9 @@ class LicenseRepository(LicenseRepositoryInterface):
                 except Exception as e:
                     raise InternalServer(str(e))
                 found_license = curs.fetchone()
-
         if found_license is None:
             raise NotFound("document not found")
-        if found_license[6] != ValidationStatus.Pending.name:
+        if found_license[7] != ValidationStatus.Pending.name:
             raise DocumentAlreadyChecked("document is already checked")
         return LicenseToValidate.tuple_to_self(found_license)
 

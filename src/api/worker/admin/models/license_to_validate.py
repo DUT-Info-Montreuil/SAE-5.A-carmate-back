@@ -5,6 +5,7 @@ from dataclasses import dataclass
 
 @dataclass(frozen=True)
 class LicenseToValidate:
+    id: int
     first_name: str
     last_name: str
     account_type: str
@@ -21,10 +22,12 @@ class LicenseToValidate:
             _tuple[3],
             _tuple[4],
             _tuple[5],
+            _tuple[6],
         )
 
     def to_json(self) -> dict:
         return {
+            "document_id": self.id,
             "first_name": self.first_name,
             "last_name": self.last_name,
             "account_type": self.account_type,
