@@ -15,6 +15,7 @@ class PublishedCarpoolingDTO:
     is_canceled: bool
     departure_date_time: datetime
     driver_id: int
+    seats_taken: int
     passengers_profile: List[PassengerProfileDTO]
 
     def to_json(self):

@@ -22,8 +22,8 @@ def establishing_connection():
 
 from . import schemas
 from . import exceptions
-from . import interfaces
 
 from .tables_name import *
 
+from . import interfaces
 from . import repositories

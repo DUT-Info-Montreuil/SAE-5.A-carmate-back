@@ -192,3 +192,22 @@ class ScheduledCarpoolingRepository(ScheduledCarpoolingRepositoryInterface):
                     raise InternalServer(str(e))
                 has_conflict = curs.fetchone()[0]
         return has_conflict
+    
+    def get_scheduled_carpooling_created_by(self,
+                                            driver_id: int) -> List[DriverScheduledCarpoolingTable]:
+        query = f"""
+            SELECT *
+            FROM carmate.{DRIVER_SCHEDULED_CARPOOLING_TABLE_NAME}
+            WHERE driver_id=%s
+        """
+
+        scheduled_carpoolings: List[tuple]
+        with establishing_connection() as conn:
+            with conn.cursor() as curs:
+                try:
+                    curs.execute(query, (driver_id,))
+                except Exception as e:
+                    raise InternalServer(str(e))
+                scheduled_carpoolings = curs.fetchall()
+        return [DriverScheduledCarpoolingTable(*scheduled_carpooling) for scheduled_carpooling in scheduled_carpoolings]
+

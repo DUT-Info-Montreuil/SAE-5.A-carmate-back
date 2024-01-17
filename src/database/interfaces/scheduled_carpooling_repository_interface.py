@@ -32,3 +32,6 @@ class ScheduledCarpoolingRepositoryInterface(ABC):
                                         driver_id: int,
                                         date: datetime.date,
                                         day: Weekday) -> bool: ...
+    
+    def get_scheduled_carpooling_created_by(self,
+                                            driver_id: int) -> List[DriverScheduledCarpoolingTable]: ...

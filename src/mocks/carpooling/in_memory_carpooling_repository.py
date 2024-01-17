@@ -4,6 +4,7 @@ import random
 from datetime import datetime, timedelta
 from typing import List, Tuple
 
+from api.worker.carpooling.models import CarpoolingForRecap
 from database.interfaces import CarpoolingRepositoryInterface
 from database.schemas import (
     CarpoolingTable,
@@ -165,3 +166,8 @@ class InMemoryCarpoolingRepository(CarpoolingRepositoryInterface):
                     and not carpooling.is_canceled:
                 return True
         return False
+    
+    def get_booked_carpoolings(self,
+                               user_id: int) -> List[CarpoolingForRecap]:
+        """ TODO """
+        return []

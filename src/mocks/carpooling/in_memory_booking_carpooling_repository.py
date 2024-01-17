@@ -2,7 +2,7 @@ from datetime import datetime
 from typing import List
 
 from database.exceptions import NotFound
-from database.schemas import ReserveCarpoolingTable, CarpoolingTable, Weekday
+from database.schemas import ReserveCarpoolingTable, Weekday
 from database.interfaces import BookingCarpoolingRepositoryInterface
 from database.schemas import ReserveCarpoolingTable
 
