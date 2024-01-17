@@ -194,19 +194,27 @@ class BookingCarpoolingRepository(BookingCarpoolingRepositoryInterface):
         return [PassengerProfileTable(*passenger) for passenger in passengers]
 
     def get_booked_carpoolings(self,
-                               user_id: int) -> List[ReserveCarpoolingTable]:
+                               user_id: int):
         query = f"""
-            SELECT *
-            FROM carmate.{BOOKING_CARPOOLING_TABLE_NAME}
-            WHERE user_id=%s
+            SELECT c.id, c.starting_point, c.destination, c.max_passengers, c.price, c.departure_date_time, c.driver_id, (
+                SELECT COUNT(rc.user_id)
+                FROM carmate.{BOOKING_CARPOOLING_TABLE_NAME} rc
+                INNER JOIN carmate.{CARPOOLING_TABLE_NAME} c
+                    ON rc.carpooling_id = c.id
+                WHERE rc.user_id = %s
+            ) , false, rc.passenger_code
+            FROM carmate.{BOOKING_CARPOOLING_TABLE_NAME} rc
+            INNER JOIN carmate.{CARPOOLING_TABLE_NAME} c
+                ON rc.carpooling_id = c.id
+            WHERE rc.user_id = %s
         """
 
         booking_carpoolings: List[tuple]
         with establishing_connection() as conn:
             with conn.cursor() as curs:
                 try:
-                    curs.execute(query, (user_id,))
+                    curs.execute(query, (user_id,user_id))
                 except Exception as e:
                     raise InternalServer(str(e))
                 booking_carpoolings = curs.fetchall()
-        return [ReserveCarpoolingTable(*booking_carpooling) for booking_carpooling in booking_carpoolings]
+        return booking_carpoolings

@@ -9,3 +9,4 @@ from .get_published_schedule_carpooling import GetPublishedScheduleCarpooling
 from .create_driver_scheduled_carpooling import *
 from .look_for_passengers import *
 from .get_carpooling_booked import GetBookedCarpoolings
+from .get_propose_scheduled_carpoolings import GetProposeScheduledCarpoolings

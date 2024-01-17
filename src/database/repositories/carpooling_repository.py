@@ -5,6 +5,7 @@ from psycopg2 import ProgrammingError, errorcodes
 from psycopg2.errors import lookup
 
 from api.worker.carpooling.models import CarpoolingForRecap
+from api.worker.user.models import PublishedCarpoolingDTO
 from database import (
     CARPOOLING_TABLE_NAME,
     BOOKING_CARPOOLING_TABLE_NAME,
@@ -246,11 +247,14 @@ class CarpoolingRepository(CarpoolingRepositoryInterface):
         return has_carpooling
 
     def get_carpooling_created_by(self,
-                                  driver_id: int) -> List[CarpoolingTable]:
+                                  driver_id: int) -> List[PublishedCarpoolingDTO]:
         query = f"""
-            SELECT *
-            FROM carmate.{CARPOOLING_TABLE_NAME}
-            WHERE driver_id=%s
+            SELECT c.*, count(r.user_id) as seats_taken
+            FROM carmate.{CARPOOLING_TABLE_NAME} c
+            LEFT JOIN carmate.{BOOKING_CARPOOLING_TABLE_NAME} r
+                ON c.id = r.carpooling_id
+            GROUP BY c.id
+            HAVING driver_id=%s
         """
 
         carpoolings: List[tuple]
@@ -261,7 +265,7 @@ class CarpoolingRepository(CarpoolingRepositoryInterface):
                 except Exception as e:
                     raise InternalServer(str(e))
                 carpoolings = curs.fetchall()
-        return [CarpoolingTable(*carpooling) for carpooling in carpoolings]
+        return [PublishedCarpoolingDTO(*carpooling, []) for carpooling in carpoolings]
 
     def get_carpooling_by_scheduled_carpooling_and_date(self,
                                                         scheduled_carpooling_id: int,

@@ -1,5 +1,5 @@
 from datetime import datetime
-from typing import List
+from typing import List, Tuple
 
 from psycopg2 import ProgrammingError, errorcodes
 from psycopg2.errors import lookup
@@ -8,7 +8,8 @@ from database import (
     PASSENGER_SCHEDULED_CARPOOLING_TABLE_NAME,
     PASSENGER_PROFILE_TABLE_NAME,
     BOOKING_CARPOOLING_TABLE_NAME,
-    CARPOOLING_TABLE_NAME, 
+    CARPOOLING_TABLE_NAME,
+    USER_TABLE_NAME,
     establishing_connection
 )
 from database.exceptions import UniqueViolation, InternalServer, NotFound
@@ -367,4 +368,77 @@ class ProposeScheduledCarpoolingRepository(ProposeScheduledCarpoolingRepositoryI
                     carpoolings_to_create_and_reserve = curs.fetchall()
 
         return carpoolings_to_create_and_reserve
+    
+    def get_propose_scheduled_carpoolings_from_user_id(self,
+                                                       user_id: int) -> List[Tuple[CarpoolingTable, int, str, str]]:
+        query = f"""
+            WITH ProposedSchedule AS (
+                SELECT pc.id AS propose_carpool_id,
+                       unnest(pc.days)::weekday AS reserved_day,
+                       pc.start_date,
+                       pc.end_date,
+                       pc.starting_point,
+                       pc.destination,
+                       pc.start_hour,
+                       pp.user_id
+                FROM carmate.{PASSENGER_SCHEDULED_CARPOOLING_TABLE_NAME} pc
+                INNER JOIN carmate.{PASSENGER_PROFILE_TABLE_NAME} pp
+                    ON pc.passenger_id=pp.id
+                WHERE pp.user_id=%s
+            ),
+            ReservationDates AS (
+                SELECT propose_carpool_id,
+                       starting_point,
+                       destination,
+                       start_hour,
+                       user_id,
+                       reserved_date
+                FROM (SELECT *,
+                             generate_series(start_date, 
+                                             end_date, 
+                                             '1 day'::interval)::DATE AS reserved_date
+                      FROM ProposedSchedule) pc
+                WHERE EXTRACT(DOW FROM pc.reserved_date)=pc.reserved_day::integer
+            ),
+            AlreadyReservedDates AS (
+                SELECT c.*,
+                       0 as seats_taken,
+                       1 as user_id
+                FROM carmate.{BOOKING_CARPOOLING_TABLE_NAME} rc
+                INNER JOIN carmate.{CARPOOLING_TABLE_NAME} c 
+                    ON rc.carpooling_id=c.id
+                INNER JOIN ReservationDates rd 
+                    ON rd.user_id=rc.user_id
+                WHERE rd.reserved_date=c.departure_date_time::date
+                    AND rd.start_hour=c.departure_date_time::time
+                GROUP BY c.id
+            )
+            SELECT ard.id,
+                   ard.starting_point,
+                   ard.destination,
+                   ard.max_passengers,
+                   ard.departure_date_time,
+                   ard.is_canceled,
+                   ard.driver_id,
+                   ard.seats_taken,
+                   u.first_name,
+                   u.last_name
+            FROM AlreadyReservedDates ard
+            INNER JOIN carmate.{USER_TABLE_NAME} u
+                ON ard.user_id=u.id
+        """
 
+        propose_scheduled_carpoolings: List[tuple]
+        with establishing_connection() as conn:
+            with conn.cursor() as curs:
+                try:
+                    curs.execute(query, (user_id,))
+                except Exception as e:
+                    raise InternalServer(str(e))
+                propose_scheduled_carpoolings = curs.fetchall()
+        nb_field = len(CarpoolingTable.__dict__.keys())
+        return [(CarpoolingTable(*propose_scheduled_carpooling[:nb_field]),
+                 propose_scheduled_carpooling[nb_field],
+                 propose_scheduled_carpooling[nb_field + 1],
+                 propose_scheduled_carpooling[nb_field + 2]) 
+                 for propose_scheduled_carpooling in propose_scheduled_carpoolings]

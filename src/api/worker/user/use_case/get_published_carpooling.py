@@ -20,13 +20,12 @@ class GetPublishedCarpooling(Worker):
         except Exception as e:
             raise InternalServerError(str(e))
         
-        carpoolings: List[CarpoolingTable]
+        carpoolings: List[PublishedCarpoolingDTO]
         try:
             carpoolings = self.carpooling_repository.get_carpooling_created_by(driver_profile.id)
         except Exception as e:
             raise InternalServerError(str(e))
 
-        published_carpoolings: List[PublishedCarpoolingDTO] = []
         for carpooling in carpoolings:
             passengers_from_carpooling: List[PassengerProfileTable]
             try:
@@ -34,15 +33,5 @@ class GetPublishedCarpooling(Worker):
             except Exception as e:
                 raise InternalServerError(str(e))
 
-            published_carpoolings.append(PublishedCarpoolingDTO(
-                carpooling.id,
-                carpooling.starting_point,
-                carpooling.destination,
-                carpooling.max_passengers,
-                carpooling.price,
-                carpooling.is_canceled,
-                carpooling.departure_date_time,
-                carpooling.driver_id,
-                passengers_from_carpooling
-            ))
-        return published_carpoolings
+            carpooling.passengers_profile = passengers_from_carpooling
+        return carpoolings

@@ -1,6 +1,6 @@
 from abc import ABC
 from datetime import datetime
-from typing import List
+from typing import List, Tuple
 
 from database.schemas import CarpoolingTable, Weekday
 
@@ -40,3 +40,6 @@ class ProposeScheduledCarpoolingRepositoryInterface(ABC):
                                         day: Weekday) -> bool: ...
 
     def get_carpoolings_to_create_and_reserve_for(self, propose_scheduled_carpooling_id: int) -> List[tuple[int, datetime, int, List[float], List[float]]]: ...
+
+    def get_propose_scheduled_carpoolings_from_user_id(self,
+                                                       user_id: int) -> List[Tuple[CarpoolingTable, int, str, str]]: ...

@@ -3,6 +3,7 @@ from datetime import datetime
 from typing import List, Tuple
 
 from api.worker.carpooling.models import CarpoolingForRecap
+from api.worker.user.models import PublishedCarpoolingDTO
 from database.schemas import CarpoolingTable, Weekday
 
 
@@ -43,7 +44,7 @@ class CarpoolingRepositoryInterface(ABC):
                           timestamp: int) -> bool: ...
 
     def get_carpooling_created_by(self,
-                                  driver_id: int) -> List[CarpoolingTable]: ...
+                                  driver_id: int) -> List[PublishedCarpoolingDTO]: ...
 
     def get_carpooling_by_scheduled_carpooling_and_date(self,
                                                         scheduled_carpooling_id: int,
