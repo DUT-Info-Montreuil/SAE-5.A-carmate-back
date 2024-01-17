@@ -127,8 +127,7 @@ class AdminRoutes(Blueprint):
         if "statut" not in validation_information_args:
             abort(400)
 
-        query_data = request.args.to_dict()
-
+        query_data = request.json
         license_id: int
         try:
             license_id = int(query_data["license_id"])

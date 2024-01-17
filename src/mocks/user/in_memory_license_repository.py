@@ -83,6 +83,7 @@ class InMemoryLicenseRepository(LicenseRepositoryInterface):
             raise Exception("The user linked to the document doesn't exists")
 
         license_to_validate = LicenseToValidate.tuple_to_self((
+            document_found.id,
             user_found.first_name,
             user_found.last_name,
             user_found.account_status,
