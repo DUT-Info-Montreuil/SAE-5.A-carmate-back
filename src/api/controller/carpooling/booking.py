@@ -63,7 +63,6 @@ class BookingRoutes(Blueprint):
             abort(409)
         except CarpoolingBookedTooLate:
             abort(423)
-        except Exception as e:
-            print(e)
+        except Exception:
             abort(500)
         return jsonify({"passenger_code": passenger_code})

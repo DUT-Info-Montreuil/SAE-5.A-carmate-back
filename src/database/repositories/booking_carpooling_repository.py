@@ -45,7 +45,7 @@ class BookingCarpoolingRepository(BookingCarpoolingRepositoryInterface):
                     raise InternalServer(str(e))
                 booking_carpooling = curs.fetchone()
         return ReserveCarpoolingTable(*booking_carpooling)
-    
+
     def seats_taken(self,
                    carpooling_id: int) -> int:
         query = f"""
@@ -196,24 +196,29 @@ class BookingCarpoolingRepository(BookingCarpoolingRepositoryInterface):
     def get_booked_carpoolings(self,
                                user_id: int):
         query = f"""
-            SELECT c.id, c.starting_point, c.destination, c.max_passengers, c.price, c.departure_date_time, c.driver_id, (
-                SELECT COUNT(rc.user_id)
-                FROM carmate.{BOOKING_CARPOOLING_TABLE_NAME} rc
-                INNER JOIN carmate.{CARPOOLING_TABLE_NAME} c
-                    ON rc.carpooling_id = c.id
-                WHERE rc.user_id = %s
-            ) , false, rc.passenger_code
-            FROM carmate.{BOOKING_CARPOOLING_TABLE_NAME} rc
-            INNER JOIN carmate.{CARPOOLING_TABLE_NAME} c
-                ON rc.carpooling_id = c.id
-            WHERE rc.user_id = %s
-        """
+            WITH CarpoolingId as(
+                SELECT carpooling_id
+                FROM carmate.reserve_carpooling
+                WHERE user_id = %s
+            ),
+                Count as (
+                    SELECT COUNT(user_id) as count, carpooling_id
+                    FROM carmate.reserve_carpooling
+                    WHERE carpooling_id IN (SELECT carpooling_id FROM CarpoolingId)
+                    GROUP BY carpooling_id
+                )
+                    SELECT DISTINCT ON (c.id) c.id, c.starting_point, c.destination, c.max_passengers, c.price, c.departure_date_time, c.driver_id, count, false, r.passenger_code
+                    FROM carmate.carpooling c
+                    INNER JOIN carmate.reserve_carpooling r on r.carpooling_id = c.id
+                    INNER JOIN Count cou on cou.carpooling_id = c.id
+                    WHERE c.id IN (SELECT carpooling_id FROM CarpoolingId)
+                        """
 
         booking_carpoolings: List[tuple]
         with establishing_connection() as conn:
             with conn.cursor() as curs:
                 try:
-                    curs.execute(query, (user_id,user_id))
+                    curs.execute(query, (user_id, ))
                 except Exception as e:
                     raise InternalServer(str(e))
                 booking_carpoolings = curs.fetchall()
