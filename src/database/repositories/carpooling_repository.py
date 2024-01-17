@@ -57,29 +57,70 @@ class CarpoolingRepository(CarpoolingRepositoryInterface):
                               departure_date_time: int,
                               page: int = 1,
                               per_page: int = 10) -> Tuple[int, List[CarpoolingForRecap]] | Tuple[int, List]:
-        query_nb_carpoolings_route = f"""
-            SELECT count(id) as nb_carpoolings_route
-            FROM carmate.{CARPOOLING_TABLE_NAME}
-            WHERE ABS(starting_point[1] - %s) < {self.RADIUS} 
-                AND ABS(starting_point[2] - %s) < {self.RADIUS} 
-                AND ABS(destination[1] - %s) < {self.RADIUS}
-                AND ABS(destination[2] - %s) < {self.RADIUS}
-                AND departure_date_time >= to_timestamp(%s)
-        """
         query = f"""
-            SELECT c.id, c.starting_point, c.destination, c.max_passengers, c.price, c.departure_date_time, c.driver_id
-            FROM carmate.{CARPOOLING_TABLE_NAME} c 
-            LEFT JOIN carmate.{BOOKING_CARPOOLING_TABLE_NAME} r 
-                ON c.id=r.carpooling_id
-            GROUP BY c.id
-            HAVING ABS(starting_point[1] - %s) < {self.RADIUS} 
-                AND ABS(starting_point[2] - %s) < {self.RADIUS} 
-                AND ABS(destination[1] - %s) < {self.RADIUS}
-                AND ABS(destination[2] - %s) < {self.RADIUS}
-                AND departure_date_time >= to_timestamp(%s)
-            ORDER BY c.id
-            LIMIT {per_page} 
-            OFFSET {(page - 1) * per_page}
+                WITH Carpoolings as (SELECT c.id                  as id,
+                                            c.starting_point      as starting_point,
+                                            c.destination         as destination,
+                                            c.max_passengers      as max_passengers,
+                                            c.price               as price,
+                                            c.departure_date_time as departure_date_time,
+                                            c.driver_id           as driver_id,
+                                            count(r.user_id)      as seats_taken
+                                     FROM carmate.carpooling c
+                                              LEFT JOIN carmate.reserve_carpooling r
+                                                        ON c.id = r.carpooling_id
+                                     GROUP BY c.id
+                                     HAVING ABS(starting_point[1] - %s) < {self.RADIUS}
+                                        AND ABS(starting_point[2] - %s) < {self.RADIUS}
+                                        AND ABS(destination[1] - %s) < {self.RADIUS}
+                                        AND ABS(destination[2] - %s) < {self.RADIUS}
+                                        AND departure_date_time BETWEEN to_timestamp(%s) - INTERVAL '1 hour' AND to_timestamp(%s) + INTERVAL '1 hour'),
+                     PotentialScheduledCarpooling as (SELECT sc.id                    as id,
+                                                             sc.starting_point        as starting_point,
+                                                             sc.destination           as destination,
+                                                             sc.max_passengers        as max_passengers,
+                                                             0                        as price,
+                                                             (to_timestamp(%s)::date + sc.start_hour)         as departure_date_time, -- yes there is a problem here but amen deadline is coming
+                                                             sc.driver_id             as driver_id,
+                                                             0                        as seats_taken,
+                                                             unnest(sc.days)::weekday as reserved_day,
+                                                             sc.start_hour            as start_hour
+                                                      FROM carmate.scheduled_carpooling sc
+                                                      WHERE ABS(starting_point[1] - %s) < {self.RADIUS}
+                                                        AND ABS(starting_point[2] - %s) < {self.RADIUS}
+                                                        AND ABS(destination[1] - %s) < {self.RADIUS}
+                                                        AND ABS(destination[2] - %s) < {self.RADIUS}
+                                                        AND (
+                                                          to_timestamp(%s) + INTERVAL '1 hour' BETWEEN sc.start_date AND sc.end_date
+                                                              OR
+                                                          to_timestamp(%s) - INTERVAL '1 hour' BETWEEN sc.start_date AND sc.end_date
+                                                          )),
+                     PotentialScheduledCarpoolingWithDate as (SELECT id,
+                                                                     starting_point,
+                                                                     destination,
+                                                                     max_passengers,
+                                                                     price,
+                                                                     departure_date_time,
+                                                                     driver_id,
+                                                                     seats_taken
+                                                              FROM PotentialScheduledCarpooling
+                                                              WHERE reserved_day::integer = EXTRACT(DOW FROM to_timestamp(%s))),
+                     FilteredScheduledCarpoolingWithDate as (SELECT psc.*
+                                                             FROM PotentialScheduledCarpoolingWithDate psc
+                                                             WHERE NOT EXISTS (SELECT 1
+                                                                               FROM carmate.carpooling c
+                                                                               WHERE c.driver_id = psc.driver_id
+                                                                                 AND is_canceled = false
+                                                                                 AND c.departure_date_time = psc.departure_date_time)),
+                     Results as ((SELECT *, false as is_scheduled
+                                  FROM Carpoolings)
+                                 UNION
+                                 (SELECT *, true as is_scheduled
+                                  FROM FilteredScheduledCarpoolingWithDate))
+                SELECT *, (SELECT COUNT(*) FROM Results)
+                FROM Results
+                LIMIT {per_page} 
+                OFFSET {(page - 1) * per_page}
         """
 
         nb_carpoolings_route: int = 0
@@ -87,27 +128,16 @@ class CarpoolingRepository(CarpoolingRepositoryInterface):
         with establishing_connection() as conn:
             with conn.cursor() as curs:
                 try:
-                    curs.execute(query_nb_carpoolings_route,
-                                 (start_lat, start_lon, end_lat, end_lon, departure_date_time,))
-                except ProgrammingError:
-                    return nb_carpoolings_route, carpoolings_data
-                except Exception as e:
-                    raise InternalServer(str(e))
-
-                try:
-                    nb_carpoolings_route = curs.fetchone()[0]
-                except IndexError:
-                    pass
-
-                try:
-                    curs.execute(query, (start_lat, start_lon, end_lat, end_lon, departure_date_time,))
-                except ProgrammingError:
-                    return nb_carpoolings_route, carpoolings_data
+                    curs.execute(query,
+                                 (start_lat, start_lon, end_lat, end_lon, departure_date_time, departure_date_time, departure_date_time, start_lat, start_lon, end_lat, end_lon, departure_date_time, departure_date_time, departure_date_time))
                 except Exception as e:
                     raise InternalServer(str(e))
                 carpoolings_data = curs.fetchall()
-        return (nb_carpoolings_route,
-                [CarpoolingForRecap.to_self(carpooling) for carpooling in carpoolings_data])
+                if len(carpoolings_data) == 0:
+                    return nb_carpoolings_route, carpoolings_data
+
+        return (carpoolings_data[0][-1],
+                [CarpoolingForRecap.to_self(carpooling[0:-1]) for carpooling in carpoolings_data])
 
     def get_from_id(self,
                     carpooling_id: int) -> CarpoolingTable:
@@ -232,3 +262,37 @@ class CarpoolingRepository(CarpoolingRepositoryInterface):
                     raise InternalServer(str(e))
                 carpoolings = curs.fetchall()
         return [CarpoolingTable(*carpooling) for carpooling in carpoolings]
+
+    def get_carpooling_by_scheduled_carpooling_and_date(self,
+                                                        scheduled_carpooling_id: int,
+                                                        date: datetime.date):
+        query = f"""
+                WITH ScheduledCarpooling AS (SELECT start_date, end_date, start_hour, unnest(days) as reserved_day, driver_id
+                                             FROM carmate.scheduled_carpooling
+                                             WHERE id = %s),
+                     ScheduledCarpoolingWithFilteredDates AS (SELECT *
+                                                              FROM (SELECT *,
+                                                                           generate_series(start_date, end_date, '1 day'::interval) as days
+                                                                    FROM ScheduledCarpooling) sc
+                                                              WHERE EXTRACT(DOW FROM sc.days) = sc.reserved_day::integer
+                                                                AND sc.days = %s)
+                SELECT id
+                FROM carmate.carpooling c
+                         INNER JOIN ScheduledCarpoolingWithFilteredDates sc
+                                    ON (c.driver_id = sc.driver_id)
+                                        AND (c.departure_date_time = sc.days + sc.start_hour)
+        """
+        carpooling_id: tuple
+        with establishing_connection() as conn:
+            with conn.cursor() as curs:
+                try:
+                    curs.execute(query, (scheduled_carpooling_id, date))
+                except Exception as e:
+                    raise InternalServer(str(e))
+                carpooling_id = curs.fetchone()
+
+        if not carpooling_id or len(carpooling_id) == 0:
+            raise NotFound("Carpooling not found")
+
+        return carpooling_id[0]
+

@@ -17,6 +17,7 @@ class Worker(ABC):
     booking_carpooling_repository: BookingCarpoolingRepositoryInterface
     propose_scheduled_carpooling_repository: ProposeScheduledCarpoolingRepositoryInterface
     review_repository: ReviewRepositoryInterface
+    scheduled_carpooling_repository: ScheduledCarpoolingRepositoryInterface
 
     def __init__(self):
         match os.getenv("API_MODE"):
@@ -40,7 +41,8 @@ class Worker(ABC):
         self.booking_carpooling_repository = InMemoryBookingCarpoolingRepository()
         self.carpooling_repository = InMemoryCarpoolingRepository(self.booking_carpooling_repository)
         self.booking_carpooling_repository.carpooling_repository = self.carpooling_repository
-        self.propose_scheduled_carpooling_repository = InMemoryProposeScheduledCarpoolingRepository(self.booking_carpooling_repository, self.carpooling_repository, self.passenger_profile_repository)
+        self.scheduled_carpooling_repository = InMemoryScheduledCarpoolingRepository()
+        self.propose_scheduled_carpooling_repository = InMemoryProposeScheduledCarpoolingRepository(self.booking_carpooling_repository, self.carpooling_repository, self.passenger_profile_repository, self.scheduled_carpooling_repository)
         self.review_repository = InMemoryReviewRepository(self.driver_profile_repository, self.user_repository, self.carpooling_repository, self.booking_carpooling_repository)
 
     def __postgres(self) -> None:
@@ -55,6 +57,7 @@ class Worker(ABC):
         self.booking_carpooling_repository = BookingCarpoolingRepository()
         self.review_repository = ReviewRepository()
         self.propose_scheduled_carpooling_repository = ProposeScheduledCarpoolingRepository()
+        self.scheduled_carpooling_repository = ScheduledCarpoolingRepository()
 
     @abstractmethod
     def worker(self):

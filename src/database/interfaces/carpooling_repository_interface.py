@@ -41,6 +41,10 @@ class CarpoolingRepositoryInterface(ABC):
     def has_carpooling_at(self,
                           driver_id: int,
                           timestamp: int) -> bool: ...
-    
+
     def get_carpooling_created_by(self,
                                   driver_id: int) -> List[CarpoolingTable]: ...
+
+    def get_carpooling_by_scheduled_carpooling_and_date(self,
+                                                        scheduled_carpooling_id: int,
+                                                        date: datetime.date): ...
