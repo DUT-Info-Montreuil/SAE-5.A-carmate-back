@@ -96,7 +96,7 @@ class ProposeScheduledCarpoolingRepository(ProposeScheduledCarpoolingRepositoryI
 
     def get_user_id_from_scheduled_carpooling(self, propose_scheduled_carpooling_id: int) -> int:
         query = f"""
-                SELECT pp.id
+                SELECT pp.user_id
                 FROM carmate.{PASSENGER_SCHEDULED_CARPOOLING_TABLE_NAME} pc
                 INNER JOIN carmate.{PASSENGER_PROFILE_TABLE_NAME} pp ON (pc.passenger_id = pp.id)
                 WHERE pc.id = %s
