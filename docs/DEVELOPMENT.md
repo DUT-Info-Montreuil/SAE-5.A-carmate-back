@@ -191,6 +191,18 @@ docker compose -f "postman/docker-compose.yaml" up db
 Le nom de la base de données héberger correspond au nom d'utilisateur par defaut.
 Le `POSTGRES_USER` par defaut est postgres et son password est postgres
 
+## Comment lancer l'API
+### Installation des dépendences
+Assurez-vous d'avoir installé toutes les dépendances qui sont dans le fichier `requirements.txt`
+```python
+python3 -m pip install -r src/requirements.txt
+```
+### Lancement de l'API
+Placez-vous dans le dossier `src` et faite cette commande :
+```python
+python3 ./main.py
+```
+
 ## Lancer les tests unitaire
 Placez-vous dans le dossier `src` et faite cette commande
 ```
