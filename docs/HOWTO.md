@@ -207,7 +207,7 @@ Placez-vous dans le dossier worker et nommé vous un dossier qui correspond au n
 |  |  ^
 |  |  | 📁 - driver
 ```
-Une fois le dossier crée, vous devez obligatoirement crée 3 autres dossiers qui portera le nom `interfaces`, `models` et `use_case`.
+Une fois le dossier crée, vous devez obligatoirement créer 2 autres dossiers qui porteront le nom `models` et `use_case`.
 ```
 📁 - src
 ^
@@ -217,7 +217,6 @@ Une fois le dossier crée, vous devez obligatoirement crée 3 autres dossiers qu
 |  |  ^
 |  |  | 📁 - driver
 |  |  |  ^
-|  |  |  | 📁 - interfaces
 |  |  |  | 📁 - models
 |  |  |  | 📁 - use_case
 ```
@@ -233,7 +232,6 @@ Lorque les 3 dossiers on été crée, vous pouvez commencez a mettre votre parti
 |  |  ^
 |  |  | 📁 - driver
 |  |  |  ^
-|  |  |  | 📁 - interfaces
 |  |  |  | 📁 - models
 |  |  |  | 📁 - use_case
 |  |  |  |  ^
@@ -243,20 +241,13 @@ Le nom du fichier `driver.py` sera probablement diffèrent, vous êtes libre a c
 
 Dans ce fichier que j'ai nommé `driver.py` vous allez ecrire une classe comme si dessous :
 ```python
-class Driver(object):
-    driver_repository: DriverRepositoryInterface
-
-    def __init__(self, driver_repository: DriverRepositoryInterface):
-        self.user_repository = user_repository
-
+class Driver(Worker):
     def worker(self):
         pass
 ```
 _Cette classe n'est qu'un exemple, copier coller de manière intelligente !_
 
-Vous vous dites "bordel pourquoi il y a Repository machin Interface !?", c'est comprehensible :)
-
-Nous devons avoir ca en paramètre de la classe car cela sera utilise dans le mock. Ces interfaces permet de changer la maniere de stocker des données selon les environments. Par exemple côté Mock on aura `InMemoryDriverRepository` qui hérite de l'interface `DriverRepositoryInterface` en argument et dans le contrôler on aura plutôt `DriverRepository` en argument.
+Grâce a l'héritage de Worker, vous avez accès a tous les repositories.
 
 ### Crée vos models
 Les models dans le worker represente les données qui vont transitionner entre votre route et le worker, on les nommes des DTO
@@ -271,7 +262,6 @@ Placez-vous dans le dossier worker/models et nommé vous un ficher qui correspon
 |  |  ^
 |  |  | 📁 - driver
 |  |  |  ^
-|  |  |  | 📁 - interfaces
 |  |  |  | 📁 - models
 |  |  |  |  ^
 |  |  |  |  | 📄 - driver_dto.py
@@ -284,21 +274,13 @@ Exemple d'un DTO :
 from dataclasses import dataclass
 
 
-@dataclass(frozen=True)
+@dataclass
 class DriverDTO:
     id: int
     first_name: str
     last_name: str
-
-    @staticmethod
-    def to_self(_tuple: tuple) -> Self:
-        return UserTable(
-            _tuple[0],
-            _tuple[1],
-            _tuple[2]
-        )
 ```
-Les DTO doivent être en capacité de ce traduire en plusieurs format utile dans notre API, comme par exemple une fonction `self_to_json()` qui permet de traduire ses données vers un format `json`
+Les DTO doivent être en capacité de ce traduire en plusieurs format utile dans notre API, comme par exemple une fonction `to_json()` qui permet de traduire ses données vers un format `json`
 
 
 ## Faire un repository
@@ -311,22 +293,27 @@ Placez-vous dans le dossier database/repositories et nommé vous un ficher qui c
 ^
 | 📁 - database
 |  ^
+|  | 📁 - interfaces
+|  |  ^
+|  |  | 📄 - driver_repository_interface.py
 |  | 📁 - repositories
 |  |  ^
 |  |  | 📄 - driver_repository.py
 ```
 
+Le repository est destiné uniquement au requête vers la base de données, il doit toujours hériter obligatoirement d'une interface
+
+Exemple d'une interface :
+```python
+class DriverRepositoryInterface(ABC):
+    def insert(id: int) -> DriverTable: ...
+```
+
 Exemple d'un repository :
 ```python
 # * driver_repository.py *
-class DriverRepositoryInterface(ABC):
-    def insert(id: int) -> DriverTable: ...
-
-
 class DriverRepository(DriverRepositoryInterface):
-    POSTGRES_TABLE_NAME: str = "driver"
-
-    def insert(self, id: int) -> DriverTable:
+    def insert(id: int) -> DriverTable:
         # request and insert here thanks to psycopg2
         pass
 ```
@@ -343,34 +330,38 @@ CREATE TABLE "user" (
 ```
 Representation de la table en objet dans `schemas.py` :
 ```python
-@dataclass(frozen=True)
+@dataclass
 class UserTable:
     id: int
     first_name: str
     last_name: str
-
-    @staticmethod
-    def to_self(_tuple: tuple) -> Self:
-        return UserTable(
-            _tuple[0],
-            _tuple[1],
-            _tuple[2]
-        )
 ```
 
 Il doit être utilisé en valeurs de retour des fonctions dans les repositories.
 
-## Faire un test unitaire
-### Mockito
-#### Qu'est-ce que c'est ?
-Un mockito recopie **bêtement** le comportement d'une base de données, il doit toujours implementé une interface qui correspond a l'interface utiliser dans vos repositories.
+### Qu'est-ce que c'est le `tables_name.py` ?
+C'est un fichier qui contient uniquement des déclarations de constante.
 
-#### Crée un mock
-Placez-vous dans le dossier tests/mock et nommez vous un ficher qui aura toujours comme prefix `InMemory` suivie du nom de votre repository, exemple :
+Les constantes défini un nom d'une table dans le schema de la base de donnée
+
+Exemple :
+```python
+# ... Autre déclaration
+DRIVER_TABLE_NAME = "driver"
 ```
-📁 - test
+`driver` est le nom de la table
+
+Les constantes on toujours le suffix `_TABLE_NAME`
+
+Les constantes `TABLE_NAME` peuvent être importer depuis le module `database`
+
+## Faire un test unitaire
+### Faire un  mock 
+Placez-vous dans le dossier src/mocks et nommez vous un ficher qui aura toujours comme prefixe `in_memory` suivie du nom de votre repository, exemple :
+```
+📁 - src
 ^
-| 📁 - mock
+| 📁 - mocks
 |  ^
 |  | 📁 - user
 |  |  ^

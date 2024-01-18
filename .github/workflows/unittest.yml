@@ -18,4 +18,4 @@ jobs:
         run: pip install -r src/requirements.txt
 
       - name: Run Test
-        run: cd src && python -m unittest discover -s ../test
+        run: cd src && API_MODE=TEST python -m unittest discover -s ../test

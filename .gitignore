@@ -1,4 +1,10 @@
 .vscode
 .idea
 **/__pycache__
+# Python Venv  
 venv
+.venv
+bin
+lib
+lib64
+pyvenv*

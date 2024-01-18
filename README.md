@@ -43,6 +43,7 @@ python .\src\main.py
 
 ### Commande pour lancer l'API en mode `PROD`
 #### Linux:
+
 ```
 PYTHONPATH=`pwd` \
 API_MODE=PROD \
@@ -83,7 +84,7 @@ python .\src\main.py
 ### Comment execute l'image ?
 Pour lancer l'image Docker depuis votre machine, vous devez tous d'abord `pull` l'image :
 ```
-docker pull ghcr.io/dut-info-montreuil/sae-5.a-carmate-back:master
+docker pull ghcr.io/dut-info-montreuil/sae-5.a-carmate-back:latest
 ```
 Ensuite, lancez l'image Docker :
 ```
@@ -91,8 +92,8 @@ docker run \
     --env API_PORT=5000
     --env API_MODE=TEST \
     --name carmate-back \
-    -p 5432:5432 \
-    -d ghcr.io/dut-info-montreuil/sae-5.a-carmate-back:master
+    -p 5000:5000 \
+    -d ghcr.io/dut-info-montreuil/sae-5.a-carmate-back:latest
 ```
 
 ## Endroit pratique pour le development

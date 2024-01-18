@@ -1,0 +1,43 @@
+version: '3'
+
+services:
+  db:
+    image: ghcr.io/dut-info-montreuil/sae-5.a-carmate-database:latest
+    healthcheck:
+      test: "PGPASSWORD=$$POSTGRES_PASSWORD psql -h db -U $$POSTGRES_USER $$POSTGRES_DB -c \"SELECT 1;\""
+      timeout: 1s
+      retries: 100
+      interval: 1s
+    ports:
+      - 5432:5432
+    volumes:
+      - ./fixture/01_insert_users.sql:/docker-entrypoint-initdb.d/01_insert_users.sql
+      - ./fixture/02_insert_users_admin.sql:/docker-entrypoint-initdb.d/02_insert_users_admin.sql
+      - ./fixture/03_insert_users_banned.sql:/docker-entrypoint-initdb.d/03_insert_users_banned.sql
+      - ./fixture/04_insert_tokens.sql:/docker-entrypoint-initdb.d/04_insert_tokens.sql
+      - ./fixture/05_insert_licenses.sql:/docker-entrypoint-initdb.d/05_insert_licenses.sql
+      - ./fixture/06_insert_driver_profiles.sql:/docker-entrypoint-initdb.d/06_insert_driver_profiles.sql
+      - ./fixture/07_insert_carpoolings.sql:/docker-entrypoint-initdb.d/07_insert_carpoolings.sql
+
+  api:
+    build:
+      context: ../
+    depends_on:
+      db:
+        condition: service_healthy
+    ports:
+      - "5000:80"
+    environment:
+      - API_NAME=CarmateAPI
+      - API_PORT=80
+      - API_MODE=PROD
+      - POSTGRES_DB=postgres
+      - POSTGRES_USER=postgres
+      - POSTGRES_PWD=postgres
+      - POSTGRES_HOST=db
+      - POSTGRES_PORT=5432
+    healthcheck:
+      test: curl -I http://api/monitoring/liveness
+      timeout: 1s
+      retries: 100
+      interval: 1s

@@ -1,0 +1,1578 @@
+{
+	"info": {
+		"_postman_id": "e49a40f7-07cd-4d47-911f-53228d0a4164",
+		"name": "Profile Testing",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_uid": "31708025-e49a40f7-07cd-4d47-911f-53228d0a4164"
+	},
+	"item": [
+		{
+			"name": "Driver",
+			"item": [
+				{
+					"name": "create driver profile (expect 200)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "880fa6a8-8b1f-4a9f-8b19-11c065cc96aa",
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"});\r",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"id": "95ed197c-9bb5-4d37-b8c3-8a8b1ecd1cf0",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "bearer token-admin-valid",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "document",
+									"type": "file",
+									"src": [
+										"test/res/driver-license.jpg"
+									]
+								}
+							]
+						},
+						"url": {
+							"raw": "http://localhost:5000/profile/driver",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "5000",
+							"path": [
+								"profile",
+								"driver"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "duplicate driver profile (expect 409)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "e450508c-e0e2-4422-b442-f7070adcf78b",
+								"exec": [
+									"pm.test(\"Status code is 409\", function () {\r",
+									"    pm.response.to.have.status(409);\r",
+									"});\r",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"id": "6a0eacb8-4278-4f8b-b36b-aced8c0795e0",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "bearer token-admin-valid",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "document",
+									"type": "file",
+									"src": [
+										"test/res/driver-license.jpg"
+									]
+								}
+							]
+						},
+						"url": {
+							"raw": "http://localhost:5000/profile/driver",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "5000",
+							"path": [
+								"profile",
+								"driver"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "no document in request (expect 415)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "58aa7db1-8404-4aaf-859d-28ab4869b440",
+								"exec": [
+									"pm.test(\"Status code is 415\", function () {\r",
+									"    pm.response.to.have.status(415);\r",
+									"});\r",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"id": "2ef8079d-9434-4296-ac96-184fde51c485",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "bearer token-admin-valid",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "formdata",
+							"formdata": []
+						},
+						"url": {
+							"raw": "http://localhost:5000/profile/driver",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "5000",
+							"path": [
+								"profile",
+								"driver"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "invalid document extension (expect 415)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "6a03202a-26d7-4a28-b750-22b1886aeec0",
+								"exec": [
+									"pm.test(\"Status code is 415\", function () {\r",
+									"    pm.response.to.have.status(415);\r",
+									"});\r",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"id": "f6f9902a-7f5a-4a4f-97db-da06e4007c84",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "bearer token-admin-valid",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "document",
+									"type": "file",
+									"src": [
+										"test/res/invalid.bmp"
+									]
+								}
+							]
+						},
+						"url": {
+							"raw": "http://localhost:5000/profile/driver",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "5000",
+							"path": [
+								"profile",
+								"driver"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "invalid token (expect 401)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "b7341865-bf6b-493e-a736-5eb266f087ce",
+								"exec": [
+									"pm.test(\"Status code is 401\", function () {\r",
+									"    pm.response.to.have.status(401);\r",
+									"});\r",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"id": "4f635ce5-dd01-4f57-a3f0-9168d606bfb7",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "bearer invalid_token",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "formdata",
+							"formdata": []
+						},
+						"url": {
+							"raw": "http://localhost:5000/profile/driver",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "5000",
+							"path": [
+								"profile",
+								"driver"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "no token (expect 401)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "08a1b521-5568-4485-ba27-4e5055da2224",
+								"exec": [
+									"pm.test(\"Status code is 401\", function () {\r",
+									"    pm.response.to.have.status(401);\r",
+									"});\r",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"id": "2ad708ea-7e9a-404d-9483-ebcca3c0b819",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "formdata",
+							"formdata": []
+						},
+						"url": {
+							"raw": "http://localhost:5000/profile/driver",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "5000",
+							"path": [
+								"profile",
+								"driver"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "token expired (expect 401)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "024facb8-f433-4a14-aad8-c80febb9d727",
+								"exec": [
+									"pm.test(\"Status code is 401\", function () {\r",
+									"    pm.response.to.have.status(401);\r",
+									"});\r",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"id": "0696a0d2-0a10-4faa-b2a8-4b9d9558ae94",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "bearer token-user-invalid",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "formdata",
+							"formdata": []
+						},
+						"url": {
+							"raw": "http://localhost:5000/profile/driver",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "5000",
+							"path": [
+								"profile",
+								"driver"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "token banned user (expect 403)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "79418f6a-6c83-4632-92d7-8762fc53c96b",
+								"exec": [
+									"pm.test(\"Status code is 403\", function () {\r",
+									"    pm.response.to.have.status(403);\r",
+									"});\r",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"id": "f8739a9b-7641-455c-a47a-a9780b445066",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "bearer token-user-banned-valid",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "http://localhost:5000/profile/driver",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "5000",
+							"path": [
+								"profile",
+								"driver"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "get driver profile by id (expect 200)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "5b7b752e-55f4-4b45-aef7-50c3c3dccf03",
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"});\r",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"id": "c43fb170-6151-4fc6-b5d7-789aeb003118",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "bearer token-admin-valid",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "http://localhost:5000/profile/driver?driver_id=1",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "5000",
+							"path": [
+								"profile",
+								"driver"
+							],
+							"query": [
+								{
+									"key": "driver_id",
+									"value": "1",
+									"type": "text"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "get driver profile by token (expect 200)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "e7feb6a3-ecaa-449e-babe-83d4115858e7",
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"});\r",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"id": "ac62aca0-4ce6-4d41-89d5-1e129176317a",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "bearer token-admin-valid",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "http://localhost:5000/profile/driver",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "5000",
+							"path": [
+								"profile",
+								"driver"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "driver id is not a number (expect 400)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "bd5e0459-4be1-457d-b5d8-35ed2309b3a9",
+								"exec": [
+									"pm.test(\"Status code is 400\", function () {\r",
+									"    pm.response.to.have.status(400);\r",
+									"});\r",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"id": "76d6bbe2-30a6-431a-894e-bb3b637cb040",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "bearer token-admin-valid",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "http://localhost:5000/profile/driver?driver_id=hello world",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "5000",
+							"path": [
+								"profile",
+								"driver"
+							],
+							"query": [
+								{
+									"key": "driver_id",
+									"value": "hello world",
+									"type": "text"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "driver not found with id (expected 404)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "9792b032-ccd5-40e9-9938-824b5b657de9",
+								"exec": [
+									"pm.test(\"Status code is 404\", function () {\r",
+									"    pm.response.to.have.status(404);\r",
+									"});\r",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"id": "7a375c24-0c95-493e-acc9-0fb6bbba3493",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "bearer token-admin-valid",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "http://localhost:5000/profile/driver?driver_id=6969420",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "5000",
+							"path": [
+								"profile",
+								"driver"
+							],
+							"query": [
+								{
+									"key": "driver_id",
+									"value": "6969420"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "driver not found with token (expected 404)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "baa4a970-e293-4d26-a7e7-0dca584a1018",
+								"exec": [
+									"pm.test(\"Status code is 404\", function () {\r",
+									"    pm.response.to.have.status(404);\r",
+									"});\r",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"id": "70b432ab-dc54-4952-a750-88be4e04ebcf",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "bearer token-user-valid",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "http://localhost:5000/profile/driver",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "5000",
+							"path": [
+								"profile",
+								"driver"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "invalid token (expect 401)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "522ac4f9-eba5-4221-8ec2-4688bbe79ed5",
+								"exec": [
+									"pm.test(\"Status code is 401\", function () {\r",
+									"    pm.response.to.have.status(401);\r",
+									"});\r",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"id": "96214e20-c83a-4556-99a2-7e628292fa05",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "bearer invalid_token",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "http://localhost:5000/profile/driver?driver_id=1",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "5000",
+							"path": [
+								"profile",
+								"driver"
+							],
+							"query": [
+								{
+									"key": "driver_id",
+									"value": "1"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "no token (expect 401)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "e07c64eb-b7bb-420b-8c72-acbb2f59174e",
+								"exec": [
+									"pm.test(\"Status code is 401\", function () {\r",
+									"    pm.response.to.have.status(401);\r",
+									"});\r",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"id": "b90350ed-52ac-4f04-987f-ac138ea1b4ea",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:5000/profile/driver?driver_id=1",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "5000",
+							"path": [
+								"profile",
+								"driver"
+							],
+							"query": [
+								{
+									"key": "driver_id",
+									"value": "1"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "token expired (expect 401)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "bcfec6e0-168a-4041-b12e-6f8320d1c583",
+								"exec": [
+									"pm.test(\"Status code is 401\", function () {\r",
+									"    pm.response.to.have.status(401);\r",
+									"});\r",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"id": "42c2dadc-87b9-4e00-a653-57d10b14ff07",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "bearer token-user-invalid",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "http://localhost:5000/profile/driver?driver_id=1",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "5000",
+							"path": [
+								"profile",
+								"driver"
+							],
+							"query": [
+								{
+									"key": "driver_id",
+									"value": "1"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "token banned user (expect 403)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "e22b8e63-d158-4962-a666-f86bc84717ae",
+								"exec": [
+									"pm.test(\"Status code is 403\", function () {\r",
+									"    pm.response.to.have.status(403);\r",
+									"});\r",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"id": "8cb3dccf-0b06-466d-9c5e-287fb5d6c934",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "bearer token-user-banned-valid",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "http://localhost:5000/profile/driver?driver_id=1",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "5000",
+							"path": [
+								"profile",
+								"driver"
+							],
+							"query": [
+								{
+									"key": "driver_id",
+									"value": "1"
+								}
+							]
+						}
+					},
+					"response": []
+				}
+			],
+			"id": "3b16cc1e-56da-4304-8ca6-0de47ca32673"
+		},
+		{
+			"name": "Passenger",
+			"item": [
+				{
+					"name": "create passenger profile (expect 200)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "d311544f-1afb-448c-a76d-7b2b65a28d80",
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"});\r",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"id": "d239fb29-2ab9-499a-a8f4-d3e8b5ad2007",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "bearer token-admin-valid",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "http://localhost:5000/profile/passenger",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "5000",
+							"path": [
+								"profile",
+								"passenger"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "duplicate passenger profile (expect 409)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "70d78c23-bc18-49b3-ad1b-51de43d2b23d",
+								"exec": [
+									"pm.test(\"Status code is 409\", function () {\r",
+									"    pm.response.to.have.status(409);\r",
+									"});\r",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"id": "5ad3bb8f-6e34-4304-8136-cf7c139047b0",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "bearer token-admin-valid",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "http://localhost:5000/profile/passenger",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "5000",
+							"path": [
+								"profile",
+								"passenger"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "invalid token (expect 401)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "8c537450-19f6-487f-98ca-2ed39ae709e5",
+								"exec": [
+									"pm.test(\"Status code is 401\", function () {\r",
+									"    pm.response.to.have.status(401);\r",
+									"});\r",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"id": "ae263184-7d96-4155-8ab8-26bd8c0e765c",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "bearer invalid-token",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "http://localhost:5000/profile/passenger",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "5000",
+							"path": [
+								"profile",
+								"passenger"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "no token (expect 401)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "a353be5d-5a61-4bdc-882b-fb01577320de",
+								"exec": [
+									"pm.test(\"Status code is 401\", function () {\r",
+									"    pm.response.to.have.status(401);\r",
+									"});\r",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"id": "515657f2-1f2e-4628-9e9d-c66be1263651",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "POST",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:5000/profile/passenger",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "5000",
+							"path": [
+								"profile",
+								"passenger"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "token expired (expect 401)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "4a306cac-a837-4081-b744-3663fcbc3584",
+								"exec": [
+									"pm.test(\"Status code is 401\", function () {\r",
+									"    pm.response.to.have.status(401);\r",
+									"});\r",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"id": "9d7bcafa-9f21-4f5e-85f9-126365560fb2",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "bearer token-user-invalid",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "http://localhost:5000/profile/passenger",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "5000",
+							"path": [
+								"profile",
+								"passenger"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "token banned user (expect 403)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "d857b74c-c8e1-4e15-bc85-43dcfa8909cf",
+								"exec": [
+									"pm.test(\"Status code is 403\", function () {\r",
+									"    pm.response.to.have.status(403);\r",
+									"});\r",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"id": "686bd139-59b5-41ea-a0ba-dd1d515298e8",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "bearer token-user-banned-valid",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "http://localhost:5000/profile/passenger",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "5000",
+							"path": [
+								"profile",
+								"passenger"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "get passenger profile by id (expect 200)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "92b118c6-94ea-40a9-94cf-2a5dcef81165",
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"});\r",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"id": "55f2f8df-72c2-4b07-a664-fc648825cf35",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "bearer token-admin-valid",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "http://localhost:5000/profile/passenger?passenger_id=1",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "5000",
+							"path": [
+								"profile",
+								"passenger"
+							],
+							"query": [
+								{
+									"key": "passenger_id",
+									"value": "1",
+									"type": "text"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "get passenger profile by token (expect 200)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "01f28ca8-e506-4a50-a204-843cc3669b33",
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"});\r",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"id": "471785ab-927c-4515-af17-3356cc9612d8",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "bearer token-admin-valid",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "http://localhost:5000/profile/passenger",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "5000",
+							"path": [
+								"profile",
+								"passenger"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "passenger_id is not a number (expect 400)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "6eddc207-fd21-407c-b965-18905008e432",
+								"exec": [
+									"pm.test(\"Status code is 400\", function () {\r",
+									"    pm.response.to.have.status(400);\r",
+									"});\r",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"id": "96b46094-b2ac-4863-b4f0-11ba59216579",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "bearer token-admin-valid",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "http://localhost:5000/profile/passenger?passenger_id=hello ba",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "5000",
+							"path": [
+								"profile",
+								"passenger"
+							],
+							"query": [
+								{
+									"key": "passenger_id",
+									"value": "hello ba",
+									"type": "text"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "driver not found with id (expect 404)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "316a4df1-a701-43ab-9d76-595b3cc4cafd",
+								"exec": [
+									"pm.test(\"Status code is 404\", function () {\r",
+									"    pm.response.to.have.status(404);\r",
+									"});\r",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"id": "4bcfd286-f78f-4738-a96d-d671d6fcb66b",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "bearer token-admin-valid",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "http://localhost:5000/profile/passenger?passenger_id=639182",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "5000",
+							"path": [
+								"profile",
+								"passenger"
+							],
+							"query": [
+								{
+									"key": "passenger_id",
+									"value": "639182"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "driver not found with token (expect 404)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "4ee2576b-1b93-48e0-9193-c8192cfea75a",
+								"exec": [
+									"pm.test(\"Status code is 404\", function () {\r",
+									"    pm.response.to.have.status(404);\r",
+									"});\r",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"id": "f3cb1107-d03e-4a7c-8991-76eb0da26764",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "bearer token-user-valid",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "http://localhost:5000/profile/passenger",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "5000",
+							"path": [
+								"profile",
+								"passenger"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "invalid token (expect 401)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "7b884c02-1141-48ec-a536-2f6e0f4a6463",
+								"exec": [
+									"pm.test(\"Status code is 401\", function () {\r",
+									"    pm.response.to.have.status(401);\r",
+									"});\r",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"id": "8ae49377-1976-4d9a-983b-c17d6b2a94f6",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "bearer token-invalid",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "http://localhost:5000/profile/passenger?passenger_id=1",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "5000",
+							"path": [
+								"profile",
+								"passenger"
+							],
+							"query": [
+								{
+									"key": "passenger_id",
+									"value": "1"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "no token (expect 401)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "74bc3e78-f069-4326-8d09-1ac7c5ffd08f",
+								"exec": [
+									"pm.test(\"Status code is 401\", function () {\r",
+									"    pm.response.to.have.status(401);\r",
+									"});\r",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"id": "ae7f28a8-91e4-46e6-aa30-e516ea32d016",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:5000/profile/passenger?passenger_id=1",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "5000",
+							"path": [
+								"profile",
+								"passenger"
+							],
+							"query": [
+								{
+									"key": "passenger_id",
+									"value": "1"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "token expired (expect 401)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "e3393e35-39fe-40c5-bc55-df8e6daa8df8",
+								"exec": [
+									"pm.test(\"Status code is 401\", function () {\r",
+									"    pm.response.to.have.status(401);\r",
+									"});\r",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"id": "c5f0c1d3-d910-4c1e-8fa6-98152ac52451",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "bearer token-user-invalid",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "http://localhost:5000/profile/passenger?passenger_id=1",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "5000",
+							"path": [
+								"profile",
+								"passenger"
+							],
+							"query": [
+								{
+									"key": "passenger_id",
+									"value": "1"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "token user banned (expect 403)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "78ffd240-98b9-4d72-b927-58750142c1d9",
+								"exec": [
+									"pm.test(\"Status code is 403\", function () {\r",
+									"    pm.response.to.have.status(403);\r",
+									"});\r",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"id": "fe1821d8-5a1d-4bf2-9d11-ae081f8c371b",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "bearer token-user-banned-valid",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "http://localhost:5000/profile/passenger?passenger_id=1",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "5000",
+							"path": [
+								"profile",
+								"passenger"
+							],
+							"query": [
+								{
+									"key": "passenger_id",
+									"value": "1"
+								}
+							]
+						}
+					},
+					"response": []
+				}
+			],
+			"id": "8d726b0b-ad2f-46bb-85ab-f6374c2ca456"
+		}
+	]
+}

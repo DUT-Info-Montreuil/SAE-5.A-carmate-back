@@ -1,0 +1,323 @@
+{
+	"info": {
+		"_postman_id": "39c6c2a0-6766-43a3-ad37-44e57a354d5d",
+		"name": "Search Carpool Testing",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_uid": "31708025-39c6c2a0-6766-43a3-ad37-44e57a354d5d"
+	},
+	"item": [
+		{
+			"name": "regular_usage (expect 200)",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "1e975964-e54d-4974-9d08-7fa14203b3f5",
+						"exec": [
+							"pm.test(\"Status code is 200\", function () {\r",
+							"    pm.response.to.have.status(200);\r",
+							"});\r",
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"id": "bef67cdd-e7b3-483d-a8da-961f89babf4b",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:5000/carpooling/search?start_lat=48.883078&departure_date_time=1702670700&start_lon=2.343902&end_lat=48.844277&end_lon=2.280792",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "5000",
+					"path": [
+						"carpooling",
+						"search"
+					],
+					"query": [
+						{
+							"key": "start_lat",
+							"value": "48.883078"
+						},
+						{
+							"key": "departure_date_time",
+							"value": "1702670700"
+						},
+						{
+							"key": "start_lon",
+							"value": "2.343902"
+						},
+						{
+							"key": "end_lat",
+							"value": "48.844277"
+						},
+						{
+							"key": "end_lon",
+							"value": "2.280792"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "destination invalid (expect 400)",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "41683819-58e3-4342-b774-f94e97c0173a",
+						"exec": [
+							"pm.test(\"Status code is 400\", function () {\r",
+							"    pm.response.to.have.status(400);\r",
+							"});\r",
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"id": "7b4e15a5-0a66-4ddd-b9a5-321d859b759b",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:5000/carpooling/search?departure_date_time=1702670700&start_lat=48.883078&start_lon=2.343902&end_lat=hello&end_lon=2.280792",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "5000",
+					"path": [
+						"carpooling",
+						"search"
+					],
+					"query": [
+						{
+							"key": "departure_date_time",
+							"value": "1702670700"
+						},
+						{
+							"key": "start_lat",
+							"value": "48.883078"
+						},
+						{
+							"key": "start_lon",
+							"value": "2.343902"
+						},
+						{
+							"key": "end_lat",
+							"value": "hello"
+						},
+						{
+							"key": "end_lon",
+							"value": "2.280792"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "starting_point invalid (expect 400)",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "263fd90a-94d7-43c2-85ce-e9bfe553fbe5",
+						"exec": [
+							"pm.test(\"Status code is 400\", function () {\r",
+							"    pm.response.to.have.status(400);\r",
+							"});\r",
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"id": "4e9777a6-e03c-400e-983a-fffcec327739",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:5000/carpooling/search?departure_date_time=1702670700&start_lat=hello&start_lon=2.343902&end_lat=48.844277&end_lon=2.280792",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "5000",
+					"path": [
+						"carpooling",
+						"search"
+					],
+					"query": [
+						{
+							"key": "departure_date_time",
+							"value": "1702670700"
+						},
+						{
+							"key": "start_lat",
+							"value": "hello"
+						},
+						{
+							"key": "start_lon",
+							"value": "2.343902"
+						},
+						{
+							"key": "end_lat",
+							"value": "48.844277"
+						},
+						{
+							"key": "end_lon",
+							"value": "2.280792"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "page negative (expect 400)",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "edaf4a41-c986-42e1-a23c-95338767798a",
+						"exec": [
+							"pm.test(\"Status code is 400\", function () {\r",
+							"    pm.response.to.have.status(400);\r",
+							"});\r",
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"id": "6802900e-8c0a-4d54-b2fe-58d94488ae0e",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:5000/carpooling/search?departure_date_time=1702670700&page=-1&start_lat=48.883078&start_lon=2.343902&end_lat=48.844277&end_lon=2.280792",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "5000",
+					"path": [
+						"carpooling",
+						"search"
+					],
+					"query": [
+						{
+							"key": "departure_date_time",
+							"value": "1702670700"
+						},
+						{
+							"key": "page",
+							"value": "-1"
+						},
+						{
+							"key": "start_lat",
+							"value": "48.883078"
+						},
+						{
+							"key": "start_lon",
+							"value": "2.343902"
+						},
+						{
+							"key": "end_lat",
+							"value": "48.844277"
+						},
+						{
+							"key": "end_lon",
+							"value": "2.280792"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "page not a number (expect 400)",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "626235da-9f6f-4d8b-a4b8-a592959a9393",
+						"exec": [
+							"pm.test(\"Status code is 400\", function () {\r",
+							"    pm.response.to.have.status(400);\r",
+							"});\r",
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"id": "9443a4b8-5ecf-4cdb-ba83-c4459992c376",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:5000/carpooling/search?departure_date_time=1702670700&page=toast&start_lat=48.883078&start_lon=2.343902&end_lat=48.844277&end_lon=2.280792",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "5000",
+					"path": [
+						"carpooling",
+						"search"
+					],
+					"query": [
+						{
+							"key": "departure_date_time",
+							"value": "1702670700"
+						},
+						{
+							"key": "page",
+							"value": "toast"
+						},
+						{
+							"key": "start_lat",
+							"value": "48.883078"
+						},
+						{
+							"key": "start_lon",
+							"value": "2.343902"
+						},
+						{
+							"key": "end_lat",
+							"value": "48.844277"
+						},
+						{
+							"key": "end_lon",
+							"value": "2.280792"
+						}
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}
