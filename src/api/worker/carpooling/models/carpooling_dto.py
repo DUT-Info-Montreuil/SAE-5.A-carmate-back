@@ -55,8 +55,6 @@ class CarpoolingForRecap:
             _tuple[6],
             _tuple[7],
             _tuple[8],
-            _tuple[9],
-            _tuple[10]
         )
 
     def to_json(self):
@@ -70,9 +68,33 @@ class CarpoolingForRecapWithPassengerCode(CarpoolingForRecap):
         return asdict(self)
 
 @dataclass
-class CarpoolingForRecapWithFirstAndLastName(CarpoolingForRecap):
+class CarpoolingForRecapWithFirstAndLastName():
+    id: int
+    starting_point: List[float]
+    destination: List[float]
+    max_passengers: int
+    price: float
+    departure_date_time: datetime
+    driver_id: int
+    seats_taken: int
+    is_scheduled: bool
     first_name: str
     last_name: str
 
+    @staticmethod
+    def to_self(_tuple: tuple):
+        return CarpoolingForRecapWithFirstAndLastName(
+            _tuple[0],
+            _tuple[1],
+            _tuple[2],
+            _tuple[3],
+            _tuple[4],
+            _tuple[5],
+            _tuple[6],
+            _tuple[7],
+            _tuple[8],
+            _tuple[9],
+            _tuple[10]
+        )
     def to_json(self):
         return asdict(self)
