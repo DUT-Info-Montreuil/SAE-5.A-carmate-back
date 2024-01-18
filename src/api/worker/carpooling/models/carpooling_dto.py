@@ -53,8 +53,10 @@ class CarpoolingForRecap:
             _tuple[4],
             _tuple[5],
             _tuple[6],
-            _tuple[7] if len(_tuple) > 7 else 0,
-            _tuple[8] if len(_tuple) > 8 else False
+            _tuple[7],
+            _tuple[8],
+            _tuple[9],
+            _tuple[10]
         )
 
     def to_json(self):
@@ -63,6 +65,14 @@ class CarpoolingForRecap:
 @dataclass
 class CarpoolingForRecapWithPassengerCode(CarpoolingForRecap):
     passenger_code: str
+
+    def to_json(self):
+        return asdict(self)
+
+@dataclass
+class CarpoolingForRecapWithFirstAndLastName(CarpoolingForRecap):
+    first_name: str
+    last_name: str
 
     def to_json(self):
         return asdict(self)

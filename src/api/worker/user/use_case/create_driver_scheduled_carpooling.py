@@ -30,7 +30,7 @@ class CreateDriverScheduledCarpooling(Worker):
         try:
             passenger_profile = self.token_repository.get_passenger_profile(sha512(token.encode()).digest())
         except NotFound:
-            raise PassengerNotFound()
+            passenger_profile = None
 
 
         has_conflicts = self.booking_carpooling_repository.has_reserved_carpooling_between_dates_at_hour(start_date,
@@ -59,7 +59,7 @@ class CreateDriverScheduledCarpooling(Worker):
         if has_conflicts:
             raise ScheduledCarpoolingCannotBeCreated()
 
-        has_conflicts = self.scheduled_carpooling_repository.has_scheduled_with_date_and_day(start_date,
+        has_conflicts = self.scheduled_carpooling_repository.has_same_time_scheduled_carpooling(start_date,
                                                                                                  end_date,
                                                                                                  days,
                                                                                                  start_hour,

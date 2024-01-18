@@ -4,7 +4,7 @@ from typing import List, Tuple
 from psycopg2 import ProgrammingError, errorcodes
 from psycopg2.errors import lookup
 
-from api.worker.carpooling.models import CarpoolingForRecap
+from api.worker.carpooling.models import CarpoolingForRecap, CarpoolingForRecapWithFirstAndLastName
 from api.worker.user.models import PublishedCarpoolingDTO
 from database import (
     CARPOOLING_TABLE_NAME,
@@ -57,7 +57,7 @@ class CarpoolingRepository(CarpoolingRepositoryInterface):
                               end_lon: float,
                               departure_date_time: int,
                               page: int = 1,
-                              per_page: int = 10) -> Tuple[int, List[CarpoolingForRecap]] | Tuple[int, List]:
+                              per_page: int = 10) -> Tuple[int, List[CarpoolingForRecapWithFirstAndLastName]] | Tuple[int, List]:
         query = f"""
                 WITH Carpoolings as (SELECT c.id                  as id,
                                             c.starting_point      as starting_point,
@@ -118,8 +118,10 @@ class CarpoolingRepository(CarpoolingRepositoryInterface):
                                  UNION
                                  (SELECT *, true as is_scheduled
                                   FROM FilteredScheduledCarpoolingWithDate))
-                SELECT *, (SELECT COUNT(*) FROM Results)
+                SELECT Results.*, u.first_name, u.last_name, (SELECT COUNT(*) FROM Results)
                 FROM Results
+                            INNER JOIN carmate.driver_profile d ON Results.driver_id = d.id
+                            INNER JOIN carmate."user" u ON d.user_id = u.id
                 LIMIT {per_page} 
                 OFFSET {(page - 1) * per_page}
         """
@@ -138,7 +140,7 @@ class CarpoolingRepository(CarpoolingRepositoryInterface):
                     return nb_carpoolings_route, carpoolings_data
 
         return (carpoolings_data[0][-1],
-                [CarpoolingForRecap.to_self(carpooling[0:-1]) for carpooling in carpoolings_data])
+                [CarpoolingForRecapWithFirstAndLastName.to_self(carpooling[0:-1]) for carpooling in carpoolings_data])
 
     def get_from_id(self,
                     carpooling_id: int) -> CarpoolingTable:
